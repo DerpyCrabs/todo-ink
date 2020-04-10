@@ -1,20 +1,42 @@
 import React from 'react'
-import { render, Box, useInput, useApp, Color } from 'ink'
+import { render, Box, useInput, useApp, Color, Text } from 'ink'
+import useTasks from './use-tasks'
+
+const Task = ({ task }) => (
+  <Box textWrap='truncate'>
+    [{task.status ? 'X' : ' '}] {task.name}
+  </Box>
+)
 
 const TodoInk = () => {
+  const [tasks, setTasks] = useTasks('tasks.json')
   const { exit } = useApp()
-  const [text, setText] = React.useState('')
+  const [selected, setSelected] = React.useState(0)
   useInput((input, key) => {
     if (key.escape) {
       exit()
-      return
+    } else if (key.downArrow && selected < tasks.length - 1) {
+      setSelected(selected + 1)
+    } else if (key.upArrow && selected > 0) {
+      setSelected(selected - 1)
+    } else if (input === 'm') {
+      let tasksCopy = tasks.slice()
+      tasksCopy[selected].status = !tasks[selected].status
+      setTasks(tasksCopy)
     }
-    setText(text + input)
   })
 
   return (
-    <Box>
-      <Color green>Input: {text}</Color>
+    <Box flexDirection='column'>
+      {tasks.map((task, i) =>
+        i === selected ? (
+          <Color green key={i}>
+            <Task task={task} />
+          </Color>
+        ) : (
+          <Task task={task} key={i} />
+        )
+      )}
     </Box>
   )
 }
