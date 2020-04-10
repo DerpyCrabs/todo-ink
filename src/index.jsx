@@ -44,6 +44,16 @@ const TodoInk = () => {
         setSelected(selected + 1)
       } else if (key.upArrow && selected > 0) {
         setSelected(selected - 1)
+      } else if (input === 'j' && selected < tasks.length - 1) {
+        let tc = tasks.slice()
+        ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
+        setTasks(tc)
+        setSelected(selected + 1)
+      } else if (input === 'k' && selected > 0) {
+        let tc = tasks.slice()
+        ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
+        setTasks(tc)
+        setSelected(selected - 1)
       } else if (input === 'd') {
         if (selected === null) return
         let tasksCopy = tasks.slice()
