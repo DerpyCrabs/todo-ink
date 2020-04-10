@@ -15,8 +15,8 @@ export const useFocus = (tag) => {
   return [
     tag === focus[focus.length - 1],
     {
-      popFocus: () => setFocus(focus.slice(0, focus.length - 1)),
-      pushFocus: (tag) => setFocus([...focus, tag]),
+      popFocus: () => setFocus((f) => f.slice(0, f.length - 1)),
+      pushFocus: (tag) => setFocus((f) => [...f, tag]),
     },
   ]
 }
