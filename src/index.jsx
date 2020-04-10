@@ -4,12 +4,15 @@ import useTasks from './use-tasks'
 import Task from './task'
 import Select from './select'
 import { UncontrolledTextInput } from './text-input'
+import { FocusProvider, useFocus } from './use-focus'
 
 const TodoInk = () => {
   const [tasks, setTasks] = useTasks('tasks.json')
   const { exit } = useApp()
+  const [isFocused, { pushFocus, popFocus }] = useFocus('root')
   const [selected, setSelected] = React.useState(tasks.length ? 0 : null)
-  const [adding, setAdding] = React.useState(false)
+  const [adding] = useFocus('adding')
+
   const taskChangeHandler = (task, i) => {
     let tasksCopy = tasks.slice()
     tasksCopy[i] = task
@@ -22,28 +25,30 @@ const TodoInk = () => {
       setTasks(tasksCopy)
       setSelected(i)
     }
-    setAdding(false)
+    popFocus()
   }
   useInput((input, key) => {
     if (key.escape) {
       exit()
     }
-    if (key.downArrow && selected < tasks.length - 1) {
-      setSelected(selected + 1)
-    } else if (key.upArrow && selected > 0) {
-      setSelected(selected - 1)
-    } else if (input === 'd') {
-      if (selected === null) return
-      let tasksCopy = tasks.slice()
-      tasksCopy.splice(selected, 1)
-      setTasks(tasksCopy)
-      if (tasksCopy.length === 0) {
-        setSelected(null)
-      } else if (selected !== 0) {
+    if (isFocused) {
+      if (key.downArrow && selected < tasks.length - 1) {
+        setSelected(selected + 1)
+      } else if (key.upArrow && selected > 0) {
         setSelected(selected - 1)
+      } else if (input === 'd') {
+        if (selected === null) return
+        let tasksCopy = tasks.slice()
+        tasksCopy.splice(selected, 1)
+        setTasks(tasksCopy)
+        if (tasksCopy.length === 0) {
+          setSelected(null)
+        } else if (selected !== 0) {
+          setSelected(selected - 1)
+        }
+      } else if (input === 'n') {
+        pushFocus('adding')
       }
-    } else if (input === 'n') {
-      setAdding(true)
     }
   })
 
@@ -85,4 +90,9 @@ const TodoInk = () => {
 //   process.stdout.write(leaveAltScreenCommand)
 // })
 
-render(<TodoInk />, { experimental: true })
+render(
+  <FocusProvider initialFocus='root'>
+    <TodoInk />
+  </FocusProvider>,
+  { experimental: true }
+)
