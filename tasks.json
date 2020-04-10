@@ -1,4 +1,1 @@
-[
-  { "name": "task 1", "status": false },
-  { "name": "task 2", "status": true }
-]
+[{"name":"task 1","status":false},{"name":"task 2","status":true}]
