@@ -7,7 +7,7 @@ import { UncontrolledTextInput } from './text-input'
 import { FocusProvider, useFocus } from './use-focus'
 
 const TodoInk = () => {
-  const [tasks, setTasks] = useTasks('tasks.json')
+  const [tasks, setTasks] = useTasks(process.env.TASKS || 'tasks.json')
   const { exit } = useApp()
   const [isFocused, { pushFocus, popFocus }] = useFocus('root')
   const [selected, setSelected] = React.useState(tasks.length ? 0 : null)
