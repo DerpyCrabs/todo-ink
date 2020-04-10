@@ -27,12 +27,19 @@ const Task = ({ task, onChange, selected = false }) => {
     setEditing(false)
     popFocus()
   }
+  const handleNameChangeCancel = () => {
+    setEditing(false)
+    popFocus()
+  }
   return (
     <Select selected={selected}>
       <Box textWrap='truncate'>
         [{task.status ? 'X' : ' '}]{' '}
         {editing ? (
-          <UncontrolledTextInput onSubmit={handleNameChange} />
+          <UncontrolledTextInput
+            onSubmit={handleNameChange}
+            onCancel={handleNameChangeCancel}
+          />
         ) : (
           task.name
         )}

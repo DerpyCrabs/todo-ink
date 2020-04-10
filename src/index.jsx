@@ -13,6 +13,12 @@ const TodoInk = () => {
   const [selected, setSelected] = React.useState(tasks.length ? 0 : null)
   const [adding] = useFocus('adding')
 
+  React.useEffect(() => {
+    if (selected === null) {
+      pushFocus('adding')
+    }
+  }, [selected])
+
   const taskChangeHandler = (task, i) => {
     let tasksCopy = tasks.slice()
     tasksCopy[i] = task
@@ -27,12 +33,14 @@ const TodoInk = () => {
     }
     popFocus()
   }
+  const newTaskCancelHandler = () => {
+    popFocus()
+  }
   useInput((input, key) => {
-    if (key.escape) {
-      exit()
-    }
     if (isFocused) {
-      if (key.downArrow && selected < tasks.length - 1) {
+      if (key.escape) {
+        exit()
+      } else if (key.downArrow && selected < tasks.length - 1) {
         setSelected(selected + 1)
       } else if (key.upArrow && selected > 0) {
         setSelected(selected - 1)
@@ -66,6 +74,7 @@ const TodoInk = () => {
               <UncontrolledTextInput
                 prompt='> '
                 onSubmit={(v) => newTaskHandler(v, i + 1)}
+                onCancel={newTaskCancelHandler}
               />
             </Select>
           )}
