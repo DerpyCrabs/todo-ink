@@ -1,5 +1,5 @@
 import React from 'react'
-import { useInput, useStdin, Text } from 'ink'
+import { useInput, useStdin, Text, Color } from 'ink'
 
 const ARROW_LEFT = '\u001B[D'
 const ARROW_RIGHT = '\u001B[C'
@@ -10,6 +10,7 @@ const DELETE = '\x7F'
 
 export const UncontrolledTextInput = ({
   prompt = '',
+  placeholder = '',
   onSubmit,
   onCancel = () => {},
 }) => {
@@ -43,7 +44,7 @@ export const UncontrolledTextInput = ({
     <>
       <Text>
         {prompt}
-        {value}
+        {value === '' ? <Color dim>{placeholder}</Color> : value}
       </Text>
     </>
   )

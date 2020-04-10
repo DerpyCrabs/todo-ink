@@ -37,6 +37,7 @@ const Task = ({ task, onChange, selected = false }) => {
         [{task.status ? 'X' : ' '}]{' '}
         {editing ? (
           <UncontrolledTextInput
+            placeholder={task.name}
             onSubmit={handleNameChange}
             onCancel={handleNameChangeCancel}
           />
