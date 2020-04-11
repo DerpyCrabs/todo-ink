@@ -6,18 +6,19 @@ import Select from './select'
 import { UncontrolledTextInput } from './text-input'
 import { FocusProvider, useFocus } from './use-focus'
 import { remove, lensIndex, set, insert } from 'ramda'
+import FOCUS from './focus'
 
 const TodoInk = () => {
   const { tasks, setTasks, newTask } = useTasks(
     process.env.TASKS || 'tasks.json'
   )
   const { exit } = useApp()
-  const [_, { isFocused, pushFocus, popFocus }] = useFocus('root')
+  const [_, { isFocused, pushFocus, popFocus }] = useFocus(FOCUS.root)
   const [selected, setSelected] = React.useState(tasks.length ? 0 : null)
 
   React.useEffect(() => {
     if (selected === null) {
-      pushFocus('adding')
+      pushFocus(FOCUS.addingTask)
     }
   }, [selected])
 
@@ -35,7 +36,7 @@ const TodoInk = () => {
     popFocus()
   }
   useInput((input, key) => {
-    if (isFocused('root')) {
+    if (isFocused(FOCUS.root)) {
       if (key.escape) {
         exit()
       } else if (key.downArrow && selected < tasks.length - 1) {
@@ -56,7 +57,7 @@ const TodoInk = () => {
         setTasks(remove(selected, 1, tasks))
         setSelected(tasks.length === 1 ? null : Math.max(0, selected - 1))
       } else if (input === 'n') {
-        pushFocus('adding')
+        pushFocus(FOCUS.addingTask)
       }
     }
   })
@@ -68,9 +69,9 @@ const TodoInk = () => {
           <Task
             task={task}
             onChange={(t) => taskChangeHandler(t, i)}
-            selected={selected === i && !isFocused('adding')}
+            selected={selected === i && !isFocused(FOCUS.addingTask)}
           />
-          {isFocused('adding') && selected === i && (
+          {isFocused(FOCUS.addingTask) && selected === i && (
             <Select selected={true}>
               <UncontrolledTextInput
                 prompt='> '
@@ -101,7 +102,7 @@ const TodoInk = () => {
 // })
 
 render(
-  <FocusProvider initialFocus='root'>
+  <FocusProvider initialFocus={FOCUS.root}>
     <TodoInk />
   </FocusProvider>,
   { experimental: true }
