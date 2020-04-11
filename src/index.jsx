@@ -5,6 +5,7 @@ import Task from './task'
 import Select from './select'
 import { UncontrolledTextInput } from './text-input'
 import { FocusProvider, useFocus } from './use-focus'
+import { remove, lensIndex, set, insert } from 'ramda'
 
 const TodoInk = () => {
   const [tasks, setTasks] = useTasks(process.env.TASKS || 'tasks.json')
@@ -20,15 +21,11 @@ const TodoInk = () => {
   }, [selected])
 
   const taskChangeHandler = (task, i) => {
-    let tasksCopy = tasks.slice()
-    tasksCopy[i] = task
-    setTasks(tasksCopy)
+    setTasks(set(lensIndex(i), task, tasks))
   }
   const newTaskHandler = (v, i) => {
     if (v.trim()) {
-      let tasksCopy = tasks.slice()
-      tasksCopy.splice(i, 0, { name: v, status: false })
-      setTasks(tasksCopy)
+      setTasks(insert(i, { name: v, status: false }, tasks))
       setSelected(i)
     }
     popFocus()
@@ -55,15 +52,8 @@ const TodoInk = () => {
         setTasks(tc)
         setSelected(selected - 1)
       } else if (input === 'd') {
-        if (selected === null) return
-        let tasksCopy = tasks.slice()
-        tasksCopy.splice(selected, 1)
-        setTasks(tasksCopy)
-        if (tasksCopy.length === 0) {
-          setSelected(null)
-        } else if (selected !== 0) {
-          setSelected(selected - 1)
-        }
+        setTasks(remove(selected, 1, tasks))
+        setSelected(tasks.length === 1 ? null : Math.max(0, selected - 1))
       } else if (input === 'n') {
         pushFocus('adding')
       }
