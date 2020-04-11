@@ -1,6 +1,11 @@
 export default {
-  root: 'root',
-  addingTask: 'adding',
-  task: (id) => `task-${id}`,
-  editingTask: (id) => `editing-${id}`,
+  addingTask: { tag: 'adding' },
+  task: (id = null) => ({
+    tag: 'task',
+    id,
+  }),
+  editingTask: (id) => ({
+    tag: 'editing',
+    id,
+  }),
 }

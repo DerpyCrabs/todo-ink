@@ -7,11 +7,11 @@ import Select from './select'
 import { useFocus } from './use-focus'
 import FOCUS from './focus'
 
-const Task = ({ task, onChange, selected = false }) => {
-  const [_, { pushFocus, popFocus, isFocused }] = useFocus()
+const Task = ({ task, onChange }) => {
+  const { pushFocus, popFocus, isFocused } = useFocus()
   useInput(
     (input, key) => {
-      if (selected && isFocused(FOCUS.root)) {
+      if (isFocused(FOCUS.task(task.id))) {
         if (input === 'c') {
           pushFocus(FOCUS.editingTask(task.id))
         } else if (input === 'm') {
@@ -19,7 +19,7 @@ const Task = ({ task, onChange, selected = false }) => {
         }
       }
     },
-    { active: selected }
+    { active: isFocused(FOCUS.task(task.id)) }
   )
   const handleNameChange = (newName) => {
     onChange({ ...task, name: newName })
@@ -29,7 +29,11 @@ const Task = ({ task, onChange, selected = false }) => {
     popFocus()
   }
   return (
-    <Select selected={selected}>
+    <Select
+      selected={
+        isFocused(FOCUS.task(task.id)) || isFocused(FOCUS.editingTask(task.id))
+      }
+    >
       <Box textWrap='truncate'>
         [{task.status ? 'X' : ' '}]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (

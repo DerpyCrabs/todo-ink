@@ -13,8 +13,16 @@ const TodoInk = () => {
     process.env.TASKS || 'tasks.json'
   )
   const { exit } = useApp()
-  const [_, { isFocused, pushFocus, popFocus }] = useFocus(FOCUS.root)
+  const { isFocused, pushFocus, popFocus, focus } = useFocus()
   const [selected, setSelected] = React.useState(tasks.length ? 0 : null)
+
+  React.useEffect(() => {
+    if (selected !== null) {
+      focus(FOCUS.task(tasks[selected].id))
+    } else {
+      popFocus()
+    }
+  }, [selected])
 
   React.useEffect(() => {
     if (selected === null) {
@@ -36,7 +44,7 @@ const TodoInk = () => {
     popFocus()
   }
   useInput((input, key) => {
-    if (isFocused(FOCUS.root)) {
+    if (isFocused(FOCUS.task().tag)) {
       if (key.escape) {
         exit()
       } else if (key.downArrow && selected < tasks.length - 1) {
@@ -66,11 +74,7 @@ const TodoInk = () => {
     <Box flexDirection='column'>
       {tasks.map((task, i) => (
         <React.Fragment key={i}>
-          <Task
-            task={task}
-            onChange={(t) => taskChangeHandler(t, i)}
-            selected={selected === i && !isFocused(FOCUS.addingTask)}
-          />
+          <Task task={task} onChange={(t) => taskChangeHandler(t, i)} />
           {isFocused(FOCUS.addingTask) && selected === i && (
             <Select selected={true}>
               <UncontrolledTextInput
@@ -102,7 +106,7 @@ const TodoInk = () => {
 // })
 
 render(
-  <FocusProvider initialFocus={FOCUS.root}>
+  <FocusProvider>
     <TodoInk />
   </FocusProvider>,
   { experimental: true }
