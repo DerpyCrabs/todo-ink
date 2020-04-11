@@ -8,7 +8,9 @@ import { FocusProvider, useFocus } from './use-focus'
 import { remove, lensIndex, set, insert } from 'ramda'
 
 const TodoInk = () => {
-  const [tasks, setTasks] = useTasks(process.env.TASKS || 'tasks.json')
+  const { tasks, setTasks, newTask } = useTasks(
+    process.env.TASKS || 'tasks.json'
+  )
   const { exit } = useApp()
   const [isFocused, { pushFocus, popFocus }] = useFocus('root')
   const [selected, setSelected] = React.useState(tasks.length ? 0 : null)
@@ -25,7 +27,7 @@ const TodoInk = () => {
   }
   const newTaskHandler = (v, i) => {
     if (v.trim()) {
-      setTasks(insert(i, { name: v, status: false }, tasks))
+      setTasks(insert(i, newTask(v, false), tasks))
       setSelected(i)
     }
     popFocus()

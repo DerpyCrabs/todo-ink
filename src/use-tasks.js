@@ -16,9 +16,14 @@ function writeTasks(path, tasks) {
 
 export default function useTasks(path) {
   const [tasks, setTasks] = useState(readTasks(path))
+  const [lastId, setLastId] = useState(Math.max(0, ...tasks.map((t) => t.id)))
   const setTasksHandler = (tasks) => {
     writeTasks(path, tasks)
     setTasks(tasks)
   }
-  return [tasks, setTasksHandler]
+  const newTask = (name, status) => {
+    setLastId(lastId + 1)
+    return { id: lastId + 1, name, status }
+  }
+  return { tasks, setTasks: setTasksHandler, newTask }
 }
