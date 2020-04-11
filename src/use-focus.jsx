@@ -13,8 +13,9 @@ export const FocusProvider = ({ children, initialFocus }) => {
 export const useFocus = (tag) => {
   const { focus, setFocus } = React.useContext(FocusContext)
   return [
-    tag === focus[focus.length - 1],
+    focus,
     {
+      isFocused: (tag) => tag === focus[focus.length - 1],
       popFocus: () => setFocus((f) => f.slice(0, f.length - 1)),
       pushFocus: (tag) => setFocus((f) => [...f, tag]),
     },

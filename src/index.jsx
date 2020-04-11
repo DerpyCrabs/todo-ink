@@ -12,9 +12,8 @@ const TodoInk = () => {
     process.env.TASKS || 'tasks.json'
   )
   const { exit } = useApp()
-  const [isFocused, { pushFocus, popFocus }] = useFocus('root')
+  const [_, { isFocused, pushFocus, popFocus }] = useFocus('root')
   const [selected, setSelected] = React.useState(tasks.length ? 0 : null)
-  const [adding] = useFocus('adding')
 
   React.useEffect(() => {
     if (selected === null) {
@@ -36,7 +35,7 @@ const TodoInk = () => {
     popFocus()
   }
   useInput((input, key) => {
-    if (isFocused) {
+    if (isFocused('root')) {
       if (key.escape) {
         exit()
       } else if (key.downArrow && selected < tasks.length - 1) {
@@ -69,9 +68,9 @@ const TodoInk = () => {
           <Task
             task={task}
             onChange={(t) => taskChangeHandler(t, i)}
-            selected={selected === i && !adding}
+            selected={selected === i && !isFocused('adding')}
           />
-          {adding && selected === i && (
+          {isFocused('adding') && selected === i && (
             <Select selected={true}>
               <UncontrolledTextInput
                 prompt='> '
