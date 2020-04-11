@@ -7,14 +7,13 @@ import Select from './select'
 import { useFocus } from './use-focus'
 
 const Task = ({ task, onChange, selected = false }) => {
-  const [editing, setEditing] = React.useState(false)
   const [isFocused, { pushFocus, popFocus }] = useFocus('root')
+  const [isEditing] = useFocus(`editing-${task.id}`)
   useInput(
     (input, key) => {
-      if (selected && !editing && isFocused) {
+      if (selected && isFocused) {
         if (input === 'c') {
-          setEditing(true)
-          pushFocus('editing')
+          pushFocus(`editing-${task.id}`)
         } else if (input === 'm') {
           onChange({ ...task, status: !task.status })
         }
@@ -24,18 +23,16 @@ const Task = ({ task, onChange, selected = false }) => {
   )
   const handleNameChange = (newName) => {
     onChange({ ...task, name: newName })
-    setEditing(false)
     popFocus()
   }
   const handleNameChangeCancel = () => {
-    setEditing(false)
     popFocus()
   }
   return (
     <Select selected={selected}>
       <Box textWrap='truncate'>
         [{task.status ? 'X' : ' '}]{' '}
-        {editing ? (
+        {isEditing ? (
           <UncontrolledTextInput
             placeholder={task.name}
             onSubmit={handleNameChange}
