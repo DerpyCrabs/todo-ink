@@ -23,10 +23,10 @@ const Task = ({ task, onChange }) => {
   )
   const handleNameChange = (newName) => {
     onChange({ ...task, name: newName })
-    popFocus()
+    popFocus(FOCUS.editingTask().tag)
   }
   const handleNameChangeCancel = () => {
-    popFocus()
+    popFocus(FOCUS.editingTask().tag)
   }
   return (
     <Select

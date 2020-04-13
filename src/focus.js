@@ -1,5 +1,6 @@
 export default {
-  addingTask: { tag: 'adding' },
+  root: { tag: 'root' },
+  addingTask: (after) => ({ tag: 'adding', fallthrough: false, after: after }),
   task: (id = null) => ({
     tag: 'task',
     id,
@@ -7,5 +8,6 @@ export default {
   editingTask: (id) => ({
     tag: 'editing',
     id,
+    fallthrough: false,
   }),
 }
