@@ -107,7 +107,7 @@ const FolderView = ({ folder }) => {
   return (
     <Box flexDirection='column'>
       <Box>
-        {'  '}Folder: {folder.name}
+        {'    '}Folder: {folder.name}
       </Box>
       {tasks.map((task, i) => (
         <React.Fragment key={i}>
