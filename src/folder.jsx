@@ -69,7 +69,7 @@ function completedTasksCount(tasks) {
 function allTasksCount(tasks) {
   return sum(
     tasks.map((task) =>
-      task.tasks === undefined ? 1 : completedTasksCount(task.tasks)
+      task.tasks === undefined ? 1 : allTasksCount(task.tasks)
     )
   )
 }
