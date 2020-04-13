@@ -5,6 +5,7 @@ export default {
     tag: 'task',
     id,
   }),
+  folder: (id = null) => ({ tag: 'folder', id }),
   editingTask: (id) => ({
     tag: 'editing',
     id,
