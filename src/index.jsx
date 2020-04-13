@@ -60,14 +60,15 @@ const TodoInk = () => {
         if (selected !== null && selected !== 0) {
           refocus(FOCUS.task(tasks[selected - 1].id))
         }
-      } else if (input === 'j' && selected < tasks.length - 1) {
+      } else if (input === 'j') {
         if (selected < tasks.length - 1) {
           let tc = tasks.slice()
           ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
           setTasks(tc)
+          refocus(FOCUS.task(tc[selected + 1].id))
         }
       } else if (input === 'k') {
-        if (selected < 0) {
+        if (selected > 0) {
           let tc = tasks.slice()
           ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
           setTasks(tc)
