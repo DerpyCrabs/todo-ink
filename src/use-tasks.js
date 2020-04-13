@@ -50,7 +50,7 @@ const folderPath = (tasks, folderId) => {
   if (tasks.id === folderId) {
     return []
   }
-  for (const [i, task] in tasks.tasks.entries()) {
+  for (const [i, task] of tasks.tasks.entries()) {
     if (task.tasks !== undefined) {
       const ret = folderPath(task, folderId)
       if (ret !== null) {
@@ -67,12 +67,16 @@ export function useTasks(folderId) {
     setTasks,
   } = React.useContext(TasksContext)
   if (folderId === undefined) {
-    return { root: tasks }
+    return { folder: tasks }
   }
   const folderLens = lensPath(folderPath(tasks, folderId))
   const newTask = (name, status) => {
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
     return { id: lastId + 1, name, status }
+  }
+  const newFolder = (name) => {
+    setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
+    return { id: lastId + 1, name, tasks: [] }
   }
   const setTasksHandler = (t) => {
     setTasks(({ tasks, lastId }) => {
@@ -84,7 +88,9 @@ export function useTasks(folderId) {
   }
   return {
     tasks: view(compose(folderLens, lensProp('tasks')), tasks),
+    folder: view(folderLens, tasks),
     setTasks: setTasksHandler,
     newTask,
+    newFolder,
   }
 }

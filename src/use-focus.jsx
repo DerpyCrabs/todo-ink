@@ -15,13 +15,13 @@ export const useFocus = () => {
   const { focus, setFocus } = React.useContext(FocusContext)
   const isFocused = (tag) => {
     if (focus.length === 0) return false
-    const focused = prepend(
-      focus[focus.length - 1],
-      takeWhile(
-        (f) => f.fallthrough === undefined || f.fallthrough,
-        reverse(focus)
-      )
-    )
+    let focused = []
+    for (const f of reverse(focus)) {
+      focused.push(f)
+      if (f.fallthrough !== undefined && f.fallthrough === false) {
+        break
+      }
+    }
     return (
       focused.find((f) =>
         typeof tag === 'string' ? f.tag === tag : equals(f, tag)

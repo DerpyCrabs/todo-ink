@@ -10,19 +10,15 @@ import FOCUS from './focus'
 import FolderView from './folder-view'
 
 const TodoInk = () => {
-  const { root } = useTasks()
-  const { exit } = useApp()
   const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
+  const focusedFolder = focus.filter((f) => f.tag === 'folder')
+  const { folder } = useTasks(
+    focusedFolder.length !== 0
+      ? focusedFolder[focusedFolder.length - 1].id
+      : undefined
+  )
 
-  useInput((input, key) => {
-    if (isFocused(FOCUS.root)) {
-      if (key.escape) {
-        exit()
-      }
-    }
-  })
-
-  return <FolderView folder={root} />
+  return <FolderView folder={folder} />
 }
 
 // const enterAltScreenCommand = '\x1b[?1049h'
@@ -34,7 +30,7 @@ const TodoInk = () => {
 
 render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
-    <FocusProvider initialFocus={[FOCUS.root]}>
+    <FocusProvider initialFocus={[FOCUS.folder(0)]}>
       <TodoInk />
     </FocusProvider>
   </TasksProvider>,
