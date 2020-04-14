@@ -5,7 +5,16 @@ import { lensPath, view, set, lensProp, compose } from 'ramda'
 function readTasks(path) {
   if (existsSync(path)) {
     const content = readFileSync(path)
-    return JSON.parse(content)
+    const tasks = JSON.parse(content)
+    if (tasks.id === undefined) {
+      return {
+        id: Math.max(0, ...tasks.map((t) => t.id)) + 1,
+        name: 'root',
+        tasks,
+      }
+    } else {
+      return tasks
+    }
   } else {
     return { id: 0, name: 'root', tasks: [] }
   }

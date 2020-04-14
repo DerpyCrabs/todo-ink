@@ -27,12 +27,18 @@ const TodoInk = () => {
 // process.on('exit', () => {
 //   process.stdout.write(leaveAltScreenCommand)
 // })
+const InitialFocus = () => {
+  const { folder } = useTasks(undefined)
+  return (
+    <FocusProvider initialFocus={[FOCUS.folder(folder.id)]}>
+      <TodoInk />
+    </FocusProvider>
+  )
+}
 
 render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
-    <FocusProvider initialFocus={[FOCUS.folder(0)]}>
-      <TodoInk />
-    </FocusProvider>
+    <InitialFocus />
   </TasksProvider>,
   { experimental: true }
 )
