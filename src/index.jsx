@@ -16,7 +16,22 @@ const TodoInk = () => {
     focusedFolder.length !== 0 ? last(focusedFolder).id : undefined
   )
 
-  return <FolderView folder={folder} />
+  React.useEffect(() => {
+    pushFocus(FOCUS.folder(folder.id))
+  }, [])
+
+  const { exit } = useApp()
+  useInput((input, key) => {
+    if (key.ctrl && input === 'c') {
+      exit()
+    }
+  })
+
+  if (focus.length !== 0) {
+    return <FolderView folder={folder} />
+  } else {
+    return <Box>Loading...</Box>
+  }
 }
 
 // const enterAltScreenCommand = '\x1b[?1049h'
@@ -25,18 +40,12 @@ const TodoInk = () => {
 // process.on('exit', () => {
 //   process.stdout.write(leaveAltScreenCommand)
 // })
-const InitialFocus = () => {
-  const { folder } = useTasks(undefined)
-  return (
-    <FocusProvider initialFocus={[FOCUS.folder(folder.id)]}>
-      <TodoInk />
-    </FocusProvider>
-  )
-}
 
 render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
-    <InitialFocus />
+    <FocusProvider initialFocus={[]}>
+      <TodoInk />
+    </FocusProvider>
   </TasksProvider>,
-  { experimental: true }
+  { experimental: true, exitOnCtrlC: false }
 )
