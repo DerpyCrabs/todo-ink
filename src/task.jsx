@@ -38,7 +38,7 @@ const Task = ({ task, onChange }) => {
         [{task.status ? 'X' : ' '}]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <UncontrolledTextInput
-            placeholder={task.name}
+            value={task.name}
             onSubmit={handleNameChange}
             onCancel={handleNameChangeCancel}
           />

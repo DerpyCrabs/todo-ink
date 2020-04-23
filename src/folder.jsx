@@ -39,7 +39,7 @@ const Folder = ({ task, onChange }) => {
         [F]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <UncontrolledTextInput
-            placeholder={task.name}
+            value={task.name}
             onSubmit={handleNameChange}
             onCancel={handleNameChangeCancel}
           />
