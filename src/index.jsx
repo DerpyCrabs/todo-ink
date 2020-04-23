@@ -34,12 +34,14 @@ const TodoInk = () => {
   }
 }
 
-// const enterAltScreenCommand = '\x1b[?1049h'
-// const leaveAltScreenCommand = '\x1b[?1049l'
-// process.stdout.write(enterAltScreenCommand)
-// process.on('exit', () => {
-//   process.stdout.write(leaveAltScreenCommand)
-// })
+if (!process.argv.some((v) => v === '--no-fullscreen')) {
+  const enterAltScreenCommand = '\x1b[?1049h'
+  const leaveAltScreenCommand = '\x1b[?1049l'
+  process.stdout.write(enterAltScreenCommand)
+  process.on('exit', () => {
+    process.stdout.write(leaveAltScreenCommand)
+  })
+}
 
 render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
