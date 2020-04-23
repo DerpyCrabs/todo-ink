@@ -95,7 +95,7 @@ const FolderView = ({ folder }) => {
         pushFocus(FOCUS.addingTask(selected))
       } else if (input === 'f') {
         pushFocus(FOCUS.addingFolder(selected))
-      } else if (key.leftArrow) {
+      } else if (key.leftArrow || key.escape) {
         if (focus.length !== 2) {
           popFocus(FOCUS.task().tag)
           popFocus(FOCUS.folder().tag)
