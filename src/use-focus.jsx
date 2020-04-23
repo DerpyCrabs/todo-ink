@@ -1,5 +1,5 @@
 import React from 'react'
-import { append, dropLast, equals, reverse, takeWhile, prepend } from 'ramda'
+import { append, dropLast, equals, reverse, prepend, last } from 'ramda'
 
 const FocusContext = React.createContext()
 export const FocusProvider = ({ children, initialFocus = [] }) => {
@@ -13,44 +13,41 @@ export const FocusProvider = ({ children, initialFocus = [] }) => {
 
 export const useFocus = () => {
   const { focus, setFocus } = React.useContext(FocusContext)
-  const isFocused = (tag) => {
-    if (focus.length === 0) return false
-    let focused = []
-    for (const f of reverse(focus)) {
-      focused.push(f)
-      if (f.fallthrough !== undefined && f.fallthrough === false) {
-        break
+  const actions = {
+    isFocused: (tag) => {
+      if (focus.length === 0) return false
+
+      let focused = []
+      for (const f of reverse(focus)) {
+        focused.push(f)
+        if (f.fallthrough !== undefined && f.fallthrough === false) {
+          break
+        }
       }
-    }
-    return (
-      focused.find((f) =>
-        typeof tag === 'string' ? f.tag === tag : equals(f, tag)
-      ) !== undefined
-    )
-  }
-  const popFocus = (tag) => {
-    setFocus((f) => {
-      if (
-        tag === undefined ||
-        (typeof tag === 'string'
-          ? f[f.length - 1].tag === tag
-          : equals(f[f.length - 1], tag))
-      ) {
-        return dropLast(1, f)
-      } else {
-        return f
-      }
-    })
-  }
-  const pushFocus = (tag) => setFocus((f) => append(tag, f))
-  return {
-    focus,
-    isFocused,
-    popFocus,
-    pushFocus,
+
+      return (
+        focused.find((f) =>
+          typeof tag === 'string' ? f.tag === tag : equals(f, tag)
+        ) !== undefined
+      )
+    },
+    popFocus: (tag) => {
+      setFocus((f) => {
+        if (
+          tag === undefined ||
+          (typeof tag === 'string' ? last(f).tag === tag : equals(last(f), tag))
+        ) {
+          return dropLast(1, f)
+        } else {
+          return f
+        }
+      })
+    },
+    pushFocus: (tag) => setFocus((f) => append(tag, f)),
     refocus: (tag) => {
-      popFocus(tag.tag)
-      pushFocus(tag)
+      actions.popFocus(tag.tag)
+      actions.pushFocus(tag)
     },
   }
+  return { focus, ...actions }
 }

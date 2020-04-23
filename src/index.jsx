@@ -5,7 +5,7 @@ import Task from './task'
 import Select from './select'
 import { UncontrolledTextInput } from './text-input'
 import { FocusProvider, useFocus } from './use-focus'
-import { remove, lensIndex, set, insert } from 'ramda'
+import { remove, lensIndex, set, insert, last } from 'ramda'
 import FOCUS from './focus'
 import FolderView from './folder-view'
 
@@ -13,9 +13,7 @@ const TodoInk = () => {
   const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
   const focusedFolder = focus.filter((f) => f.tag === 'folder')
   const { folder } = useTasks(
-    focusedFolder.length !== 0
-      ? focusedFolder[focusedFolder.length - 1].id
-      : undefined
+    focusedFolder.length !== 0 ? last(focusedFolder).id : undefined
   )
 
   return <FolderView folder={folder} />
