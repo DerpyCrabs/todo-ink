@@ -119,13 +119,14 @@ const FolderView = ({ folder }) => {
       </Box>
       <ScrollableList
         position={
-          (selected === null && isFocused(FOCUS.addingTask().tag)) ||
-          isFocused(FOCUS.addingFolder().tag) ||
-          tasks.length === 0
+          (selected === null || tasks.length === 0
             ? 0
+            : isFocused(FOCUS.addingTask().tag)) ||
+          isFocused(FOCUS.addingFolder().tag)
+            ? selected + 1
             : selected
         }
-        margin={2}
+        margin={3}
       >
         {tasks.map((task, i) => (
           <React.Fragment key={i}>
