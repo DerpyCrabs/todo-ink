@@ -11,13 +11,13 @@ import FolderView from './folder-view'
 
 const TodoInk = () => {
   const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
-  const focusedFolder = focus.filter((f) => f.tag === 'folder')
+  const focusedFolder = focus.filter((f) => f.tag === FOCUS.folder().tag)
   const { folder } = useTasks(
     focusedFolder.length !== 0 ? last(focusedFolder).id : undefined
   )
 
   React.useEffect(() => {
-    pushFocus(FOCUS.folder(folder.id))
+    pushFocus(FOCUS.folder(folder.id, folder.name))
   }, [])
 
   const { exit } = useApp()

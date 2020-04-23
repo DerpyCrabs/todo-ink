@@ -14,7 +14,12 @@ export default {
     tag: 'task',
     id,
   }),
-  folder: (id = null) => ({ tag: 'folder', id, fallthrough: false }),
+  folder: (id = null, name = null) => ({
+    tag: 'folder',
+    id,
+    fallthrough: false,
+    name,
+  }),
   editingTask: (id = null) => ({
     tag: 'editing',
     id,

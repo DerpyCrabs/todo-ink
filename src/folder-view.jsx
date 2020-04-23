@@ -62,7 +62,7 @@ const FolderView = ({ folder }) => {
   }
 
   useInput((input, key) => {
-    if (isFocused(FOCUS.folder(folder.id))) {
+    if (isFocused(FOCUS.folder(folder.id, folder.name))) {
       if (key.downArrow) {
         if (selected !== null && selected !== tasks.length - 1) {
           refocus(FOCUS.task(tasks[selected + 1].id))
@@ -113,7 +113,7 @@ const FolderView = ({ folder }) => {
   return (
     <Box flexDirection='column'>
       <Box>
-        {'    '}Folder: {folder.name}
+        {'    '}Folder: {folderPath(focus)}
       </Box>
       <ScrollableList
         position={
@@ -173,6 +173,13 @@ const FolderView = ({ folder }) => {
       </ScrollableList>
     </Box>
   )
+}
+
+function folderPath(focus) {
+  const folders = focus
+    .filter((f) => f.tag === FOCUS.folder().tag)
+    .map((f) => f.name)
+  return '/' + folders.slice(1).join('/')
 }
 
 export default FolderView

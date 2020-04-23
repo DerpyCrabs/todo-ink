@@ -16,7 +16,7 @@ const Folder = ({ task, onChange }) => {
         if (input === 'c') {
           pushFocus(FOCUS.editingTask(task.id))
         } else if (key.rightArrow || key.return) {
-          pushFocus(FOCUS.folder(task.id))
+          pushFocus(FOCUS.folder(task.id, task.name))
         }
       }
     },
