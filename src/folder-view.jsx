@@ -9,6 +9,7 @@ import { FocusProvider, useFocus } from './use-focus'
 import { remove, lensIndex, set, insert } from 'ramda'
 import FOCUS from './focus'
 import ScrollableList from './scrollable-list'
+import { allTasksCount, completedTasksCount } from './folder'
 
 const FolderView = ({ folder }) => {
   const { tasks, newTask, newFolder, setTasks } = useTasks(folder.id)
@@ -113,7 +114,8 @@ const FolderView = ({ folder }) => {
   return (
     <Box flexDirection='column'>
       <Box>
-        {'    '}Folder: {folderPath(focus)}
+        {'    '}Folder: {folderPath(focus)} ({completedTasksCount(tasks)}/
+        {allTasksCount(tasks)})
       </Box>
       <ScrollableList
         position={

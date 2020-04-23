@@ -54,7 +54,7 @@ const Folder = ({ task, onChange }) => {
 
 export default Folder
 
-function completedTasksCount(tasks) {
+export function completedTasksCount(tasks) {
   return sum(
     tasks.map((task) =>
       task.tasks === undefined
@@ -66,7 +66,7 @@ function completedTasksCount(tasks) {
   )
 }
 
-function allTasksCount(tasks) {
+export function allTasksCount(tasks) {
   return sum(
     tasks.map((task) =>
       task.tasks === undefined ? 1 : allTasksCount(task.tasks)
