@@ -10,6 +10,13 @@ import { remove, lensIndex, set, insert } from 'ramda'
 import FOCUS from './focus'
 import ScrollableList from './scrollable-list'
 import { allTasksCount, completedTasksCount } from './folder'
+import {
+  isMoveUp,
+  isMoveDown,
+  isDelete,
+  isNewTask,
+  isNewFolder,
+} from './hotkeys'
 
 const FolderView = ({ folder }) => {
   const { tasks, newTask, newFolder, setTasks } = useTasks(folder.id)
@@ -72,21 +79,21 @@ const FolderView = ({ folder }) => {
         if (selected !== null && selected !== 0) {
           refocus(FOCUS.task(tasks[selected - 1].id))
         }
-      } else if (input === 'j') {
+      } else if (isMoveDown(key, input)) {
         if (selected < tasks.length - 1) {
           let tc = tasks.slice()
           ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
           setTasks(tc)
           refocus(FOCUS.task(tc[selected + 1].id))
         }
-      } else if (input === 'k') {
+      } else if (isMoveUp(key, input)) {
         if (selected > 0) {
           let tc = tasks.slice()
           ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
           setTasks(tc)
           refocus(FOCUS.task(tc[selected - 1].id))
         }
-      } else if (input === 'd') {
+      } else if (isDelete(key, input)) {
         if (selected !== null) {
           setTasks(remove(selected, 1, tasks))
           popFocus(FOCUS.task().tag)
@@ -98,9 +105,9 @@ const FolderView = ({ folder }) => {
             pushFocus(FOCUS.task(remove(selected, 1, tasks)[newSelected].id))
           }
         }
-      } else if (input === 'n') {
+      } else if (isNewTask(key, input)) {
         pushFocus(FOCUS.addingTask(selected))
-      } else if (input === 'f') {
+      } else if (isNewFolder(key, input)) {
         pushFocus(FOCUS.addingFolder(selected))
       } else if (key.leftArrow || key.escape) {
         if (focus.length !== 2) {

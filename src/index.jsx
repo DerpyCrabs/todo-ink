@@ -8,6 +8,7 @@ import { FocusProvider, useFocus } from './use-focus'
 import { remove, lensIndex, set, insert, last } from 'ramda'
 import FOCUS from './focus'
 import FolderView from './folder-view'
+import { isExit } from './hotkeys'
 
 const TodoInk = () => {
   const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
@@ -22,7 +23,7 @@ const TodoInk = () => {
 
   const { exit } = useApp()
   useInput((input, key) => {
-    if (key.ctrl && input === 'c') {
+    if (isExit(key, input)) {
       exit()
     }
   })

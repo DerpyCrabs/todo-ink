@@ -6,15 +6,16 @@ import useInput from './use-input'
 import Select from './select'
 import { useFocus } from './use-focus'
 import FOCUS from './focus'
+import { isMark, isChange } from './hotkeys'
 
 const Task = ({ task, onChange }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   useInput(
     (input, key) => {
       if (isFocused(FOCUS.task(task.id))) {
-        if (input === 'c') {
+        if (isChange(key, input)) {
           pushFocus(FOCUS.editingTask(task.id))
-        } else if (input === 'm') {
+        } else if (isMark(key, input)) {
           onChange({ ...task, status: !task.status })
         }
       }
