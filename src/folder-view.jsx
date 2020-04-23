@@ -8,6 +8,7 @@ import { UncontrolledTextInput } from './text-input'
 import { FocusProvider, useFocus } from './use-focus'
 import { remove, lensIndex, set, insert } from 'ramda'
 import FOCUS from './focus'
+import ScrollableList from './scrollable-list'
 
 const FolderView = ({ folder }) => {
   const { tasks, newTask, newFolder, setTasks } = useTasks(folder.id)
@@ -15,7 +16,12 @@ const FolderView = ({ folder }) => {
   const selected = (() => {
     const last = focus[focus.length - 1]
     if (last.tag === 'task' || last.tag === 'editing') {
-      return tasks.findIndex((t) => t.id === last.id)
+      const index = tasks.findIndex((t) => t.id === last.id)
+      if (index !== -1) {
+        return index
+      } else {
+        return null
+      }
     } else {
       return null
     }
@@ -109,51 +115,62 @@ const FolderView = ({ folder }) => {
       <Box>
         {'    '}Folder: {folder.name}
       </Box>
-      {tasks.map((task, i) => (
-        <React.Fragment key={i}>
-          {task.tasks === undefined ? (
-            <Task task={task} onChange={(t) => taskChangeHandler(t, i)} />
-          ) : (
-            <Folder task={task} onChange={(t) => taskChangeHandler(t, i)} />
-          )}
-          {isFocused(FOCUS.addingTask(i)) && (
-            <Select selected={true}>
-              <UncontrolledTextInput
-                prompt='> '
-                onSubmit={(v) => newTaskHandler(v, i + 1)}
-                onCancel={newTaskCancelHandler}
-              />
-            </Select>
-          )}
-          {isFocused(FOCUS.addingFolder(i)) && (
-            <Select selected={true}>
-              <UncontrolledTextInput
-                prompt='[F] > '
-                onSubmit={(v) => newFolderHandler(v, i + 1)}
-                onCancel={newFolderCancelHandler}
-              />
-            </Select>
-          )}
-        </React.Fragment>
-      ))}
-      {isFocused(FOCUS.addingTask(null)) && (
-        <Select selected={true}>
-          <UncontrolledTextInput
-            prompt='> '
-            onSubmit={(v) => newTaskHandler(v, 0)}
-            onCancel={newTaskCancelHandler}
-          />
-        </Select>
-      )}
-      {isFocused(FOCUS.addingFolder(null)) && (
-        <Select selected={true}>
-          <UncontrolledTextInput
-            prompt='[F] > '
-            onSubmit={(v) => newFolderHandler(v, 0)}
-            onCancel={newFolderCancelHandler}
-          />
-        </Select>
-      )}
+      <ScrollableList
+        position={
+          (selected === null && isFocused(FOCUS.addingTask().tag)) ||
+          isFocused(FOCUS.addingFolder().tag) ||
+          tasks.length === 0
+            ? 0
+            : selected
+        }
+        margin={2}
+      >
+        {tasks.map((task, i) => (
+          <React.Fragment key={i}>
+            {task.tasks === undefined ? (
+              <Task task={task} onChange={(t) => taskChangeHandler(t, i)} />
+            ) : (
+              <Folder task={task} onChange={(t) => taskChangeHandler(t, i)} />
+            )}
+            {isFocused(FOCUS.addingTask(i)) && (
+              <Select selected={true}>
+                <UncontrolledTextInput
+                  prompt='> '
+                  onSubmit={(v) => newTaskHandler(v, i + 1)}
+                  onCancel={newTaskCancelHandler}
+                />
+              </Select>
+            )}
+            {isFocused(FOCUS.addingFolder(i)) && (
+              <Select selected={true}>
+                <UncontrolledTextInput
+                  prompt='[F] > '
+                  onSubmit={(v) => newFolderHandler(v, i + 1)}
+                  onCancel={newFolderCancelHandler}
+                />
+              </Select>
+            )}
+          </React.Fragment>
+        ))}
+        {isFocused(FOCUS.addingTask(null)) && (
+          <Select selected={true}>
+            <UncontrolledTextInput
+              prompt='> '
+              onSubmit={(v) => newTaskHandler(v, 0)}
+              onCancel={newTaskCancelHandler}
+            />
+          </Select>
+        )}
+        {isFocused(FOCUS.addingFolder(null)) && (
+          <Select selected={true}>
+            <UncontrolledTextInput
+              prompt='[F] > '
+              onSubmit={(v) => newFolderHandler(v, 0)}
+              onCancel={newFolderCancelHandler}
+            />
+          </Select>
+        )}
+      </ScrollableList>
     </Box>
   )
 }
