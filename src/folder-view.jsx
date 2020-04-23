@@ -82,14 +82,14 @@ const FolderView = ({ folder }) => {
       } else if (input === 'd') {
         if (selected !== null) {
           setTasks(remove(selected, 1, tasks))
-        }
-        if (tasks.length === 1) {
           popFocus(FOCUS.task().tag)
-          pushFocus(FOCUS.addingTask(null))
-        } else {
-          const newSelected =
-            tasks.length - 1 === selected ? Math.max(0, selected - 1) : selected
-          refocus(FOCUS.task(remove(selected, 1, tasks)[newSelected].id))
+          if (tasks.length !== 1) {
+            const newSelected =
+              tasks.length - 1 === selected
+                ? Math.max(0, selected - 1)
+                : selected
+            pushFocus(FOCUS.task(remove(selected, 1, tasks)[newSelected].id))
+          }
         }
       } else if (input === 'n') {
         pushFocus(FOCUS.addingTask(selected))
