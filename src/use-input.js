@@ -30,6 +30,8 @@ export default (inputHandler, { active = true } = {}) => {
         rightArrow: input === '\u001B[C',
         return: input === '\r',
         escape: input === '\u001B',
+        backspace: input === '\x08',
+        deleteKey: input === '\x7F',
         ctrl: false,
         shift: false,
         meta: false,
