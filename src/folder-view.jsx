@@ -163,35 +163,47 @@ const FolderView = ({ folder }) => {
             ? selected + 1
             : selected
         }
-        margin={4}
+        margin={3}
       >
-        {tasks.map((task, i) => (
-          <React.Fragment key={i}>
-            {task.tasks === undefined ? (
-              <Task task={task} onChange={(t) => taskChangeHandler(t, i)} />
+        {tasks.map((task, i) => [
+          ...[
+            task.tasks === undefined ? (
+              <Task
+                key={i}
+                task={task}
+                onChange={(t) => taskChangeHandler(t, i)}
+              />
             ) : (
-              <Folder task={task} onChange={(t) => taskChangeHandler(t, i)} />
-            )}
-            {isFocused(FOCUS.addingTask(i)) && (
-              <Select selected={true}>
+              <Folder
+                key={i}
+                task={task}
+                onChange={(t) => taskChangeHandler(t, i)}
+              />
+            ),
+          ],
+          ...[
+            isFocused(FOCUS.addingTask(i)) && (
+              <Select key={`${i}-addingTask`} selected={true}>
                 <UncontrolledTextInput
                   prompt='> '
                   onSubmit={(v) => newTaskHandler(v, i + 1)}
                   onCancel={newTaskCancelHandler}
                 />
               </Select>
-            )}
-            {isFocused(FOCUS.addingFolder(i)) && (
-              <Select selected={true}>
+            ),
+          ],
+          ...[
+            isFocused(FOCUS.addingFolder(i)) && (
+              <Select key={`${i}-addingFolder`} selected={true}>
                 <UncontrolledTextInput
                   prompt='[F] > '
                   onSubmit={(v) => newFolderHandler(v, i + 1)}
                   onCancel={newFolderCancelHandler}
                 />
               </Select>
-            )}
-          </React.Fragment>
-        ))}
+            ),
+          ],
+        ])}
         {isFocused(FOCUS.addingTask(null)) && (
           <Select selected={true}>
             <UncontrolledTextInput
