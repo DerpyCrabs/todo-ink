@@ -9,6 +9,7 @@ import { remove, lensIndex, set, insert, last } from 'ramda'
 import FOCUS from './focus'
 import FolderView from './folder-view'
 import { isExit } from './hotkeys'
+import { ClipboardProvider, useClipboard } from './use-clipboard'
 
 const TodoInk = () => {
   const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
@@ -44,10 +45,14 @@ if (!process.argv.some((v) => v === '--no-fullscreen')) {
   })
 }
 
+Error.stackTraceLimit = 1000
+
 render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
     <FocusProvider initialFocus={[]}>
-      <TodoInk />
+      <ClipboardProvider>
+        <TodoInk />
+      </ClipboardProvider>
     </FocusProvider>
   </TasksProvider>,
   { experimental: true, exitOnCtrlC: false }

@@ -75,26 +75,24 @@ export const UncontrolledTextInput = ({
     }
   }, [])
   return (
-    <>
-      <Text>
-        {prompt}
-        {value === '' && _value === undefined && placeholder ? (
-          <Color dim>{placeholder}</Color>
-        ) : (
-          <>
-            {Array.from(value).map((v, i) =>
-              i === cursorOffset ? (
-                <Color dim key={i}>
-                  {v}
-                </Color>
-              ) : (
-                <Color key={i}>{v}</Color>
-              )
-            )}
-            {cursorOffset === value.length && <Color dim>_</Color>}
-          </>
-        )}
-      </Text>
-    </>
+    <Text>
+      {prompt}
+      {value === '' && _value === undefined && placeholder ? (
+        <Color dim>{placeholder}</Color>
+      ) : (
+        <>
+          {Array.from(value).map((v, i) =>
+            i === cursorOffset ? (
+              <Color dim key={i}>
+                {v}
+              </Color>
+            ) : (
+              <Color key={i}>{v}</Color>
+            )
+          )}
+          {cursorOffset === value.length && <Color dim>_</Color>}
+        </>
+      )}
+    </Text>
   )
 }

@@ -55,13 +55,12 @@ export const TasksProvider = ({ children, path = 'tasks.json' }) => {
   )
 }
 
-const folderPath = (tasks, folderId) => {
-  if (tasks.id === folderId) {
+export const taskPath = (tasks, taskId) => {
+  if (tasks.id === taskId) {
     return []
-  }
-  for (const [i, task] of tasks.tasks.entries()) {
-    if (task.tasks !== undefined) {
-      const ret = folderPath(task, folderId)
+  } else if (tasks.tasks !== undefined) {
+    for (const [i, task] of tasks.tasks.entries()) {
+      const ret = taskPath(task, taskId)
       if (ret !== null) {
         return ['tasks', i, ...ret]
       }
@@ -76,9 +75,12 @@ export function useTasks(folderId) {
     setTasks,
   } = React.useContext(TasksContext)
   if (folderId === undefined) {
-    return { folder: tasks }
+    return {
+      folder: tasks,
+      setFolder: (t) => setTasks(({ tasks, lastId }) => ({ tasks: t, lastId })),
+    }
   }
-  const folderLens = lensPath(folderPath(tasks, folderId))
+  const folderLens = lensPath(taskPath(tasks, folderId))
   const newTask = (name, status) => {
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
     return { id: lastId + 1, name, status }

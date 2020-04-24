@@ -5,7 +5,8 @@ import Task from './task'
 import Folder from './folder'
 import Select from './select'
 import { UncontrolledTextInput } from './text-input'
-import { FocusProvider, useFocus } from './use-focus'
+import { useFocus } from './use-focus'
+import { useClipboard } from './use-clipboard'
 import { remove, lensIndex, set, insert } from 'ramda'
 import FOCUS from './focus'
 import ScrollableList from './scrollable-list'
@@ -16,6 +17,8 @@ import {
   isDelete,
   isNewTask,
   isNewFolder,
+  isCut,
+  isPaste,
 } from './hotkeys'
 
 const FolderView = ({ folder }) => {
@@ -34,6 +37,7 @@ const FolderView = ({ folder }) => {
       return null
     }
   })()
+  const { ClipboardStatus, cut, paste } = useClipboard()
 
   React.useEffect(() => {
     if (tasks.length !== 0 && !isFocused(FOCUS.task().tag)) {
@@ -79,6 +83,19 @@ const FolderView = ({ folder }) => {
         if (selected !== null && selected !== 0) {
           refocus(FOCUS.task(tasks[selected - 1].id))
         }
+      } else if (isCut(key, input)) {
+        if (selected !== null) {
+          if (selected === 0 && tasks.length !== 1) {
+            refocus(FOCUS.task(tasks[1].id))
+          } else if (selected === 0 && tasks.length === 1) {
+            popFocus(FOCUS.task().tag)
+          } else {
+            refocus(FOCUS.task(tasks[selected - 1].id))
+          }
+          cut(tasks[selected].id)
+        }
+      } else if (isPaste(key, input)) {
+        paste(folder.id, selected !== null ? selected + 1 : 0)
       } else if (isMoveDown(key, input)) {
         if (selected < tasks.length - 1) {
           let tc = tasks.slice()
@@ -133,7 +150,7 @@ const FolderView = ({ folder }) => {
             ? selected + 1
             : selected
         }
-        margin={3}
+        margin={4}
       >
         {tasks.map((task, i) => (
           <React.Fragment key={i}>
@@ -181,6 +198,7 @@ const FolderView = ({ folder }) => {
           </Select>
         )}
       </ScrollableList>
+      <ClipboardStatus />
     </Box>
   )
 }
