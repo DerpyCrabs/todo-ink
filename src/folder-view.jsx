@@ -1,5 +1,6 @@
 import React from 'react'
-import { Box, useInput, useStdin } from 'ink'
+import { Box, useStdin } from 'ink'
+import useInput from './use-input'
 import { useTasks } from './use-tasks'
 import Task from './task'
 import Folder from './folder'
@@ -19,7 +20,11 @@ import {
   isNewFolder,
   isCut,
   isPaste,
+  isLeave,
+  isSelectPrev,
+  isSelectNext,
 } from './hotkeys'
+import useHotkeys from './use-hotkeys'
 
 const FolderView = ({ folder }) => {
   const { tasks, newTask, newFolder, setTasks } = useTasks(folder.id)
@@ -73,67 +78,107 @@ const FolderView = ({ folder }) => {
     popFocus(FOCUS.addingFolder().tag)
   }
 
-  useInput((input, key) => {
-    if (isFocused(FOCUS.folder(folder.id, folder.name))) {
-      if (key.downArrow) {
-        if (selected !== null && selected !== tasks.length - 1) {
-          refocus(FOCUS.task(tasks[selected + 1].id))
-        }
-      } else if (key.upArrow) {
-        if (selected !== null && selected !== 0) {
-          refocus(FOCUS.task(tasks[selected - 1].id))
-        }
-      } else if (isCut(key, input)) {
-        if (selected !== null) {
-          if (selected === 0 && tasks.length !== 1) {
-            refocus(FOCUS.task(tasks[1].id))
-          } else if (selected === 0 && tasks.length === 1) {
-            popFocus(FOCUS.task().tag)
-          } else {
+  useHotkeys(
+    [
+      [
+        isSelectNext,
+        () => {
+          if (selected !== null && selected !== tasks.length - 1) {
+            refocus(FOCUS.task(tasks[selected + 1].id))
+          }
+        },
+      ],
+      [
+        isSelectPrev,
+        () => {
+          if (selected !== null && selected !== 0) {
             refocus(FOCUS.task(tasks[selected - 1].id))
           }
-          cut(tasks[selected].id)
-        }
-      } else if (isPaste(key, input)) {
-        paste(folder.id, selected !== null ? selected + 1 : 0)
-      } else if (isMoveDown(key, input)) {
-        if (selected < tasks.length - 1) {
-          let tc = tasks.slice()
-          ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
-          setTasks(tc)
-          refocus(FOCUS.task(tc[selected + 1].id))
-        }
-      } else if (isMoveUp(key, input)) {
-        if (selected > 0) {
-          let tc = tasks.slice()
-          ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
-          setTasks(tc)
-          refocus(FOCUS.task(tc[selected - 1].id))
-        }
-      } else if (isDelete(key, input)) {
-        if (selected !== null) {
-          setTasks(remove(selected, 1, tasks))
-          popFocus(FOCUS.task().tag)
-          if (tasks.length !== 1) {
-            const newSelected =
-              tasks.length - 1 === selected
-                ? Math.max(0, selected - 1)
-                : selected
-            pushFocus(FOCUS.task(remove(selected, 1, tasks)[newSelected].id))
+        },
+      ],
+      [
+        isCut,
+        () => {
+          if (selected !== null) {
+            if (selected === 0 && tasks.length !== 1) {
+              refocus(FOCUS.task(tasks[1].id))
+            } else if (selected === 0 && tasks.length === 1) {
+              popFocus(FOCUS.task().tag)
+            } else {
+              refocus(FOCUS.task(tasks[selected - 1].id))
+            }
+            cut(tasks[selected].id)
           }
-        }
-      } else if (isNewTask(key, input)) {
-        pushFocus(FOCUS.addingTask(selected))
-      } else if (isNewFolder(key, input)) {
-        pushFocus(FOCUS.addingFolder(selected))
-      } else if (key.leftArrow || key.escape) {
-        if (focus.length !== 2) {
-          popFocus(FOCUS.task().tag)
-          popFocus(FOCUS.folder().tag)
-        }
-      }
-    }
-  })
+        },
+      ],
+      [
+        isPaste,
+        () => {
+          paste(folder.id, selected !== null ? selected + 1 : 0)
+        },
+      ],
+      [
+        isMoveDown,
+        () => {
+          if (selected < tasks.length - 1) {
+            let tc = tasks.slice()
+            ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
+            setTasks(tc)
+            refocus(FOCUS.task(tc[selected + 1].id))
+          }
+        },
+      ],
+      [
+        isMoveUp,
+        () => {
+          if (selected > 0) {
+            let tc = tasks.slice()
+            ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
+            setTasks(tc)
+            refocus(FOCUS.task(tc[selected - 1].id))
+          }
+        },
+      ],
+      [
+        isDelete,
+        () => {
+          if (selected !== null) {
+            setTasks(remove(selected, 1, tasks))
+            popFocus(FOCUS.task().tag)
+            if (tasks.length !== 1) {
+              const newSelected =
+                tasks.length - 1 === selected
+                  ? Math.max(0, selected - 1)
+                  : selected
+              pushFocus(FOCUS.task(remove(selected, 1, tasks)[newSelected].id))
+            }
+          }
+        },
+      ],
+      [
+        isNewTask,
+        () => {
+          pushFocus(FOCUS.addingTask(selected))
+        },
+      ],
+      [
+        isNewFolder,
+        () => {
+          pushFocus(FOCUS.addingFolder(selected))
+        },
+      ],
+      [
+        isLeave,
+        () => {
+          if (focus.length !== 2) {
+            popFocus(FOCUS.task().tag)
+            popFocus(FOCUS.folder().tag)
+          }
+        },
+      ],
+    ],
+    isFocused(FOCUS.folder(folder.id, folder.name))
+  )
 
   return (
     <Box flexDirection='column'>

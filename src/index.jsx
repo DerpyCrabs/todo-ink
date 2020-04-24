@@ -10,6 +10,7 @@ import FOCUS from './focus'
 import FolderView from './folder-view'
 import { isExit } from './hotkeys'
 import { ClipboardProvider, useClipboard } from './use-clipboard'
+import useHotkeys from './use-hotkeys'
 
 const TodoInk = () => {
   const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
@@ -23,11 +24,7 @@ const TodoInk = () => {
   }, [])
 
   const { exit } = useApp()
-  useInput((input, key) => {
-    if (isExit(key, input)) {
-      exit()
-    }
-  })
+  useHotkeys([[isExit, exit]])
 
   if (focus.length !== 0) {
     return <FolderView folder={folder} />

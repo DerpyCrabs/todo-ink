@@ -7,21 +7,28 @@ import Select from './select'
 import { useFocus } from './use-focus'
 import FOCUS from './focus'
 import { isMark, isChange } from './hotkeys'
+import useHotkeys from './use-hotkeys'
 
 const Task = ({ task, onChange }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
-  useInput(
-    (input, key) => {
-      if (isFocused(FOCUS.task(task.id))) {
-        if (isChange(key, input)) {
+  useHotkeys(
+    [
+      [
+        isChange,
+        () => {
           pushFocus(FOCUS.editingTask(task.id))
-        } else if (isMark(key, input)) {
+        },
+      ],
+      [
+        isMark,
+        () => {
           onChange({ ...task, status: !task.status })
-        }
-      }
-    },
-    { active: isFocused(FOCUS.task(task.id)) }
+        },
+      ],
+    ],
+    isFocused(FOCUS.task(task.id))
   )
+
   const handleNameChange = (newName) => {
     onChange({ ...task, name: newName })
     popFocus(FOCUS.editingTask().tag)

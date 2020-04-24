@@ -7,21 +7,27 @@ import Select from './select'
 import { useFocus } from './use-focus'
 import FOCUS from './focus'
 import { sum } from 'ramda'
-import { isChange } from './hotkeys'
+import { isChange, isEnter } from './hotkeys'
+import useHotkeys from './use-hotkeys'
 
 const Folder = ({ task, onChange }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
-  useInput(
-    (input, key) => {
-      if (isFocused(FOCUS.task(task.id))) {
-        if (isChange(key, input)) {
+  useHotkeys(
+    [
+      [
+        isChange,
+        () => {
           pushFocus(FOCUS.editingTask(task.id))
-        } else if (key.rightArrow || key.return) {
+        },
+      ],
+      [
+        isEnter,
+        () => {
           pushFocus(FOCUS.folder(task.id, task.name))
-        }
-      }
-    },
-    { active: isFocused(FOCUS.task(task.id)) }
+        },
+      ],
+    ],
+    isFocused(FOCUS.task(task.id))
   )
   const handleNameChange = (newName) => {
     onChange({ ...task, name: newName })
