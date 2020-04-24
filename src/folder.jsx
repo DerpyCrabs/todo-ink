@@ -12,23 +12,16 @@ import useHotkeys from './use-hotkeys'
 
 const Folder = ({ task, onChange }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
-  useHotkeys(
-    [
-      [
-        isChange,
-        () => {
-          pushFocus(FOCUS.editingTask(task.id))
-        },
-      ],
-      [
-        isEnter,
-        () => {
-          pushFocus(FOCUS.folder(task.id, task.name))
-        },
-      ],
-    ],
-    isFocused(FOCUS.task(task.id))
-  )
+  // prettier-ignore
+  useHotkeys([
+    [isChange, () => {
+        pushFocus(FOCUS.editingTask(task.id))
+      },],
+    [isEnter, () => {
+        pushFocus(FOCUS.folder(task.id, task.name))
+      },],
+    ], isFocused(FOCUS.task(task.id)))
+
   const handleNameChange = (newName) => {
     onChange({ ...task, name: newName })
     popFocus(FOCUS.editingTask().tag)

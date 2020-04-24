@@ -11,23 +11,15 @@ import useHotkeys from './use-hotkeys'
 
 const Task = ({ task, onChange }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
-  useHotkeys(
-    [
-      [
-        isChange,
-        () => {
-          pushFocus(FOCUS.editingTask(task.id))
-        },
-      ],
-      [
-        isMark,
-        () => {
-          onChange({ ...task, status: !task.status })
-        },
-      ],
-    ],
-    isFocused(FOCUS.task(task.id))
-  )
+  // prettier-ignore
+  useHotkeys([
+    [isChange, () => {
+        pushFocus(FOCUS.editingTask(task.id))
+      },],
+    [isMark, () => {
+        onChange({ ...task, status: !task.status })
+      },],
+    ], isFocused(FOCUS.task(task.id)))
 
   const handleNameChange = (newName) => {
     onChange({ ...task, name: newName })
