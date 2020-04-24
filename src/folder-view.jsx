@@ -155,14 +155,23 @@ const FolderView = ({ folder }) => {
         {allTasksCount(tasks)})
       </Box>
       <ScrollableList
-        position={
-          (selected === null || tasks.length === 0
-            ? 0
-            : isFocused(FOCUS.addingTask().tag)) ||
-          isFocused(FOCUS.addingFolder().tag)
-            ? selected + 1
-            : selected
-        }
+        position={(() => {
+          if (
+            isFocused(FOCUS.addingTask().tag) ||
+            isFocused(FOCUS.addingFolder().tag)
+          ) {
+            const addingPosition = focus[focus.length - 1].after
+            if (addingPosition !== null) {
+              return addingPosition + 1
+            } else {
+              return 0
+            }
+          } else if (tasks.length === 0) {
+            return 0
+          } else {
+            return selected
+          }
+        })()}
         margin={3}
       >
         {tasks.map((task, i) => [
