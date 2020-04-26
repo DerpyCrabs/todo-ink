@@ -1,13 +1,13 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { compose, lensPath, lensProp, set, view } from 'ramda'
-import type { Path } from 'ramda'
+import type { Path, Lens } from 'ramda'
 import React from 'react'
 
 export interface Task {
   id: number
   name: string
   status?: boolean
-  tasks?: [Task]
+  tasks?: [Task] | []
 }
 
 function readTasks(path: string) {
@@ -36,7 +36,10 @@ function maxId(tasks: Task): Task['id'] {
   if (tasks.tasks === undefined) {
     return tasks.id
   }
-  return Math.max(tasks.id, ...tasks.tasks.map(maxId))
+  return Math.max(
+    tasks.id,
+    ...(tasks.tasks as [Task]).map((t: Task) => maxId(t))
+  )
 }
 
 interface TasksState {
@@ -46,11 +49,15 @@ interface TasksState {
 
 type SetTasksHandler = (state: TasksState) => TasksState
 interface TasksContextType {
-  tasks?: TasksState
-  setTasks?: (handler: SetTasksHandler) => void
+  tasks: TasksState
+  setTasks: (handler: SetTasksHandler) => void
 }
 
-const TasksContext = React.createContext<TasksContextType>({})
+const TasksContext = React.createContext<TasksContextType>({
+  tasks: { lastId: 0, tasks: { id: 0, name: 'root' } },
+  setTasks: () => {},
+})
+
 export const TasksProvider = ({
   children,
   path = 'tasks.json',
@@ -91,7 +98,21 @@ export const taskPath = (tasks: Task, taskId: Task['id']): Path | null => {
   return null
 }
 
-export function useTasks(folderId?: Task['id']) {
+export interface RootTaskReturnType {
+  folder: Task
+  setFolder: (t: Task) => void
+}
+
+export interface TaskReturnType {
+  tasks: Task
+  folder: Task
+  setTasks: (t: Task) => void
+  newTask: (name: string, status: false) => Task
+  newFolder: (name: string) => Task
+}
+export function useTasks(
+  folderId?: Task['id']
+): TaskReturnType | RootTaskReturnType {
   const {
     tasks: { tasks, lastId },
     setTasks,
@@ -102,25 +123,29 @@ export function useTasks(folderId?: Task['id']) {
       setFolder: (t: Task) => setTasks(({ lastId }) => ({ tasks: t, lastId })),
     }
   }
-  const folderLens = lensPath(taskPath(tasks, folderId))
+  const folderPath = taskPath(tasks, folderId)
+  if (folderPath === null) {
+    throw new Error(`Couldn't find task with id = ${folderId}`)
+  }
+  const folderLens = lensPath(folderPath)
   const newTask = (name: string, status: boolean) => {
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
     return { id: lastId + 1, name, status }
   }
   const newFolder = (name: string) => {
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
-    return { id: lastId + 1, name, tasks: [] }
+    return { id: lastId + 1, name, tasks: [] as [] }
   }
-  const setTasksHandler = (t) => {
+  const setTasksHandler = (t: Task) => {
     setTasks(({ tasks, lastId }) => {
       return {
-        tasks: set(compose(folderLens, lensProp('tasks')), t, tasks),
+        tasks: set(compose(folderLens, lensProp('tasks')) as Lens, t, tasks),
         lastId,
       }
     })
   }
   return {
-    tasks: view(compose(folderLens, lensProp('tasks')), tasks),
+    tasks: view(compose(folderLens, lensProp('tasks')) as Lens, tasks),
     folder: view(folderLens, tasks),
     setTasks: setTasksHandler,
     newTask,

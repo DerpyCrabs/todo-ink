@@ -8,19 +8,22 @@ import {
   over,
   view,
 } from 'ramda'
+import type { Lens } from 'ramda'
 import React from 'react'
 import { allTasksCount, completedTasksCount } from '../components/folder'
 import FOCUS from '../constants/focus'
 import { useFocus } from './focus'
 import { taskPath, useTasks } from './tasks'
+import type { RootTaskReturnType } from './tasks'
 import type { Task } from './tasks'
 
 interface ClipboardContextType {
   clipboard: Task | null
-  setClipboard?: React.Dispatch<React.SetStateAction<Task | null>>
+  setClipboard: React.Dispatch<React.SetStateAction<Task | null>>
 }
 const ClipboardContext = React.createContext<ClipboardContextType>({
   clipboard: null,
+  setClipboard: () => {},
 })
 
 export const ClipboardProvider = ({
@@ -38,7 +41,7 @@ export const ClipboardProvider = ({
 
 export const useClipboard = () => {
   const { clipboard, setClipboard } = React.useContext(ClipboardContext)
-  const { folder, setFolder } = useTasks(undefined)
+  const { folder, setFolder } = useTasks(undefined) as RootTaskReturnType
   const { refocus } = useFocus()
 
   const ClipboardStatus = () => (
@@ -59,10 +62,11 @@ export const useClipboard = () => {
   return {
     ClipboardStatus,
     cut: (id: Task['id']) =>
-      setClipboard((clipboard) => {
+      setClipboard((clipboard: Task | null): Task | null => {
         if (clipboard !== null) return clipboard
         const taskP = taskPath(folder, id)
-        const task = view(lensPath(taskP), folder)
+        if (taskP === null) return null
+        const task = view(lensPath(taskP), folder) as Task
         setFolder(dissocPath(taskP, folder))
         return task
       }),
@@ -70,9 +74,12 @@ export const useClipboard = () => {
       setClipboard((clipboard) => {
         if (clipboard === null) return null
         const folderP = taskPath(folder, folderId)
+        if (folderP === null) {
+          return null
+        }
         setFolder(
           over(
-            compose(lensPath(folderP), lensProp('tasks')),
+            compose(lensPath(folderP), lensProp('tasks')) as Lens,
             insert(after, clipboard),
             folder
           )
