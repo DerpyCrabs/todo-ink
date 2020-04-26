@@ -44,7 +44,7 @@ export default function ScrollableList({ children, position, margin = 0 }) {
     })
   }, [rows, position, childrenArray.length, setFocus])
   if (childrenArray.length === 0) {
-    return <Box minHeight rows />
+    return <Box minHeight={rows} />
   }
 
   return (
