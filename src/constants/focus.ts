@@ -15,13 +15,16 @@ export default {
     id,
     fallthrough: true,
   }),
-  folder: (id = null, name = null): FolderFocus => ({
+  folder: (
+    id: null | number = null,
+    name: null | string = null
+  ): FolderFocus => ({
     tag: 'folder',
     id,
     fallthrough: false,
     name,
   }),
-  editingTask: (id = null): FocusType => ({
+  editingTask: (id: null | number = null): FocusType => ({
     tag: 'editing',
     id,
     fallthrough: false,

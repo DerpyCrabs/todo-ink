@@ -1,26 +1,32 @@
 import { Box } from 'ink'
-import { sum } from 'ramda'
 import React from 'react'
 import FOCUS from '../constants/focus'
-import { isChange, isEnter } from '../constants/hotkeys'
+import { isChange, isMark } from '../constants/hotkeys'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import Select from './select'
 import { UncontrolledTextInput } from './text-input'
+import type { Task } from '../hooks/tasks'
 
-const Folder = ({ task, onChange }) => {
+const Task = ({
+  task,
+  onChange,
+}: {
+  task: Task
+  onChange: (t: Task) => void
+}) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   // prettier-ignore
   useHotkeys([
     [isChange, () => {
         pushFocus(FOCUS.editingTask(task.id))
       },],
-    [isEnter, () => {
-        pushFocus(FOCUS.folder(task.id, task.name))
+    [isMark, () => {
+        onChange({ ...task, status: !task.status })
       },],
     ], isFocused(FOCUS.task(task.id)))
 
-  const handleNameChange = (newName) => {
+  const handleNameChange = (newName: string) => {
     onChange({ ...task, name: newName })
     popFocus(FOCUS.editingTask().tag)
   }
@@ -34,7 +40,7 @@ const Folder = ({ task, onChange }) => {
       }
     >
       <Box textWrap='truncate'>
-        [F]{' '}
+        [{task.status ? 'X' : ' '}]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <UncontrolledTextInput
             value={task.name}
@@ -43,31 +49,10 @@ const Folder = ({ task, onChange }) => {
           />
         ) : (
           task.name
-        )}{' '}
-        ({completedTasksCount(task.tasks)}/{allTasksCount(task.tasks)})
+        )}
       </Box>
     </Select>
   )
 }
 
-export default Folder
-
-export function completedTasksCount(tasks) {
-  return sum(
-    tasks.map((task) =>
-      task.tasks === undefined
-        ? task.status
-          ? 1
-          : 0
-        : completedTasksCount(task.tasks)
-    )
-  )
-}
-
-export function allTasksCount(tasks) {
-  return sum(
-    tasks.map((task) =>
-      task.tasks === undefined ? 1 : allTasksCount(task.tasks)
-    )
-  )
-}
+export default Task

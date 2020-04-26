@@ -5,8 +5,6 @@ export interface Key extends KeyWithoutBackspace {
   backspace: boolean
 }
 
-type InputHandler = (input: string, key: KeyWithoutBackspace) => void
-
 export type Handler = (input: string, key: Key) => void
 
 const handleBackspace = (handler: Handler) => (

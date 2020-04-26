@@ -1,6 +1,4 @@
-import type { Key } from '../hooks/input'
-
-export type Hotkey = (key: Key, input: string) => boolean
+import type { Hotkey } from '../hooks/hotkeys'
 
 export const isExit: Hotkey = (key, input) =>
   key.ctrl && (input === 'c' || input === 'с')

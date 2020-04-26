@@ -3,8 +3,8 @@ import React from 'react'
 import type { FocusType } from '../constants/focus'
 
 interface FocusContextType {
-  focus: [FocusType] | []
-  setFocus: React.Dispatch<React.SetStateAction<[FocusType] | []>>
+  focus: Array<FocusType>
+  setFocus: React.Dispatch<React.SetStateAction<Array<FocusType>>>
 }
 const FocusContext = React.createContext<FocusContextType>({
   focus: [],
@@ -15,7 +15,7 @@ export const FocusProvider = ({
   initialFocus = [],
 }: {
   children: React.ReactNode
-  initialFocus: [FocusType] | []
+  initialFocus: Array<FocusType>
 }) => {
   const [focus, setFocus] = React.useState(initialFocus)
   return (
@@ -28,7 +28,7 @@ export const FocusProvider = ({
 export const useFocus = () => {
   const { focus, setFocus } = React.useContext(FocusContext)
   const actions = {
-    isFocused: (tag: FocusType['tag']) => {
+    isFocused: (tag: FocusType['tag'] | FocusType) => {
       if (focus.length === 0) return false
 
       let focused = []
@@ -46,7 +46,7 @@ export const useFocus = () => {
       )
     },
     popFocus: (tag: FocusType['tag'] | FocusType) => {
-      setFocus((f: [FocusType] | []): [FocusType] | [] => {
+      setFocus((f: Array<FocusType>) => {
         if (f.length === 0) {
           throw new Error('Tried to popFocus from empty focus stack')
         } else {
@@ -56,15 +56,14 @@ export const useFocus = () => {
               ? (last(f) as FocusType).tag === tag
               : equals(last(f), tag))
           ) {
-            return dropLast(1, f) as [FocusType] | []
+            return dropLast(1, f)
           } else {
             return f
           }
         }
       })
     },
-    pushFocus: (tag: FocusType) =>
-      setFocus((f) => append(tag, f) as [FocusType] | []),
+    pushFocus: (tag: FocusType) => setFocus((f) => append(tag, f)),
     refocus: (tag: FocusType) => {
       actions.popFocus(tag.tag)
       actions.pushFocus(tag)

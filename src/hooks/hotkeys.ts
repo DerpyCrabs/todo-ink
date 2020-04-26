@@ -1,9 +1,13 @@
 import useInput from './input'
 import type { Key } from './input'
 
-type Hotkey = [(key: Key, input: string) => boolean, () => void]
+export type Hotkey = (key: Key, input: string) => boolean
+type HotkeyHandler = [Hotkey, () => void]
 
-export default function useHotkeys(hotkeys: [Hotkey], active = true) {
+export default function useHotkeys(
+  hotkeys: Array<HotkeyHandler>,
+  active = true
+) {
   useInput(
     (input, key) => {
       if (active) {

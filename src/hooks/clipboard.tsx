@@ -15,11 +15,11 @@ import FOCUS from '../constants/focus'
 import { useFocus } from './focus'
 import { taskPath, useTasks } from './tasks'
 import type { RootTaskReturnType } from './tasks'
-import type { Task } from './tasks'
+import type { Task, Folder } from './tasks'
 
 interface ClipboardContextType {
-  clipboard: Task | null
-  setClipboard: React.Dispatch<React.SetStateAction<Task | null>>
+  clipboard: Folder | Task | null
+  setClipboard: React.Dispatch<React.SetStateAction<Folder | Task | null>>
 }
 const ClipboardContext = React.createContext<ClipboardContextType>({
   clipboard: null,
@@ -31,7 +31,7 @@ export const ClipboardProvider = ({
 }: {
   children: React.ReactNode
 }) => {
-  const [clipboard, setClipboard] = React.useState<Task | null>(null)
+  const [clipboard, setClipboard] = React.useState<Folder | Task | null>(null)
   return (
     <ClipboardContext.Provider value={{ clipboard, setClipboard }}>
       {children}
@@ -49,7 +49,7 @@ export const useClipboard = () => {
       {clipboard !== null && (
         <Color>
           Clipboard content:{' '}
-          {clipboard?.tasks !== undefined
+          {'tasks' in clipboard
             ? `folder "${clipboard.name}" (${completedTasksCount(
                 clipboard.tasks
               )}/${allTasksCount(clipboard.tasks)})`
@@ -62,7 +62,7 @@ export const useClipboard = () => {
   return {
     ClipboardStatus,
     cut: (id: Task['id']) =>
-      setClipboard((clipboard: Task | null): Task | null => {
+      setClipboard((clipboard: Folder | Task | null): Folder | Task | null => {
         if (clipboard !== null) return clipboard
         const taskP = taskPath(folder, id)
         if (taskP === null) return null
@@ -70,7 +70,7 @@ export const useClipboard = () => {
         setFolder(dissocPath(taskP, folder))
         return task
       }),
-    paste: (folderId: Task['id'], after: number) => {
+    paste: (folderId: Folder['id'], after: number) => {
       setClipboard((clipboard) => {
         if (clipboard === null) return null
         const folderP = taskPath(folder, folderId)
