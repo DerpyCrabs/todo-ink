@@ -9,14 +9,14 @@ type InputHandler = (input: string, key: KeyWithoutBackspace) => void
 
 export type Handler = (input: string, key: Key) => void
 
-const handleBackspace = (handler: InputHandler) => (
+const handleBackspace = (handler: Handler) => (
   input: string,
-  key: Key
-) => {
+  key: KeyWithoutBackspace
+): void => {
   if (input === '\x08' || input === '\x7F') {
-    return handler(input, { ...key, backspace: true })
+    handler(input, { ...key, backspace: true })
   } else {
-    return handler(input, { ...key, backspace: false })
+    handler(input, { ...key, backspace: false })
   }
 }
 const useInputFix = (handler: Handler, options = { active: true }) =>
