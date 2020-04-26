@@ -1,4 +1,5 @@
 import { Color } from 'ink'
+import React from 'react'
 
 const Select = ({ selected, children }) => {
   if (selected) {

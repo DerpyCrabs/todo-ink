@@ -2,14 +2,14 @@ import React from 'react'
 import { Box, useApp } from 'ink'
 import { useTasks } from '../hooks/tasks'
 import { useFocus } from '../hooks/focus'
-import { remove, lensIndex, set, insert, last } from 'ramda'
+import { last } from 'ramda'
 import FOCUS from '../constants/focus'
 import FolderView from '../views/folder'
 import { isExit } from '../constants/hotkeys'
 import useHotkeys from '../hooks/hotkeys'
 
 const Index = () => {
-  const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
+  const { pushFocus, focus } = useFocus()
   const focusedFolder = focus.filter((f) => f.tag === FOCUS.folder().tag)
   const { folder } = useTasks(
     focusedFolder.length !== 0 ? last(focusedFolder).id : undefined
@@ -17,6 +17,8 @@ const Index = () => {
 
   React.useEffect(() => {
     pushFocus(FOCUS.folder(folder.id, folder.name))
+    // focus root folder on initial rendering
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const { exit } = useApp()

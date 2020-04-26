@@ -1,5 +1,5 @@
 import React from 'react'
-import { append, dropLast, equals, reverse, prepend, last } from 'ramda'
+import { append, dropLast, equals, reverse, last } from 'ramda'
 
 const FocusContext = React.createContext()
 export const FocusProvider = ({ children, initialFocus = [] }) => {

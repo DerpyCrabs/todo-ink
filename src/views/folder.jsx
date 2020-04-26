@@ -1,6 +1,5 @@
 import React from 'react'
-import { Box, useStdin } from 'ink'
-import useInput from '../hooks/input'
+import { Box } from 'ink'
 import { useTasks } from '../hooks/tasks'
 import Task from '../components/task'
 import Folder from '../components/folder'
@@ -48,6 +47,8 @@ const FolderView = ({ folder }) => {
     if (tasks.length !== 0 && !isFocused(FOCUS.task().tag)) {
       pushFocus(FOCUS.task(tasks[0].id))
     }
+    // select first task on initial rendering of folder
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folder.id])
 
   const taskChangeHandler = (task, i) => {

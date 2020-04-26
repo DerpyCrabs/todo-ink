@@ -77,7 +77,7 @@ export function useTasks(folderId) {
   if (folderId === undefined) {
     return {
       folder: tasks,
-      setFolder: (t) => setTasks(({ tasks, lastId }) => ({ tasks: t, lastId })),
+      setFolder: (t) => setTasks(({ lastId }) => ({ tasks: t, lastId })),
     }
   }
   const folderLens = lensPath(taskPath(tasks, folderId))

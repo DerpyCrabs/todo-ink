@@ -29,21 +29,23 @@ export const useClipboard = () => {
   const { folder, setFolder } = useTasks(undefined)
   const { refocus } = useFocus()
 
+  const ClipboardStatus = () => (
+    <Box>
+      {clipboard !== null && (
+        <Color>
+          Clipboard content:{' '}
+          {clipboard.tasks !== undefined
+            ? `folder "${clipboard.name}" (${completedTasksCount(
+                clipboard.tasks
+              )}/${allTasksCount(clipboard.tasks)})`
+            : `task "${clipboard.name}"`}
+        </Color>
+      )}
+    </Box>
+  )
+
   return {
-    ClipboardStatus: () => (
-      <Box>
-        {clipboard !== null && (
-          <Color>
-            Clipboard content:{' '}
-            {clipboard.tasks !== undefined
-              ? `folder "${clipboard.name}" (${completedTasksCount(
-                  clipboard.tasks
-                )}/${allTasksCount(clipboard.tasks)})`
-              : `task "${clipboard.name}"`}
-          </Color>
-        )}
-      </Box>
-    ),
+    ClipboardStatus,
     cut: (id) =>
       setClipboard((clipboard) => {
         if (clipboard !== null) return clipboard

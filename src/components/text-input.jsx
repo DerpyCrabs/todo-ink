@@ -10,7 +10,6 @@ export const UncontrolledTextInput = ({
   onCancel = () => {},
 }) => {
   const [value, setValue] = React.useState(_value ? _value : '')
-  const [submit, setSubmit] = React.useState(false)
   const [cursorOffset, setCursorOffset] = React.useState(
     _value ? _value.length : 0
   )

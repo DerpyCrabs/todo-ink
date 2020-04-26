@@ -1,4 +1,3 @@
-import React from 'react'
 import { appendFileSync } from 'fs'
 
 export default function useDebug(path) {
