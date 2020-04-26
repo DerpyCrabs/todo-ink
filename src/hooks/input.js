@@ -1,5 +1,5 @@
-import { useEffect, useContext } from 'react'
 import { StdinContext } from 'ink'
+import { useContext, useEffect } from 'react'
 
 export default (inputHandler, { active = true } = {}) => {
   const { stdin, setRawMode } = useContext(StdinContext)

@@ -1,5 +1,5 @@
-import React from 'react'
 import { Box, useStdout } from 'ink'
+import React from 'react'
 
 const useStdoutSize = () => {
   const { stdout } = useStdout()

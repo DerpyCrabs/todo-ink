@@ -1,8 +1,8 @@
-import React from 'react'
 import { render } from 'ink'
-import { TasksProvider } from './hooks/tasks'
-import { FocusProvider } from './hooks/focus'
+import React from 'react'
 import { ClipboardProvider } from './hooks/clipboard'
+import { FocusProvider } from './hooks/focus'
+import { TasksProvider } from './hooks/tasks'
 import Index from './views/index'
 
 if (!process.argv.some((v) => v === '--no-fullscreen')) {

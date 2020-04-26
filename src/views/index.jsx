@@ -1,12 +1,12 @@
-import React from 'react'
 import { Box, useApp } from 'ink'
-import { useTasks } from '../hooks/tasks'
-import { useFocus } from '../hooks/focus'
 import { last } from 'ramda'
+import React from 'react'
 import FOCUS from '../constants/focus'
-import FolderView from '../views/folder'
 import { isExit } from '../constants/hotkeys'
+import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
+import { useTasks } from '../hooks/tasks'
+import FolderView from '../views/folder'
 
 const Index = () => {
   const { pushFocus, focus } = useFocus()

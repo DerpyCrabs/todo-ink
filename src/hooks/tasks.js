@@ -1,6 +1,6 @@
-import { readFileSync, writeFileSync, existsSync } from 'fs'
+import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { compose, lensPath, lensProp, set, view } from 'ramda'
 import React from 'react'
-import { lensPath, view, set, lensProp, compose } from 'ramda'
 
 function readTasks(path) {
   if (existsSync(path)) {

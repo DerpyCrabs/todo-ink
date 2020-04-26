@@ -1,11 +1,11 @@
-import React from 'react'
 import { Box } from 'ink'
-import { UncontrolledTextInput } from './text-input'
-import Select from './select'
-import { useFocus } from '../hooks/focus'
+import React from 'react'
 import FOCUS from '../constants/focus'
-import { isMark, isChange } from '../constants/hotkeys'
+import { isChange, isMark } from '../constants/hotkeys'
+import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
+import Select from './select'
+import { UncontrolledTextInput } from './text-input'
 
 const Task = ({ task, onChange }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
