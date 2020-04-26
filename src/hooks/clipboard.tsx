@@ -15,11 +15,13 @@ import FOCUS from '../constants/focus'
 import { useFocus } from './focus'
 import { taskPath, useTasks } from './tasks'
 import type { RootTaskReturnType } from './tasks'
-import type { Task, Folder } from './tasks'
+import type { TaskType, FolderType } from './tasks'
 
 interface ClipboardContextType {
-  clipboard: Folder | Task | null
-  setClipboard: React.Dispatch<React.SetStateAction<Folder | Task | null>>
+  clipboard: FolderType | TaskType | null
+  setClipboard: React.Dispatch<
+    React.SetStateAction<FolderType | TaskType | null>
+  >
 }
 const ClipboardContext = React.createContext<ClipboardContextType>({
   clipboard: null,
@@ -31,7 +33,9 @@ export const ClipboardProvider = ({
 }: {
   children: React.ReactNode
 }) => {
-  const [clipboard, setClipboard] = React.useState<Folder | Task | null>(null)
+  const [clipboard, setClipboard] = React.useState<
+    FolderType | TaskType | null
+  >(null)
   return (
     <ClipboardContext.Provider value={{ clipboard, setClipboard }}>
       {children}
@@ -61,16 +65,19 @@ export const useClipboard = () => {
 
   return {
     ClipboardStatus,
-    cut: (id: Task['id']) =>
-      setClipboard((clipboard: Folder | Task | null): Folder | Task | null => {
+    cut: (id: TaskType['id']) =>
+      setClipboard((clipboard: FolderType | TaskType | null):
+        | FolderType
+        | TaskType
+        | null => {
         if (clipboard !== null) return clipboard
         const taskP = taskPath(folder, id)
         if (taskP === null) return null
-        const task = view(lensPath(taskP), folder) as Task
+        const task = view(lensPath(taskP), folder) as TaskType
         setFolder(dissocPath(taskP, folder))
         return task
       }),
-    paste: (folderId: Folder['id'], after: number) => {
+    paste: (folderId: FolderType['id'], after: number) => {
       setClipboard((clipboard) => {
         if (clipboard === null) return null
         const folderP = taskPath(folder, folderId)

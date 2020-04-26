@@ -3,12 +3,12 @@ import { compose, lensPath, lensProp, set, view } from 'ramda'
 import type { Path, Lens } from 'ramda'
 import React from 'react'
 
-export interface Folder {
+export interface FolderType {
   id: number
   name: string
-  tasks: Array<Folder | Task>
+  tasks: Array<FolderType | TaskType>
 }
-export interface Task {
+export interface TaskType {
   id: number
   name: string
   status: boolean
@@ -20,7 +20,7 @@ function readTasks(path: string) {
     const tasks = JSON.parse(content.toString())
     if (tasks.id === undefined) {
       return {
-        id: Math.max(0, ...tasks.map((t: Task) => t.id)) + 1,
+        id: Math.max(0, ...tasks.map((t: TaskType) => t.id)) + 1,
         name: 'root',
         tasks,
       }
@@ -32,23 +32,25 @@ function readTasks(path: string) {
   }
 }
 
-function writeTasks(path: string, tasks: Folder) {
+function writeTasks(path: string, tasks: FolderType) {
   writeFileSync(path, JSON.stringify(tasks))
 }
 
-function maxId(tasks: Folder | Task): Folder['id'] {
+function maxId(tasks: FolderType | TaskType): FolderType['id'] {
   if ('status' in tasks) {
     return tasks.id
   }
   return Math.max(
     tasks.id,
-    ...(tasks.tasks as Array<Folder | Task>).map((t: Folder | Task) => maxId(t))
+    ...(tasks.tasks as Array<
+      FolderType | TaskType
+    >).map((t: FolderType | TaskType) => maxId(t))
   )
 }
 
 interface TasksState {
   lastId: number
-  tasks: Folder
+  tasks: FolderType
 }
 
 type SetTasksHandler = (state: TasksState) => TasksState
@@ -89,8 +91,8 @@ export const TasksProvider = ({
 }
 
 export const taskPath = (
-  tasks: Folder | Task,
-  taskId: Task['id']
+  tasks: FolderType | TaskType,
+  taskId: TaskType['id']
 ): Path | null => {
   if (tasks.id === taskId) {
     return []
@@ -106,19 +108,19 @@ export const taskPath = (
 }
 
 export interface RootTaskReturnType {
-  folder: Folder
-  setFolder: (t: Folder) => void
+  folder: FolderType
+  setFolder: (t: FolderType) => void
 }
 
 export interface TaskReturnType {
-  tasks: Array<Folder | Task>
-  folder: Folder
-  setTasks: (t: Array<Folder | Task>) => void
-  newTask: (name: string, status: false) => Task
-  newFolder: (name: string) => Folder
+  tasks: Array<FolderType | TaskType>
+  folder: FolderType
+  setTasks: (t: Array<FolderType | TaskType>) => void
+  newTask: (name: string, status: false) => TaskType
+  newFolder: (name: string) => FolderType
 }
 export function useTasks(
-  folderId?: Folder['id']
+  folderId?: FolderType['id']
 ): TaskReturnType | RootTaskReturnType {
   const {
     tasks: { tasks, lastId },
@@ -127,7 +129,7 @@ export function useTasks(
   if (folderId === undefined) {
     return {
       folder: tasks,
-      setFolder: (t: Folder) =>
+      setFolder: (t: FolderType) =>
         setTasks(({ lastId }) => ({ tasks: t, lastId })),
     }
   }
@@ -144,7 +146,7 @@ export function useTasks(
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
     return { id: lastId + 1, name, tasks: [] as [] }
   }
-  const setTasksHandler = (t: Array<Folder | Task>) => {
+  const setTasksHandler = (t: Array<FolderType | TaskType>) => {
     setTasks(({ tasks, lastId }) => {
       return {
         tasks: set(compose(folderLens, lensProp('tasks')) as Lens, t, tasks),

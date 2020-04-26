@@ -6,14 +6,14 @@ import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import Select from './select'
 import { UncontrolledTextInput } from './text-input'
-import type { Task } from '../hooks/tasks'
+import type { TaskType } from '../hooks/tasks'
 
 const Task = ({
   task,
   onChange,
 }: {
-  task: Task
-  onChange: (t: Task) => void
+  task: TaskType
+  onChange: (t: TaskType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   // prettier-ignore

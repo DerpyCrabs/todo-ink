@@ -7,14 +7,14 @@ import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import Select from './select'
 import { UncontrolledTextInput } from './text-input'
-import type { Task, Folder } from '../hooks/tasks'
+import type { TaskType, FolderType } from '../hooks/tasks'
 
 const Folder = ({
   task,
   onChange,
 }: {
-  task: Folder
-  onChange: (t: Folder) => void
+  task: FolderType
+  onChange: (t: FolderType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   // prettier-ignore
@@ -59,7 +59,9 @@ const Folder = ({
 
 export default Folder
 
-export function completedTasksCount(tasks: Array<Folder | Task>): number {
+export function completedTasksCount(
+  tasks: Array<FolderType | TaskType>
+): number {
   return sum(
     tasks.map((task) =>
       'tasks' in task ? completedTasksCount(task.tasks) : task.status ? 1 : 0
@@ -67,7 +69,7 @@ export function completedTasksCount(tasks: Array<Folder | Task>): number {
   )
 }
 
-export function allTasksCount(tasks: Array<Folder | Task>): number {
+export function allTasksCount(tasks: Array<FolderType | TaskType>): number {
   return sum(
     tasks.map((task) => ('tasks' in task ? allTasksCount(task.tasks) : 1))
   )
