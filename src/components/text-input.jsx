@@ -15,7 +15,7 @@ export const UncontrolledTextInput = ({
   )
 
   useInput((input, key) => {
-    if (key.backspace || key.deleteKey) {
+    if (key.backspace) {
       if (cursorOffset === 0) return
       setValue(
         (v) => v.slice(0, cursorOffset - 1) + v.slice(cursorOffset, v.length)
