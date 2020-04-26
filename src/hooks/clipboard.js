@@ -1,5 +1,5 @@
 import React from 'react'
-import { useTasks, taskPath } from './use-tasks'
+import { useTasks, taskPath } from './tasks'
 import { Color, Box } from 'ink'
 import {
   lensPath,
@@ -10,9 +10,9 @@ import {
   lensProp,
   insert,
 } from 'ramda'
-import { useFocus } from './use-focus'
-import FOCUS from './focus'
-import { completedTasksCount, allTasksCount } from './folder'
+import { useFocus } from './focus'
+import FOCUS from '../constants/focus'
+import { completedTasksCount, allTasksCount } from '../components/folder'
 
 const ClipboardContext = React.createContext()
 export const ClipboardProvider = ({ children }) => {

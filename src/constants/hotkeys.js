@@ -9,6 +9,7 @@ export const isMoveUp = (key, input) => input === 'k' || input === 'л'
 export const isMoveDown = (key, input) => input === 'j' || input === 'о'
 export const isCut = (key, input) => input === 'x' || input === 'ч'
 export const isPaste = (key, input) => input === 'p' || input === 'з'
+export const isSearch = (key, input) => input === 's' || input === 'ы'
 export const isEnter = (key, input) => key.return || key.rightArrow
 export const isLeave = (key, input) => key.escape || key.leftArrow
 export const isSelectNext = (key, input) => key.downArrow

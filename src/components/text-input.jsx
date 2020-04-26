@@ -1,6 +1,6 @@
 import React from 'react'
 import { Text, Color } from 'ink'
-import useInput from './use-input'
+import useInput from '../hooks/input'
 
 export const UncontrolledTextInput = ({
   prompt = '',

@@ -1,37 +1,9 @@
 import React from 'react'
-import { render, Box, useInput, useApp, useStdin } from 'ink'
-import { TasksProvider, useTasks } from './use-tasks'
-import Task from './task'
-import Select from './select'
-import { UncontrolledTextInput } from './text-input'
-import { FocusProvider, useFocus } from './use-focus'
-import { remove, lensIndex, set, insert, last } from 'ramda'
-import FOCUS from './focus'
-import FolderView from './folder-view'
-import { isExit } from './hotkeys'
-import { ClipboardProvider, useClipboard } from './use-clipboard'
-import useHotkeys from './use-hotkeys'
-
-const TodoInk = () => {
-  const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
-  const focusedFolder = focus.filter((f) => f.tag === FOCUS.folder().tag)
-  const { folder } = useTasks(
-    focusedFolder.length !== 0 ? last(focusedFolder).id : undefined
-  )
-
-  React.useEffect(() => {
-    pushFocus(FOCUS.folder(folder.id, folder.name))
-  }, [])
-
-  const { exit } = useApp()
-  useHotkeys([[isExit, exit]])
-
-  if (focus.length !== 0) {
-    return <FolderView folder={folder} />
-  } else {
-    return <Box>Loading...</Box>
-  }
-}
+import { render } from 'ink'
+import { TasksProvider } from './hooks/tasks'
+import { FocusProvider } from './hooks/focus'
+import { ClipboardProvider } from './hooks/clipboard'
+import Index from './views/index'
 
 if (!process.argv.some((v) => v === '--no-fullscreen')) {
   const enterAltScreenCommand = '\x1b[?1049h'
@@ -48,7 +20,7 @@ render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
     <FocusProvider initialFocus={[]}>
       <ClipboardProvider>
-        <TodoInk />
+        <Index />
       </ClipboardProvider>
     </FocusProvider>
   </TasksProvider>,

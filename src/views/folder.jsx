@@ -1,17 +1,17 @@
 import React from 'react'
 import { Box, useStdin } from 'ink'
-import useInput from './use-input'
-import { useTasks } from './use-tasks'
-import Task from './task'
-import Folder from './folder'
-import Select from './select'
-import { UncontrolledTextInput } from './text-input'
-import { useFocus } from './use-focus'
-import { useClipboard } from './use-clipboard'
+import useInput from '../hooks/input'
+import { useTasks } from '../hooks/tasks'
+import Task from '../components/task'
+import Folder from '../components/folder'
+import Select from '../components/select'
+import { UncontrolledTextInput } from '../components/text-input'
+import { useFocus } from '../hooks/focus'
+import { useClipboard } from '../hooks/clipboard'
 import { remove, lensIndex, set, insert } from 'ramda'
-import FOCUS from './focus'
-import ScrollableList from './scrollable-list'
-import { allTasksCount, completedTasksCount } from './folder'
+import FOCUS from '../constants/focus'
+import ScrollableList from '../components/scrollable-list'
+import { allTasksCount, completedTasksCount } from '../components/folder'
 import {
   isMoveUp,
   isMoveDown,
@@ -23,8 +23,8 @@ import {
   isLeave,
   isSelectPrev,
   isSelectNext,
-} from './hotkeys'
-import useHotkeys from './use-hotkeys'
+} from '../constants/hotkeys'
+import useHotkeys from '../hooks/hotkeys'
 
 const FolderView = ({ folder }) => {
   const { tasks, newTask, newFolder, setTasks } = useTasks(folder.id)

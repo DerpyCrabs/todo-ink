@@ -1,4 +1,4 @@
-import useInput from './use-input'
+import useInput from './input'
 
 export default function useHotkeys(hotkeys, active = true) {
   useInput(
