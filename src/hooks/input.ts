@@ -1,4 +1,5 @@
-import { Key as KeyWithoutBackspace, useInput } from 'ink'
+import { useInput } from 'ink'
+import type { Key as KeyWithoutBackspace } from 'ink'
 
 export interface Key extends KeyWithoutBackspace {
   backspace: boolean

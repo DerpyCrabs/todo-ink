@@ -1,11 +1,11 @@
 export default {
   root: { tag: 'root' },
-  addingTask: (after?: number): FocusType => ({
+  addingTask: (after?: number): AddingFocus => ({
     tag: 'addingTask',
     fallthrough: false,
     after: after,
   }),
-  addingFolder: (after?: number): FocusType => ({
+  addingFolder: (after?: number): AddingFocus => ({
     tag: 'addingFolder',
     fallthrough: false,
     after: after,
@@ -13,8 +13,9 @@ export default {
   task: (id: number | null = null): FocusType => ({
     tag: 'task',
     id,
+    fallthrough: true,
   }),
-  folder: (id = null, name = null): FocusType => ({
+  folder: (id = null, name = null): FolderFocus => ({
     tag: 'folder',
     id,
     fallthrough: false,
@@ -30,7 +31,13 @@ export default {
 export interface FocusType {
   tag: string
   id?: number | null
-  name?: string | null
-  fallthrough?: boolean
+  fallthrough: boolean
+}
+
+export interface FolderFocus extends FocusType {
+  name: string | null
+}
+
+export interface AddingFocus extends FocusType {
   after?: number
 }
