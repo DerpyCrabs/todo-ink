@@ -1,14 +1,22 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { compose, lensPath, lensProp, set, view } from 'ramda'
+import type { Path } from 'ramda'
 import React from 'react'
 
-function readTasks(path) {
+export interface Task {
+  id: number
+  name: string
+  status?: boolean
+  tasks?: [Task]
+}
+
+function readTasks(path: string) {
   if (existsSync(path)) {
     const content = readFileSync(path)
-    const tasks = JSON.parse(content)
+    const tasks = JSON.parse(content.toString())
     if (tasks.id === undefined) {
       return {
-        id: Math.max(0, ...tasks.map((t) => t.id)) + 1,
+        id: Math.max(0, ...tasks.map((t: Task) => t.id)) + 1,
         name: 'root',
         tasks,
       }
@@ -20,28 +28,42 @@ function readTasks(path) {
   }
 }
 
-function writeTasks(path, tasks) {
+function writeTasks(path: string, tasks: Task) {
   writeFileSync(path, JSON.stringify(tasks))
 }
 
-function maxId(tasks) {
+function maxId(tasks: Task): Task['id'] {
   if (tasks.tasks === undefined) {
-    return tasks.id
-  }
-  if (tasks.tasks.length === 0) {
     return tasks.id
   }
   return Math.max(tasks.id, ...tasks.tasks.map(maxId))
 }
 
-const TasksContext = React.createContext()
-export const TasksProvider = ({ children, path = 'tasks.json' }) => {
+interface TasksState {
+  lastId: number
+  tasks: Task
+}
+
+type SetTasksHandler = (state: TasksState) => TasksState
+interface TasksContextType {
+  tasks?: TasksState
+  setTasks?: (handler: SetTasksHandler) => void
+}
+
+const TasksContext = React.createContext<TasksContextType>({})
+export const TasksProvider = ({
+  children,
+  path = 'tasks.json',
+}: {
+  children: React.ReactNode
+  path: string
+}) => {
   const tmpTasks = readTasks(path)
   const [tasks, setTasks] = React.useState({
     lastId: maxId(tmpTasks),
     tasks: tmpTasks,
   })
-  const setTasksHandler = (tasksHandler) => {
+  const setTasksHandler = (tasksHandler: SetTasksHandler) => {
     setTasks((tasks) => {
       const newTasks = tasksHandler(tasks)
       writeTasks(path, newTasks.tasks)
@@ -55,7 +77,7 @@ export const TasksProvider = ({ children, path = 'tasks.json' }) => {
   )
 }
 
-export const taskPath = (tasks, taskId) => {
+export const taskPath = (tasks: Task, taskId: Task['id']): Path | null => {
   if (tasks.id === taskId) {
     return []
   } else if (tasks.tasks !== undefined) {
@@ -69,7 +91,7 @@ export const taskPath = (tasks, taskId) => {
   return null
 }
 
-export function useTasks(folderId) {
+export function useTasks(folderId?: Task['id']) {
   const {
     tasks: { tasks, lastId },
     setTasks,
@@ -77,15 +99,15 @@ export function useTasks(folderId) {
   if (folderId === undefined) {
     return {
       folder: tasks,
-      setFolder: (t) => setTasks(({ lastId }) => ({ tasks: t, lastId })),
+      setFolder: (t: Task) => setTasks(({ lastId }) => ({ tasks: t, lastId })),
     }
   }
   const folderLens = lensPath(taskPath(tasks, folderId))
-  const newTask = (name, status) => {
+  const newTask = (name: string, status: boolean) => {
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
     return { id: lastId + 1, name, status }
   }
-  const newFolder = (name) => {
+  const newFolder = (name: string) => {
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
     return { id: lastId + 1, name, tasks: [] }
   }

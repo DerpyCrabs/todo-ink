@@ -13,10 +13,22 @@ import { allTasksCount, completedTasksCount } from '../components/folder'
 import FOCUS from '../constants/focus'
 import { useFocus } from './focus'
 import { taskPath, useTasks } from './tasks'
+import type { Task } from './tasks'
 
-const ClipboardContext = React.createContext()
-export const ClipboardProvider = ({ children }) => {
-  const [clipboard, setClipboard] = React.useState(null)
+interface ClipboardContextType {
+  clipboard: Task | null
+  setClipboard?: React.Dispatch<React.SetStateAction<Task | null>>
+}
+const ClipboardContext = React.createContext<ClipboardContextType>({
+  clipboard: null,
+})
+
+export const ClipboardProvider = ({
+  children,
+}: {
+  children: React.ReactNode
+}) => {
+  const [clipboard, setClipboard] = React.useState<Task | null>(null)
   return (
     <ClipboardContext.Provider value={{ clipboard, setClipboard }}>
       {children}
@@ -34,11 +46,11 @@ export const useClipboard = () => {
       {clipboard !== null && (
         <Color>
           Clipboard content:{' '}
-          {clipboard.tasks !== undefined
+          {clipboard?.tasks !== undefined
             ? `folder "${clipboard.name}" (${completedTasksCount(
                 clipboard.tasks
               )}/${allTasksCount(clipboard.tasks)})`
-            : `task "${clipboard.name}"`}
+            : `task "${clipboard?.name}"`}
         </Color>
       )}
     </Box>
@@ -46,7 +58,7 @@ export const useClipboard = () => {
 
   return {
     ClipboardStatus,
-    cut: (id) =>
+    cut: (id: Task['id']) =>
       setClipboard((clipboard) => {
         if (clipboard !== null) return clipboard
         const taskP = taskPath(folder, id)
@@ -54,7 +66,7 @@ export const useClipboard = () => {
         setFolder(dissocPath(taskP, folder))
         return task
       }),
-    paste: (folderId, after) => {
+    paste: (folderId: Task['id'], after: number) => {
       setClipboard((clipboard) => {
         if (clipboard === null) return null
         const folderP = taskPath(folder, folderId)
