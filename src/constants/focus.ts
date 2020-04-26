@@ -1,11 +1,11 @@
 export default {
   root: { tag: 'root' },
-  addingTask: (after?: number): AddingFocus => ({
+  addingTask: (after: number | null): AddingFocus => ({
     tag: 'addingTask',
     fallthrough: false,
     after: after,
   }),
-  addingFolder: (after?: number): AddingFocus => ({
+  addingFolder: (after: number | null): AddingFocus => ({
     tag: 'addingFolder',
     fallthrough: false,
     after: after,
@@ -42,5 +42,5 @@ export interface FolderFocus extends FocusType {
 }
 
 export interface AddingFocus extends FocusType {
-  after?: number
+  after: number | null
 }

@@ -6,13 +6,16 @@ import { isExit } from '../constants/hotkeys'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { useTasks } from '../hooks/tasks'
-import FolderView from '../views/folder'
+import FolderView from './folder'
+import type { FocusType } from '../constants/focus'
 
 const Index = () => {
   const { pushFocus, focus } = useFocus()
   const focusedFolder = focus.filter((f) => f.tag === FOCUS.folder().tag)
   const { folder } = useTasks(
-    focusedFolder.length !== 0 ? last(focusedFolder).id : undefined
+    focusedFolder.length !== 0
+      ? ((last(focusedFolder) as FocusType).id as number)
+      : undefined
   )
 
   React.useEffect(() => {

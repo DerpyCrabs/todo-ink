@@ -24,9 +24,13 @@ import { useClipboard } from '../hooks/clipboard'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { useTasks } from '../hooks/tasks'
+import type { FolderType, TaskType, TaskReturnType } from '../hooks/tasks'
+import type { AddingFocus, FocusType, FolderFocus } from '../constants/focus'
 
-const FolderView = ({ folder }) => {
-  const { tasks, newTask, newFolder, setTasks } = useTasks(folder.id)
+const FolderView = ({ folder }: { folder: FolderType }) => {
+  const { tasks, newTask, newFolder, setTasks } = useTasks(
+    folder.id
+  ) as TaskReturnType
   const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
   const selected = (() => {
     const last = focus[focus.length - 1]
@@ -51,20 +55,20 @@ const FolderView = ({ folder }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folder.id])
 
-  const taskChangeHandler = (task, i) => {
+  const taskChangeHandler = (task: TaskType | FolderType, i: number) => {
     setTasks(set(lensIndex(i), task, tasks))
   }
 
-  const newTaskHandler = (v, i) => {
-    popFocus(FOCUS.addingTask().tag)
+  const newTaskHandler = (v: string, i: number) => {
+    popFocus(FOCUS.addingTask(null).tag)
     if (v.trim()) {
       const task = newTask(v, false)
       setTasks(insert(i, task, tasks))
       refocus(FOCUS.task(task.id))
     }
   }
-  const newFolderHandler = (v, i) => {
-    popFocus(FOCUS.addingFolder().tag)
+  const newFolderHandler = (v: string, i: number) => {
+    popFocus(FOCUS.addingFolder(null).tag)
     if (v.trim()) {
       const task = newFolder(v)
       setTasks(insert(i, task, tasks))
@@ -73,10 +77,10 @@ const FolderView = ({ folder }) => {
   }
 
   const newTaskCancelHandler = () => {
-    popFocus(FOCUS.addingTask().tag)
+    popFocus(FOCUS.addingTask(null).tag)
   }
   const newFolderCancelHandler = () => {
-    popFocus(FOCUS.addingFolder().tag)
+    popFocus(FOCUS.addingFolder(null).tag)
   }
 
   // prettier-ignore
@@ -107,7 +111,7 @@ const FolderView = ({ folder }) => {
         paste(folder.id, selected !== null ? selected + 1 : 0)
       },],
     [isMoveDown, () => {
-        if (selected < tasks.length - 1) {
+        if (selected !== null && selected < tasks.length - 1) {
           let tc = tasks.slice()
           ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
           setTasks(tc)
@@ -115,7 +119,7 @@ const FolderView = ({ folder }) => {
         }
       },],
     [isMoveUp, () => {
-        if (selected > 0) {
+        if (selected !== null && selected > 0) {
           let tc = tasks.slice()
           ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
           setTasks(tc)
@@ -158,10 +162,11 @@ const FolderView = ({ folder }) => {
       <ScrollableList
         position={(() => {
           if (
-            isFocused(FOCUS.addingTask().tag) ||
-            isFocused(FOCUS.addingFolder().tag)
+            isFocused(FOCUS.addingTask(null).tag) ||
+            isFocused(FOCUS.addingFolder(null).tag)
           ) {
-            const addingPosition = focus[focus.length - 1].after
+            const addingPosition = (focus[focus.length - 1] as AddingFocus)
+              .after
             if (addingPosition !== null) {
               return addingPosition + 1
             } else {
@@ -177,14 +182,14 @@ const FolderView = ({ folder }) => {
       >
         {tasks.map((task, i) => [
           ...[
-            task.tasks === undefined ? (
-              <Task
+            'tasks' in task ? (
+              <Folder
                 key={i}
                 task={task}
                 onChange={(t) => taskChangeHandler(t, i)}
               />
             ) : (
-              <Folder
+              <Task
                 key={i}
                 task={task}
                 onChange={(t) => taskChangeHandler(t, i)}
@@ -238,10 +243,10 @@ const FolderView = ({ folder }) => {
   )
 }
 
-function folderPath(focus) {
+function folderPath(focus: Array<FocusType>) {
   const folders = focus
     .filter((f) => f.tag === FOCUS.folder().tag)
-    .map((f) => f.name)
+    .map((f) => (f as FolderFocus).name)
   return '/' + folders.slice(1).join('/')
 }
 

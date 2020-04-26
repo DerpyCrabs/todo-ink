@@ -15,16 +15,13 @@
     "@babel/preset-react": "^7.9.4",
     "ink": "https://github.com/vadimdemedes/ink",
     "ramda": "^0.27.0",
-    "react": "^0.0.0-experimental-d7382b6c4",
-    "react-dom": "^0.0.0-experimental-d7382b6c4"
+    "react": "^16.9.34",
+    "react-dom": "^16.9.34"
   },
   "babel": {
     "presets": [
       [
-        "@babel/preset-react",
-        {
-          "runtime": "automatic"
-        }
+        "@babel/preset-react"
       ],
       [
         "@babel/preset-env",

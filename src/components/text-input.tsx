@@ -8,6 +8,12 @@ export const UncontrolledTextInput = ({
   value: _value,
   onSubmit,
   onCancel = () => {},
+}: {
+  prompt?: string
+  placeholder?: string
+  value?: string
+  onSubmit: (value: string) => void
+  onCancel: () => void
 }) => {
   const [value, setValue] = React.useState(_value ? _value : '')
   const [cursorOffset, setCursorOffset] = React.useState(

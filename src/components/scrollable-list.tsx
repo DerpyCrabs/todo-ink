@@ -1,8 +1,11 @@
 import { Box, useStdout } from 'ink'
 import React from 'react'
 
-const useStdoutSize = () => {
+const useStdoutSize = (): { rows: number; columns: number } => {
   const { stdout } = useStdout()
+  if (stdout === undefined) {
+    return { rows: 0, columns: 0 }
+  }
   const [size, setSize] = React.useState({
     columns: stdout.columns,
     rows: stdout.rows,
@@ -11,16 +14,24 @@ const useStdoutSize = () => {
   React.useEffect(() => {
     const handler = () =>
       setSize({ columns: stdout.columns, rows: stdout.rows })
-    stdout.on('resize', handler)
+    stdout?.on('resize', handler)
     return () => {
-      stdout.off('resize', handler)
+      stdout?.off('resize', handler)
     }
-  }, [stdout, stdout.columns, stdout.rows])
+  }, [stdout, stdout?.columns, stdout?.rows])
 
   return size
 }
 
-export default function ScrollableList({ children, position, margin = 0 }) {
+export default function ScrollableList({
+  children,
+  position,
+  margin = 0,
+}: {
+  children: React.ReactNode
+  position: number | null
+  margin: number
+}) {
   const [focus, setFocus] = React.useState(0)
   const { rows: _rows } = useStdoutSize()
   let rows = _rows - margin
