@@ -6,7 +6,7 @@ import { allTasksCount, completedTasksCount } from '../components/folder'
 import ScrollableList from '../components/scrollable-list'
 import Select from '../components/select'
 import Task from '../components/task'
-import { UncontrolledTextInput } from '../components/text-input'
+import TextInput from '../components/text-input'
 import FOCUS from '../constants/focus'
 import {
   isCut,
@@ -199,7 +199,7 @@ const FolderView = ({ folder }: { folder: FolderType }) => {
           ...[
             isFocused(FOCUS.addingTask(i)) && (
               <Select key={`${i}-addingTask`} selected={true}>
-                <UncontrolledTextInput
+                <TextInput
                   prompt='> '
                   onSubmit={(v) => newTaskHandler(v, i + 1)}
                   onCancel={newTaskCancelHandler}
@@ -210,7 +210,7 @@ const FolderView = ({ folder }: { folder: FolderType }) => {
           ...[
             isFocused(FOCUS.addingFolder(i)) && (
               <Select key={`${i}-addingFolder`} selected={true}>
-                <UncontrolledTextInput
+                <TextInput
                   prompt='[F] > '
                   onSubmit={(v) => newFolderHandler(v, i + 1)}
                   onCancel={newFolderCancelHandler}
@@ -221,7 +221,7 @@ const FolderView = ({ folder }: { folder: FolderType }) => {
         ])}
         {isFocused(FOCUS.addingTask(null)) && (
           <Select selected={true}>
-            <UncontrolledTextInput
+            <TextInput
               prompt='> '
               onSubmit={(v) => newTaskHandler(v, 0)}
               onCancel={newTaskCancelHandler}
@@ -230,7 +230,7 @@ const FolderView = ({ folder }: { folder: FolderType }) => {
         )}
         {isFocused(FOCUS.addingFolder(null)) && (
           <Select selected={true}>
-            <UncontrolledTextInput
+            <TextInput
               prompt='[F] > '
               onSubmit={(v) => newFolderHandler(v, 0)}
               onCancel={newFolderCancelHandler}

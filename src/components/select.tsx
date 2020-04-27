@@ -7,7 +7,7 @@ const Select = ({
 }: {
   children: React.ReactNode
   selected: boolean
-}): React.ReactElement => {
+}) => {
   if (selected) {
     return <Color green>{children}</Color>
   } else {

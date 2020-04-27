@@ -6,15 +6,15 @@ import { isChange, isEnter } from '../constants/hotkeys'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import Select from './select'
-import { UncontrolledTextInput } from './text-input'
+import TextInput from './text-input'
 import type { TaskType, FolderType } from '../hooks/tasks'
 
 const Folder = ({
   task,
-  onChange,
+  onChange = () => {},
 }: {
   task: FolderType
-  onChange: (t: FolderType) => void
+  onChange?: (t: FolderType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   // prettier-ignore
@@ -43,7 +43,7 @@ const Folder = ({
       <Box textWrap='truncate'>
         [F]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
-          <UncontrolledTextInput
+          <TextInput
             value={task.name}
             onSubmit={handleNameChange}
             onCancel={handleNameChangeCancel}

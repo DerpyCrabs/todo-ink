@@ -144,7 +144,7 @@ export function useTasks(
   }
   const newFolder = (name: string) => {
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
-    return { id: lastId + 1, name, tasks: [] as [] }
+    return { id: lastId + 1, name, tasks: [] }
   }
   const setTasksHandler = (t: Array<FolderType | TaskType>) => {
     setTasks(({ tasks, lastId }) => {

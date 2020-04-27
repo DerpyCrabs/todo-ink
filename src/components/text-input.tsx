@@ -2,7 +2,7 @@ import { Color, Text } from 'ink'
 import React from 'react'
 import useInput from '../hooks/input'
 
-export const UncontrolledTextInput = ({
+const TextInput = ({
   prompt = '',
   placeholder = '',
   value: _value,
@@ -13,7 +13,7 @@ export const UncontrolledTextInput = ({
   placeholder?: string
   value?: string
   onSubmit: (value: string) => void
-  onCancel: () => void
+  onCancel?: () => void
 }) => {
   const [value, setValue] = React.useState(_value ? _value : '')
   const [cursorOffset, setCursorOffset] = React.useState(
@@ -66,3 +66,5 @@ export const UncontrolledTextInput = ({
     </Text>
   )
 }
+
+export default TextInput

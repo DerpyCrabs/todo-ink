@@ -5,15 +5,15 @@ import { isChange, isMark } from '../constants/hotkeys'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import Select from './select'
-import { UncontrolledTextInput } from './text-input'
+import TextInput from './text-input'
 import type { TaskType } from '../hooks/tasks'
 
 const Task = ({
   task,
-  onChange,
+  onChange = () => {},
 }: {
   task: TaskType
-  onChange: (t: TaskType) => void
+  onChange?: (t: TaskType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   // prettier-ignore
@@ -42,7 +42,7 @@ const Task = ({
       <Box textWrap='truncate'>
         [{task.status ? 'X' : ' '}]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
-          <UncontrolledTextInput
+          <TextInput
             value={task.name}
             onSubmit={handleNameChange}
             onCancel={handleNameChangeCancel}
