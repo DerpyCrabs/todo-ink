@@ -2,7 +2,7 @@ import { Box } from 'ink'
 import { insert, lensIndex, remove, set } from 'ramda'
 import React from 'react'
 import Folder from '../components/folder'
-import { allTasksCount, completedTasksCount } from '../components/folder'
+import FolderHeader from '../components/folder-header'
 import ScrollableList from '../components/scrollable-list'
 import Select from '../components/select'
 import Task from '../components/task'
@@ -25,15 +25,25 @@ import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { useTasks } from '../hooks/tasks'
 import type { FolderType, TaskType, TaskReturnType } from '../hooks/tasks'
-import type { AddingFocus, FocusType, FolderFocus } from '../constants/focus'
+import type { AddingFocus } from '../constants/focus'
+import { useRouter } from '../hooks/router'
 
-const FolderView = ({ folder }: { folder: FolderType }) => {
-  const { tasks, newTask, newFolder, setTasks } = useTasks(
-    folder.id
+const FolderView = ({ folderId }: { folderId: FolderType['id'] }) => {
+  const { folder, tasks, newTask, newFolder, setTasks } = useTasks(
+    folderId
   ) as TaskReturnType
-  const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
+  const {
+    isFocused,
+    pushFocus,
+    popFocus,
+    focus,
+    refocus,
+    initialFocus,
+  } = useFocus()
+  const { back } = useRouter()
   const selected = (() => {
     const last = focus[focus.length - 1]
+    if (last === undefined) return null
     if (last.tag === 'task' || last.tag === 'editing') {
       const index = tasks.findIndex((t) => t.id === last.id)
       if (index !== -1) {
@@ -48,12 +58,13 @@ const FolderView = ({ folder }: { folder: FolderType }) => {
   const { ClipboardStatus, cut, paste } = useClipboard()
 
   React.useEffect(() => {
-    if (tasks.length !== 0 && !isFocused(FOCUS.task().tag)) {
+    initialFocus(FOCUS.folder(folderId))
+    if (tasks.length !== 0) {
       pushFocus(FOCUS.task(tasks[0].id))
     }
     // select first task on initial rendering of folder
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folder.id])
+  }, [folderId])
 
   const taskChangeHandler = (task: TaskType | FolderType, i: number) => {
     setTasks(set(lensIndex(i), task, tasks))
@@ -146,19 +157,13 @@ const FolderView = ({ folder }: { folder: FolderType }) => {
         pushFocus(FOCUS.addingFolder(selected))
       },],
     [isLeave, () => {
-        if (focus.length !== 2) {
-          popFocus(FOCUS.task().tag)
-          popFocus(FOCUS.folder().tag)
-        }
+      back()
       },],
-    ], isFocused(FOCUS.folder(folder.id, folder.name)))
+    ], isFocused(FOCUS.folder(folder.id)))
 
   return (
     <Box flexDirection='column'>
-      <Box>
-        {'    '}Folder: {folderPath(focus)} ({completedTasksCount(tasks)}/
-        {allTasksCount(tasks)})
-      </Box>
+      <FolderHeader folderId={folderId} />
       <ScrollableList
         position={(() => {
           if (
@@ -241,13 +246,6 @@ const FolderView = ({ folder }: { folder: FolderType }) => {
       <ClipboardStatus />
     </Box>
   )
-}
-
-function folderPath(focus: Array<FocusType>) {
-  const folders = focus
-    .filter((f) => f.tag === FOCUS.folder().tag)
-    .map((f) => (f as FolderFocus).name)
-  return '/' + folders.slice(1).join('/')
 }
 
 export default FolderView

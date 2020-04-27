@@ -8,6 +8,7 @@ import useHotkeys from '../hooks/hotkeys'
 import Select from './select'
 import TextInput from './text-input'
 import type { TaskType, FolderType } from '../hooks/tasks'
+import { useRouter } from '../hooks/router'
 
 const Folder = ({
   task,
@@ -17,13 +18,14 @@ const Folder = ({
   onChange?: (t: FolderType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
+  const { go } = useRouter()
   // prettier-ignore
   useHotkeys([
     [isChange, () => {
         pushFocus(FOCUS.editingTask(task.id))
       },],
     [isEnter, () => {
-        pushFocus(FOCUS.folder(task.id, task.name))
+      go(`/folder/${task.id}`)
       },],
     ], isFocused(FOCUS.task(task.id)))
 

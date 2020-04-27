@@ -15,14 +15,10 @@ export default {
     id,
     fallthrough: true,
   }),
-  folder: (
-    id: null | number = null,
-    name: null | string = null
-  ): FolderFocus => ({
+  folder: (id: null | number = null): FocusType => ({
     tag: 'folder',
     id,
     fallthrough: false,
-    name,
   }),
   editingTask: (id: null | number = null): FocusType => ({
     tag: 'editing',
@@ -35,10 +31,6 @@ export interface FocusType {
   tag: string
   id?: number | null
   fallthrough: boolean
-}
-
-export interface FolderFocus extends FocusType {
-  name: string | null
 }
 
 export interface AddingFocus extends FocusType {

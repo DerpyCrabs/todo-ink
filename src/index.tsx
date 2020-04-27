@@ -18,7 +18,7 @@ Error.stackTraceLimit = 1000
 
 render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
-    <FocusProvider initialFocus={[]}>
+    <FocusProvider>
       <ClipboardProvider>
         <Index />
       </ClipboardProvider>
