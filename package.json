@@ -1,12 +1,13 @@
 {
   "name": "todo-ink",
   "version": "1.0.0",
-  "main": "index.js",
   "license": "MIT",
   "scripts": {
     "type-check": "tsc --noEmit",
     "type-check:watch": "yarn type-check --watch",
-    "start": "npx babel src --out-dir lib --extensions \".js,.jsx,.ts,.tsx\" --source-maps inline && node ./lib/index.js"
+    "build": "npx babel src --out-dir lib --extensions \".js,.jsx,.ts,.tsx\" --source-maps inline",
+    "package": "yarn build && npx pkg lib/index.js -o lib/todo-ink",
+    "start": "yarn build && node ./lib/index.js"
   },
   "dependencies": {
     "@babel/cli": "^7.8.4",
@@ -42,6 +43,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^3.0.0",
+    "pkg": "^4.4.8",
     "typescript": "^3.8.3"
   }
 }
