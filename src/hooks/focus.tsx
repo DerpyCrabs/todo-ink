@@ -10,8 +10,14 @@ const FocusContext = React.createContext<FocusContextType>({
   focus: [],
   setFocus: () => {},
 })
-export const FocusProvider = ({ children }: { children: React.ReactNode }) => {
-  const [focus, setFocus] = React.useState([] as Array<FocusType>)
+export const FocusProvider = ({
+  children,
+  initialFocus = [],
+}: {
+  children: React.ReactNode
+  initialFocus: Array<FocusType>
+}) => {
+  const [focus, setFocus] = React.useState(initialFocus)
 
   return (
     <FocusContext.Provider value={{ focus, setFocus }}>
@@ -23,9 +29,6 @@ export const FocusProvider = ({ children }: { children: React.ReactNode }) => {
 export const useFocus = () => {
   const { focus, setFocus } = React.useContext(FocusContext)
   const actions = {
-    initialFocus: (tag: FocusType) => {
-      setFocus(() => [tag])
-    },
     isFocused: (tag: FocusType['tag'] | FocusType) => {
       if (focus.length === 0) return false
 
@@ -67,5 +70,5 @@ export const useFocus = () => {
       actions.pushFocus(tag)
     },
   }
-  return { focus, ...actions }
+  return { focus, setFocus, ...actions }
 }

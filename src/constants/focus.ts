@@ -19,6 +19,7 @@ export default {
     tag: 'folder',
     id,
     fallthrough: false,
+    route: true,
   }),
   editingTask: (id: null | number = null): FocusType => ({
     tag: 'editing',
@@ -31,6 +32,7 @@ export interface FocusType {
   tag: string
   id?: number | null
   fallthrough: boolean
+  route?: boolean
 }
 
 export interface AddingFocus extends FocusType {

@@ -1,47 +1,20 @@
-import { zip } from 'ramda'
-import { append, init, last } from 'ramda'
+import { dropLastWhile, init, last, pick } from 'ramda'
 import React from 'react'
-import useDebug from './debug'
-
-interface RouterStateType {
-  history: Array<string>
-  path: string
-}
-
-interface RouterContextType {
-  state: RouterStateType
-  setState: React.Dispatch<React.SetStateAction<RouterStateType>>
-}
-
-const RouterContext = React.createContext<RouterContextType>({
-  state: { history: [], path: '/' },
-  setState: () => {},
-})
+import FOCUS from '../constants/focus'
+import { useFocus } from '../hooks/focus'
 
 const parsePath = (path: string) => {
-  if (path === '/') {
-    return ['/']
-  }
   const parts = path.split('/').filter((p) => p !== '')
-  return ['/' + parts[0], ...parts.slice(1)]
+  return parts
 }
 
-export const Router = ({
-  children,
-  initialPath = '/',
-}: {
-  children: React.ReactNode
-  initialPath: string
-}) => {
-  const [state, setState] = React.useState({
-    history: [],
-    path: initialPath,
-  } as RouterStateType)
-
-  const debug = useDebug('router')
+export const Router = ({ children }: { children: React.ReactNode }) => {
+  const { focus } = useFocus()
 
   const renderedChild = (() => {
-    const path = parsePath(state.path)
+    const currentRoute = last(focus.filter((f) => f.route === true))
+    let fallbackChild = null
+
     for (const child of React.Children.toArray(children)) {
       if (
         typeof child === 'string' ||
@@ -50,48 +23,49 @@ export const Router = ({
       )
         continue
       if (child.props.path !== undefined) {
-        const childPath = parsePath(child.props.path)
-        if (childPath[0] === path[0]) {
-          if (childPath.length === 1) return child
+        if (child.props.path === '/') {
+          fallbackChild = child
+        }
 
-          const props = Object.fromEntries(
-            zip(
-              childPath.slice(1).map((part) => part.slice(1)),
-              path.slice(1).map((part) => JSON.parse(part))
+        const childPath = parsePath(child.props.path)
+
+        if (currentRoute !== undefined) {
+          if (childPath[0] === currentRoute.tag) {
+            if (childPath.length === 1) return child
+
+            return React.cloneElement(
+              child,
+              pick(
+                childPath.slice(1).map((t) => t.slice(1)),
+                currentRoute
+              )
             )
-          )
-          return React.cloneElement(child, props)
+          }
         }
       }
     }
-    return null
+    return fallbackChild
   })()
 
-  return (
-    <RouterContext.Provider value={{ state, setState }}>
-      {renderedChild}
-    </RouterContext.Provider>
-  )
+  return renderedChild
 }
 
 export const useRouter = () => {
-  const { setState } = React.useContext(RouterContext)
+  const { pushFocus, setFocus } = useFocus()
   return {
     back: () => {
-      setState(({ history, path }) =>
-        history.length !== 0
-          ? {
-              history: init(history),
-              path: last(history) as string,
-            }
-          : { history, path }
-      )
+      setFocus((f) => {
+        const previousRoute = init(dropLastWhile((t) => t.route !== true, f))
+        if (previousRoute !== undefined && previousRoute.length !== 0) {
+          return previousRoute
+        } else {
+          return f
+        }
+      })
     },
     go: (path: string) => {
-      setState(({ history, path: prevPath }) => ({
-        history: append(prevPath, history),
-        path,
-      }))
+      const parsedPath = parsePath(path)
+      pushFocus((FOCUS as any)[parsedPath[0]](JSON.parse(parsedPath[1])))
     },
   }
 }

@@ -28,18 +28,11 @@ import type { FolderType, TaskType, TaskReturnType } from '../hooks/tasks'
 import type { AddingFocus } from '../constants/focus'
 import { useRouter } from '../hooks/router'
 
-const FolderView = ({ folderId }: { folderId: FolderType['id'] }) => {
+const FolderView = ({ id }: { id: FolderType['id'] }) => {
   const { folder, tasks, newTask, newFolder, setTasks } = useTasks(
-    folderId
+    id
   ) as TaskReturnType
-  const {
-    isFocused,
-    pushFocus,
-    popFocus,
-    focus,
-    refocus,
-    initialFocus,
-  } = useFocus()
+  const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
   const { back } = useRouter()
   const selected = (() => {
     const last = focus[focus.length - 1]
@@ -58,13 +51,12 @@ const FolderView = ({ folderId }: { folderId: FolderType['id'] }) => {
   const { ClipboardStatus, cut, paste } = useClipboard()
 
   React.useEffect(() => {
-    initialFocus(FOCUS.folder(folderId))
-    if (tasks.length !== 0) {
+    if (tasks.length !== 0 && !isFocused(FOCUS.task().tag)) {
       pushFocus(FOCUS.task(tasks[0].id))
     }
     // select first task on initial rendering of folder
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folderId])
+  }, [folder.id])
 
   const taskChangeHandler = (task: TaskType | FolderType, i: number) => {
     setTasks(set(lensIndex(i), task, tasks))
@@ -163,7 +155,7 @@ const FolderView = ({ folderId }: { folderId: FolderType['id'] }) => {
 
   return (
     <Box flexDirection='column'>
-      <FolderHeader folderId={folderId} />
+      <FolderHeader folderId={folder.id} />
       <ScrollableList
         position={(() => {
           if (

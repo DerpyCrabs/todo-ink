@@ -19,14 +19,17 @@ export default function FolderHeader({
     folder
   ) as Array<FolderType | TaskType>
 
-  const path = scan(
-    (acc, elem: Array<string | number>) => [...acc, ...elem],
-    [],
-    splitEvery(2, folderPath)
-  )
-    .slice(1)
-    .map((path) => (view(lensPath(path), folder) as FolderType).name)
-    .join('/')
+  const path = (() => {
+    const folderPaths = scan(
+      (acc, elem: Array<string | number>) => [...acc, ...elem],
+      [],
+      splitEvery(2, folderPath)
+    )
+    const folderNames = folderPaths
+      .slice(1)
+      .map((path) => (view(lensPath(path), folder) as FolderType).name)
+    return folderNames.join('/')
+  })()
 
   return (
     <Box>

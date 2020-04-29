@@ -1,7 +1,5 @@
 import { render } from 'ink'
 import React from 'react'
-import { ClipboardProvider } from './hooks/clipboard'
-import { FocusProvider } from './hooks/focus'
 import { TasksProvider } from './hooks/tasks'
 import Index from './views/index'
 
@@ -18,11 +16,7 @@ Error.stackTraceLimit = 1000
 
 render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
-    <FocusProvider>
-      <ClipboardProvider>
-        <Index />
-      </ClipboardProvider>
-    </FocusProvider>
+    <Index />
   </TasksProvider>,
   { experimental: true, exitOnCtrlC: false }
 )
