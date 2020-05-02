@@ -2,43 +2,45 @@ import { Color, Text } from 'ink'
 import React from 'react'
 import useInput from '../hooks/input'
 
-const TextInput = ({
+interface TextInput {
+  prompt?: string
+  value?: string
+  placeholder?: string
+}
+interface ControlledTextInput extends TextInput {
+  value: string
+  onChange: (value: string) => void
+}
+interface UncontrolledTextInput extends TextInput {
+  onSubmit: (value: string) => void
+  onCancel: () => void
+}
+
+export const ControlledTextInput = ({
   prompt = '',
   placeholder = '',
-  value: _value,
-  onSubmit,
-  onCancel = () => {},
-}: {
-  prompt?: string
-  placeholder?: string
-  value?: string
-  onSubmit: (value: string) => void
-  onCancel?: () => void
-}) => {
-  const [value, setValue] = React.useState(_value ? _value : '')
-  const [cursorOffset, setCursorOffset] = React.useState(
-    _value ? _value.length : 0
-  )
+  value,
+  onChange,
+}: ControlledTextInput) => {
+  const [cursorOffset, setCursorOffset] = React.useState(value.length)
 
   useInput((input, key) => {
     if (key.backspace) {
       if (cursorOffset === 0) return
-      setValue(
-        (v) => v.slice(0, cursorOffset - 1) + v.slice(cursorOffset, v.length)
+      onChange(
+        value.slice(0, cursorOffset - 1) +
+          value.slice(cursorOffset, value.length)
       )
       setCursorOffset((o) => o - 1)
-    } else if (key.escape) {
-      onCancel()
-    } else if (key.return) {
-      onSubmit(value)
     } else if (key.leftArrow) {
       setCursorOffset((o) => Math.max(0, o - 1))
     } else if (key.rightArrow) {
       setCursorOffset((o) => Math.min(value.length, o + 1))
     } else {
-      setValue(
-        (v) =>
-          v.slice(0, cursorOffset) + input + v.slice(cursorOffset, v.length)
+      onChange(
+        value.slice(0, cursorOffset) +
+          input +
+          value.slice(cursorOffset, value.length)
       )
       setCursorOffset((o) => o + input.length)
     }
@@ -47,7 +49,7 @@ const TextInput = ({
   return (
     <Text>
       {prompt}
-      {value === '' && _value === undefined && placeholder ? (
+      {value === '' && placeholder ? (
         <Color dim>{placeholder}</Color>
       ) : (
         <>
@@ -67,4 +69,31 @@ const TextInput = ({
   )
 }
 
-export default TextInput
+export const UncontrolledTextInput = ({
+  prompt = '',
+  placeholder = '',
+  value: _value,
+  onSubmit,
+  onCancel = () => {},
+}: UncontrolledTextInput) => {
+  const [value, setValue] = React.useState(_value ? _value : '')
+
+  useInput((input, key) => {
+    if (key.escape) {
+      onCancel()
+    } else if (key.return) {
+      onSubmit(value)
+    }
+  })
+
+  return (
+    <ControlledTextInput
+      prompt={prompt}
+      placeholder={placeholder}
+      value={value}
+      onChange={setValue}
+    />
+  )
+}
+
+export default UncontrolledTextInput
