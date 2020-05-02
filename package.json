@@ -6,8 +6,8 @@
     "type-check": "tsc --noEmit",
     "type-check:watch": "yarn type-check --watch",
     "build": "npx babel src --out-dir lib --extensions \".js,.jsx,.ts,.tsx\" --source-maps inline",
-    "package": "yarn build && npx pkg lib/index.js -o lib/todo-ink",
-    "start": "yarn build && node ./lib/index.js"
+    "package": "yarn build && npx pkg -t node13-linux,node13-win lib/index.js -o lib/todo-ink",
+    "start": "yarn build && NODE_ENV=production node ./lib/index.js"
   },
   "dependencies": {
     "@babel/cli": "^7.8.4",
