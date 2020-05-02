@@ -8,6 +8,7 @@ import useHotkeys from '../hooks/hotkeys'
 import { Router } from '../hooks/router'
 import { useTasks } from '../hooks/tasks'
 import FolderView from './folder'
+import SearchView from './search'
 
 const Index = () => {
   const { folder } = useTasks(undefined)
@@ -20,6 +21,7 @@ const Index = () => {
       <ClipboardProvider>
         <Router>
           <FolderView path='/folder/:id' />
+          <SearchView path='/search/:id' />
         </Router>
       </ClipboardProvider>
     </FocusProvider>

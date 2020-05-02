@@ -36,6 +36,8 @@ export const ControlledTextInput = ({
       setCursorOffset((o) => Math.max(0, o - 1))
     } else if (key.rightArrow) {
       setCursorOffset((o) => Math.min(value.length, o + 1))
+    } else if (key.downArrow || key.upArrow) {
+      return
     } else {
       onChange(
         value.slice(0, cursorOffset) +

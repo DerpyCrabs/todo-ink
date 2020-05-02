@@ -19,6 +19,7 @@ import {
   isPaste,
   isSelectNext,
   isSelectPrev,
+  isSearch,
 } from '../constants/hotkeys'
 import { useClipboard } from '../hooks/clipboard'
 import { useFocus } from '../hooks/focus'
@@ -33,7 +34,7 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
     id
   ) as TaskReturnType
   const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
-  const { back } = useRouter()
+  const { back, go } = useRouter()
   const selected = (() => {
     const last = focus[focus.length - 1]
     if (last === undefined) return null
@@ -88,6 +89,9 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
 
   // prettier-ignore
   useHotkeys([
+    [isSearch, () => {
+      go(`/search/${folder.id}`)
+    }],
     [isSelectNext, () => {
         if (selected !== null && selected !== tasks.length - 1) {
           refocus(FOCUS.task(tasks[selected + 1].id))
@@ -198,7 +202,7 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
               <Select key={`${i}-addingTask`} selected={true}>
                 <TextInput
                   prompt='> '
-                  onSubmit={(v) => newTaskHandler(v, i + 1)}
+                  onSubmit={(v: string) => newTaskHandler(v, i + 1)}
                   onCancel={newTaskCancelHandler}
                 />
               </Select>
@@ -209,7 +213,7 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
               <Select key={`${i}-addingFolder`} selected={true}>
                 <TextInput
                   prompt='[F] > '
-                  onSubmit={(v) => newFolderHandler(v, i + 1)}
+                  onSubmit={(v: string) => newFolderHandler(v, i + 1)}
                   onCancel={newFolderCancelHandler}
                 />
               </Select>
@@ -220,7 +224,7 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
           <Select selected={true}>
             <TextInput
               prompt='> '
-              onSubmit={(v) => newTaskHandler(v, 0)}
+              onSubmit={(v: string) => newTaskHandler(v, 0)}
               onCancel={newTaskCancelHandler}
             />
           </Select>
@@ -229,7 +233,7 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
           <Select selected={true}>
             <TextInput
               prompt='[F] > '
-              onSubmit={(v) => newFolderHandler(v, 0)}
+              onSubmit={(v: string) => newFolderHandler(v, 0)}
               onCancel={newFolderCancelHandler}
             />
           </Select>

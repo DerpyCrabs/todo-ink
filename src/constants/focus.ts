@@ -26,6 +26,12 @@ export default {
     id,
     fallthrough: false,
   }),
+  search: (id: null | number = null): FocusType => ({
+    tag: 'search',
+    id,
+    fallthrough: false,
+    route: true,
+  }),
 }
 
 export interface FocusType {
