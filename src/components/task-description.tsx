@@ -18,7 +18,8 @@ export default function TaskDescription({
   marked.setOptions({
     renderer: new TerminalRenderer({ width: columns - 3, reflowText: true }),
   })
-  const lines = marked(description).split('\n')
+
+  const lines = marked(description).trim().split('\n')
 
   const [position, setPosition] = React.useState(0)
   React.useEffect(() => {

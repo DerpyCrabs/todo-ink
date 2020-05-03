@@ -17,3 +17,4 @@ export const isEnter: Hotkey = (key) => key.return || key.rightArrow
 export const isLeave: Hotkey = (key) => key.escape || key.leftArrow
 export const isSelectNext: Hotkey = (key) => key.downArrow
 export const isSelectPrev: Hotkey = (key) => key.upArrow
+export const isEdit: Hotkey = (key, input) => input === 'e' || input === 'у'
