@@ -2,7 +2,7 @@ import React from 'react'
 import { ControlledTextInput } from '../components/text-input'
 import { Box, Color } from 'ink'
 import { useTasks } from '../hooks/tasks'
-import { taskPath } from '../utils'
+import { taskPath, folderPathString } from '../utils'
 import type { RootFolderReturnType, FolderType, TaskType } from '../hooks/tasks'
 import ScrollableList from '../components/scrollable-list'
 import { assoc, lensPath, view } from 'ramda'
@@ -18,6 +18,7 @@ import {
 import { useRouter } from '../hooks/router'
 
 export default function SearchView({ id }: { id: FolderType['id'] }) {
+  const { folder: root } = useTasks() as RootFolderReturnType
   const { folder } = useTasks(id) as RootFolderReturnType
   const { go, back } = useRouter()
   const [searchQuery, setSearchQuery] = React.useState('')
@@ -95,7 +96,10 @@ export default function SearchView({ id }: { id: FolderType['id'] }) {
   return (
     <Box flexDirection='column'>
       <ControlledTextInput
-        prompt={`Search in ${folder.name}: `}
+        prompt={`Search in /${folderPathString(
+          root,
+          taskPath(root, id) as Array<string | number>
+        )}: `}
         placeholder='search query'
         value={searchQuery}
         onChange={setSearchQuery}
