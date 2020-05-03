@@ -65,7 +65,11 @@ export const useRouter = () => {
     },
     go: (path: string) => {
       const parsedPath = parsePath(path)
-      pushFocus((FOCUS as any)[parsedPath[0]](JSON.parse(parsedPath[1])))
+      pushFocus(
+        (FOCUS as any)[parsedPath[0]](
+          ...parsedPath.slice(1).map((p) => JSON.parse(p))
+        )
+      )
     },
   }
 }

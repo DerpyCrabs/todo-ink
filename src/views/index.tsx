@@ -21,7 +21,7 @@ const Index = () => {
     <FocusProvider initialFocus={[FOCUS.folder(folder.id)]}>
       <ClipboardProvider>
         <Router>
-          <FolderView path='/folder/:id' />
+          <FolderView path='/folder/:id/:selected' />
           <SearchView path='/search/:id' />
           <TaskView path='/task/:id' />
         </Router>

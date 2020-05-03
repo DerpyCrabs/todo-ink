@@ -42,7 +42,9 @@ export const useFocus = () => {
 
       return (
         focused.find((f) =>
-          typeof tag === 'string' ? f.tag === tag : equals(f, tag)
+          typeof tag === 'string'
+            ? f.tag === tag
+            : f.tag === tag.tag && f.id === tag.id
         ) !== undefined
       )
     },

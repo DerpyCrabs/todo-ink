@@ -78,18 +78,16 @@ export default function SearchView({ id }: { id: FolderType['id'] }) {
       if (position === null) return
       
       const task = searchResults[position].item
-      const folderId = (() => {
-        if ('status' in task) {
-          const path = taskPath(folder, task.id)
-          if (path === null) throw new Error(`Failed to find task with id ${task.id}`)
-          
-          return (view(lensPath(path.slice(0, -2)), folder) as FolderType).id
-        } else {
-          return task.id
-        }
-      })()
+      if ('status' in task) {
+        const path = taskPath(folder, task.id)
+        if (path === null) throw new Error(`Failed to find task with id ${task.id}`)
         
-      go(`/folder/${folderId}`)
+        const folderId = (view(lensPath(path.slice(0, -2)), folder) as FolderType).id
+        go(`/folder/${folderId}/${task.id}`)
+      } else {
+        go(`/folder/${task.id}`)
+      }
+        
       },],
     ], true)
 

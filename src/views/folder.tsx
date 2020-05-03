@@ -29,7 +29,13 @@ import type { FolderType, TaskType, FolderReturnType } from '../hooks/tasks'
 import type { AddingFocus } from '../constants/focus'
 import { useRouter } from '../hooks/router'
 
-const FolderView = ({ id }: { id: FolderType['id'] }) => {
+const FolderView = ({
+  id,
+  selected: initialSelection,
+}: {
+  id: FolderType['id']
+  selected?: FolderType['id']
+}) => {
   const { folder, tasks, newTask, newFolder, setTasks } = useTasks(
     id
   ) as FolderReturnType
@@ -53,11 +59,15 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
 
   React.useEffect(() => {
     if (tasks.length !== 0 && !isFocused(FOCUS.selectedTask().tag)) {
-      pushFocus(FOCUS.selectedTask(tasks[0].id))
+      if (initialSelection !== undefined) {
+        pushFocus(FOCUS.selectedTask(initialSelection))
+      } else {
+        pushFocus(FOCUS.selectedTask(tasks[0].id))
+      }
     }
     // select first task on initial rendering of folder
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folder.id])
+  }, [folder.id, initialSelection])
 
   const taskChangeHandler = (task: TaskType | FolderType, i: number) => {
     setTasks(set(lensIndex(i), task, tasks))

@@ -1,3 +1,5 @@
+import { TaskType } from '../hooks/tasks'
+
 export default {
   root: { tag: 'root' },
   addingTask: (after: number | null): AddingFocus => ({
@@ -20,11 +22,15 @@ export default {
     id,
     fallthrough: false,
   }),
-  folder: (id: null | number = null): FocusType => ({
+  folder: (
+    id: null | number = null,
+    selected?: TaskType['id']
+  ): FocusType & { selected?: TaskType['id'] } => ({
     tag: 'folder',
     id,
     fallthrough: false,
     route: true,
+    selected,
   }),
   task: (id: null | number = null): FocusType => ({
     tag: 'task',
