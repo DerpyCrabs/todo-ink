@@ -16,6 +16,7 @@ import { useFocus } from './focus'
 import { useTasks } from './tasks'
 import type { RootFolderReturnType } from './tasks'
 import type { TaskType, FolderType } from './tasks'
+import FullwidthBox from '../components/fullwidth-box'
 
 interface ClipboardContextType {
   clipboard: FolderType | TaskType | null
@@ -49,7 +50,7 @@ export const useClipboard = () => {
   const { refocus } = useFocus()
 
   const ClipboardStatus = () => (
-    <Box>
+    <FullwidthBox>
       {clipboard !== null && (
         <Color>
           Clipboard content:{' '}
@@ -60,7 +61,7 @@ export const useClipboard = () => {
             : `task "${clipboard?.name}"`}
         </Color>
       )}
-    </Box>
+    </FullwidthBox>
   )
 
   return {

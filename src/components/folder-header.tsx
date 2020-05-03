@@ -6,6 +6,7 @@ import { Box } from 'ink'
 import { lensPath, view, compose, lensProp } from 'ramda'
 import type { Lens } from 'ramda'
 import { completedTasksCount, allTasksCount, folderPathString } from '../utils'
+import FullwidthBox from './fullwidth-box'
 
 export default function FolderHeader({
   folderId,
@@ -23,9 +24,9 @@ export default function FolderHeader({
   const path = folderPathString(folder, folderPath)
 
   return (
-    <Box>
+    <FullwidthBox>
       {'    '}Folder: /{path} ({completedTasksCount(tasks)}/
       {allTasksCount(tasks)})
-    </Box>
+    </FullwidthBox>
   )
 }

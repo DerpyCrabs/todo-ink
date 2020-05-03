@@ -1,4 +1,4 @@
-import { Color, Text } from 'ink'
+import { Box, Color } from 'ink'
 import React from 'react'
 import useInput from '../hooks/input'
 
@@ -49,7 +49,7 @@ export const ControlledTextInput = ({
   })
 
   return (
-    <Text>
+    <Box textWrap='truncate-start'>
       {prompt}
       {value === '' && placeholder ? (
         <Color dim>{placeholder}</Color>
@@ -67,7 +67,7 @@ export const ControlledTextInput = ({
           {cursorOffset === value.length && <Color dim>_</Color>}
         </>
       )}
-    </Text>
+    </Box>
   )
 }
 
