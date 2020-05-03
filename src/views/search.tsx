@@ -77,7 +77,7 @@ export default function SearchView({
       back()
       },],
     [isEnter, () => {
-      if (position === null) return
+      if (position === null || searchResults.length === 0) return
       
       const task = searchResults[position].item
       if ('status' in task) {
