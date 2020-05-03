@@ -92,7 +92,7 @@ export const useClipboard = () => {
             folder
           )
         )
-        refocus(FOCUS.task(clipboard.id))
+        refocus(FOCUS.selectedTask(clipboard.id))
         return null
       })
     },
