@@ -12,7 +12,11 @@ if (!process.argv.some((v) => v === '--no-fullscreen')) {
   })
 }
 
+// Show full ramda functions' stack traces
 Error.stackTraceLimit = 1000
+// Don't show warning on many event listeners because of useStdoutSize hook on every task
+// 500 should be enough for any terminal
+require('events').EventEmitter.defaultMaxListeners = 500
 
 render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
