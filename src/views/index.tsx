@@ -9,6 +9,7 @@ import { Router } from '../hooks/router'
 import { useTasks } from '../hooks/tasks'
 import FolderView from './folder'
 import SearchView from './search'
+import TaskView from './task'
 
 const Index = () => {
   const { folder } = useTasks(undefined)
@@ -22,6 +23,7 @@ const Index = () => {
         <Router>
           <FolderView path='/folder/:id' />
           <SearchView path='/search/:id' />
+          <TaskView path='/task/:id' />
         </Router>
       </ClipboardProvider>
     </FocusProvider>

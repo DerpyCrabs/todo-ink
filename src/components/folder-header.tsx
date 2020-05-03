@@ -1,6 +1,6 @@
 import React from 'react'
 import { taskPath, useTasks } from '../hooks/tasks'
-import type { FolderType, RootTaskReturnType, TaskType } from '../hooks/tasks'
+import type { FolderType, RootFolderReturnType, TaskType } from '../hooks/tasks'
 import { Box } from 'ink'
 import { lensPath, view, compose, lensProp, scan, splitEvery } from 'ramda'
 import type { Lens } from 'ramda'
@@ -11,7 +11,7 @@ export default function FolderHeader({
 }: {
   folderId: FolderType['id']
 }) {
-  const { folder } = useTasks(undefined) as RootTaskReturnType
+  const { folder } = useTasks(undefined) as RootFolderReturnType
   const folderPath = taskPath(folder, folderId)
   if (folderPath === null) return null
   const tasks = view(

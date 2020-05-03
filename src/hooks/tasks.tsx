@@ -107,21 +107,22 @@ export const taskPath = (
   return null
 }
 
-export interface RootTaskReturnType {
+export interface RootFolderReturnType {
   folder: FolderType
   setFolder: (t: FolderType) => void
 }
 
-export interface TaskReturnType {
+export interface FolderReturnType {
   tasks: Array<FolderType | TaskType>
   folder: FolderType
   setTasks: (t: Array<FolderType | TaskType>) => void
   newTask: (name: string, status: false) => TaskType
   newFolder: (name: string) => FolderType
 }
+
 export function useTasks(
   folderId?: FolderType['id']
-): TaskReturnType | RootTaskReturnType {
+): FolderReturnType | RootFolderReturnType {
   const {
     tasks: { tasks, lastId },
     setTasks,

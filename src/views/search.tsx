@@ -2,7 +2,7 @@ import React from 'react'
 import { ControlledTextInput } from '../components/text-input'
 import { Box, Color } from 'ink'
 import { useTasks, taskPath } from '../hooks/tasks'
-import type { RootTaskReturnType, FolderType, TaskType } from '../hooks/tasks'
+import type { RootFolderReturnType, FolderType, TaskType } from '../hooks/tasks'
 import ScrollableList from '../components/scrollable-list'
 import { assoc, lensPath, view } from 'ramda'
 import Fuse from 'fuse.js'
@@ -17,7 +17,7 @@ import {
 import { useRouter } from '../hooks/router'
 
 export default function SearchView({ id }: { id: FolderType['id'] }) {
-  const { folder } = useTasks(id) as RootTaskReturnType
+  const { folder } = useTasks(id) as RootFolderReturnType
   const { go, back } = useRouter()
   const [searchQuery, setSearchQuery] = React.useState('')
   const [fuzzySearcher, setFuzzySearcher] = React.useState(
@@ -108,13 +108,36 @@ export default function SearchView({ id }: { id: FolderType['id'] }) {
               </Box>
             ) : (
               <Box key={res.item.id}>
-                [F] <Task searchResult={res} />
+                [F] <Folder searchResult={res} />
               </Box>
             )}
           </Select>
         ))}
       </ScrollableList>
     </Box>
+  )
+}
+
+const Folder = ({
+  searchResult,
+}: {
+  searchResult: Fuse.FuseResult<(TaskType | FolderType) & { path: string }>
+}) => {
+  const nameResult = searchResult.matches?.find((k) => k.key === 'name')
+  const pathResult = searchResult.matches?.find((k) => k.key === 'path')
+  return (
+    <>
+      {pathResult ? (
+        <FuzzyResult result={pathResult} />
+      ) : (
+        searchResult.item.path
+      )}
+      {nameResult ? (
+        <FuzzyResult result={nameResult} />
+      ) : (
+        searchResult.item.name
+      )}
+    </>
   )
 }
 

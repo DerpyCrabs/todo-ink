@@ -25,14 +25,14 @@ import { useClipboard } from '../hooks/clipboard'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { useTasks } from '../hooks/tasks'
-import type { FolderType, TaskType, TaskReturnType } from '../hooks/tasks'
+import type { FolderType, TaskType, FolderReturnType } from '../hooks/tasks'
 import type { AddingFocus } from '../constants/focus'
 import { useRouter } from '../hooks/router'
 
 const FolderView = ({ id }: { id: FolderType['id'] }) => {
   const { folder, tasks, newTask, newFolder, setTasks } = useTasks(
     id
-  ) as TaskReturnType
+  ) as FolderReturnType
   const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
   const { back, go } = useRouter()
   const selected = (() => {
