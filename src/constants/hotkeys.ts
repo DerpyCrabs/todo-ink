@@ -12,6 +12,8 @@ export const isMoveUp: Hotkey = (key, input) => input === 'k' || input === 'л'
 export const isMoveDown: Hotkey = (key, input) => input === 'j' || input === 'о'
 export const isCut: Hotkey = (key, input) => input === 'x' || input === 'ч'
 export const isPaste: Hotkey = (key, input) => input === 'p' || input === 'з'
+export const isPasteBefore: Hotkey = (key, input) =>
+  input === 'P' || input === 'З'
 export const isSearch: Hotkey = (key, input) => input === 's' || input === 'ы'
 export const isEnter: Hotkey = (key) => key.return || key.rightArrow
 export const isLeave: Hotkey = (key) => key.escape || key.leftArrow

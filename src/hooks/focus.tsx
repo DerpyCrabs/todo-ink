@@ -72,7 +72,7 @@ export const useFocus = () => {
     pushFocus: (tag: FocusType) => setFocus((f) => append(tag, f)),
     refocus: (tag: FocusType) => {
       setFocus((f: Array<FocusType>) => {
-        if (f.length !== 0) {
+        if (f.length !== 0 && f[f.length - 1].tag === tag.tag) {
           return append(tag, dropLast(1, f))
         } else {
           return append(tag, f)

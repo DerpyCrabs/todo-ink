@@ -17,6 +17,7 @@ import {
   isNewFolder,
   isNewTask,
   isPaste,
+  isPasteBefore,
   isSelectNext,
   isSelectPrev,
   isSearch,
@@ -132,6 +133,9 @@ const FolderView = ({
       },],
     [isPaste, () => {
         paste(folder.id, selected !== null ? selected + 1 : 0)
+      },],
+    [isPasteBefore, () => {
+        paste(folder.id, selected !== null ? selected : 0)
       },],
     [isMoveDown, () => {
         if (selected !== null && selected < tasks.length - 1) {
