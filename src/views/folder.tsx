@@ -28,6 +28,7 @@ import { useTasks } from '../hooks/tasks'
 import type { FolderType, TaskType, FolderReturnType } from '../hooks/tasks'
 import type { AddingFocus } from '../constants/focus'
 import { useRouter, RouteProps } from '../hooks/router'
+import useUndo from '../hooks/undo'
 
 const FolderView = ({
   id,
@@ -44,7 +45,10 @@ const FolderView = ({
   const selected = (() => {
     const last = focus[focus.length - 1]
     if (last === undefined) return null
-    if (last.tag === 'task' || last.tag === 'editing') {
+    if (
+      last.tag === FOCUS.selectedTask().tag ||
+      last.tag === FOCUS.editingTask().tag
+    ) {
       const index = tasks.findIndex((t) => t.id === last.id)
       if (index !== -1) {
         return index
@@ -55,7 +59,10 @@ const FolderView = ({
       return null
     }
   })()
+
   const { ClipboardStatus, cut, paste } = useClipboard()
+
+  useUndo(isFocused(FOCUS.folder(folder.id)))
 
   React.useEffect(() => {
     if (tasks.length !== 0 && !isFocused(FOCUS.selectedTask().tag)) {
@@ -65,9 +72,8 @@ const FolderView = ({
         pushFocus(FOCUS.selectedTask(tasks[0].id))
       }
     }
-    // select first task on initial rendering of folder
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folder.id, initialSelection])
+  }, [folder.id, initialSelection, tasks[0]])
 
   const taskChangeHandler = (task: TaskType | FolderType, i: number) => {
     setTasks(set(lensIndex(i), task, tasks))

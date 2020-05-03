@@ -13,7 +13,7 @@ export default {
     after: after,
   }),
   selectedTask: (id: number | null = null): FocusType => ({
-    tag: 'task',
+    tag: 'selectedTask',
     id,
     fallthrough: true,
   }),
