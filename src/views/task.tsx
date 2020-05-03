@@ -22,12 +22,11 @@ export default function TaskView({ id }: { id: TaskType['id'] }) {
   return (
     <Box flexDirection='column'>
       <TaskHeader task={task} />
-      <TaskDescription description='# kek' />
-      {/* {task.description !== undefined ? (
-        <TaskDescription description={task.description} />
+      {task.description !== undefined ? (
+        <TaskDescription description={task.description} margin={3} />
       ) : (
         <Box>No description. Press 'e' to open description editor</Box>
-      )} */}
+      )}
     </Box>
   )
 }
