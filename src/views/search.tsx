@@ -25,34 +25,26 @@ export default function SearchView({
   const { folder } = useTasks(id) as RootFolderReturnType
   const { go, back } = useRouter()
   const [searchQuery, setSearchQuery] = React.useState('')
-  const [fuzzySearcher, setFuzzySearcher] = React.useState(
-    () =>
-      new Fuse(
-        flattenFolder(folder).map((task) => ({
-          ...task,
-          path: task.path.replace(/[^\/]*\//, ''),
-        })),
-        {
-          isCaseSensitive: false,
-          keys: ['name', 'path'],
-        }
-      )
+
+  const makeSearcher = (folder: FolderType) =>
+    new Fuse(
+      flattenFolder(folder).map((task) => ({
+        ...task,
+        path: task.path.replace(/[^\/]*\//, ''),
+      })),
+      {
+        isCaseSensitive: false,
+        threshold: 0.1,
+        includeMatches: true,
+        keys: ['name', 'path'],
+      }
+    )
+  const [fuzzySearcher, setFuzzySearcher] = React.useState(() =>
+    makeSearcher(folder)
   )
 
   React.useEffect(() => {
-    setFuzzySearcher(
-      new Fuse(
-        flattenFolder(folder).map((task) => ({
-          ...task,
-          path: task.path.replace(/[^\/]*\//, ''),
-        })),
-        {
-          isCaseSensitive: false,
-          includeMatches: true,
-          keys: ['name', 'path'],
-        }
-      )
-    )
+    setFuzzySearcher(makeSearcher(folder))
   }, [id])
 
   const searchResults = fuzzySearcher.search(searchQuery)
