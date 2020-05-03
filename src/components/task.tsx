@@ -8,6 +8,7 @@ import Select from './select'
 import TextInput from './text-input'
 import type { TaskType } from '../hooks/tasks'
 import { useRouter } from '../hooks/router'
+import FullwidthBox from './fullwidth-box'
 
 const Task = ({
   task,
@@ -45,7 +46,7 @@ const Task = ({
         isFocused(FOCUS.editingTask(task.id))
       }
     >
-      <Box textWrap='truncate'>
+      <FullwidthBox>
         [{task.status ? 'X' : ' '}]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput
@@ -56,7 +57,7 @@ const Task = ({
         ) : (
           task.name
         )}
-      </Box>
+      </FullwidthBox>
     </Select>
   )
 }

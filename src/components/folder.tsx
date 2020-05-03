@@ -9,6 +9,7 @@ import TextInput from './text-input'
 import type { FolderType } from '../hooks/tasks'
 import { useRouter } from '../hooks/router'
 import { completedTasksCount, allTasksCount } from '../utils'
+import FullwidthBox from './fullwidth-box'
 
 const Folder = ({
   task,
@@ -19,6 +20,7 @@ const Folder = ({
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   const { go } = useRouter()
+
   // prettier-ignore
   useHotkeys([
     [isChange, () => {
@@ -43,7 +45,7 @@ const Folder = ({
         isFocused(FOCUS.editingTask(task.id))
       }
     >
-      <Box textWrap='truncate'>
+      <FullwidthBox>
         [F]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput
@@ -55,7 +57,7 @@ const Folder = ({
           task.name
         )}{' '}
         ({completedTasksCount(task.tasks)}/{allTasksCount(task.tasks)})
-      </Box>
+      </FullwidthBox>
     </Select>
   )
 }
