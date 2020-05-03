@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { compose, lensPath, lensProp, set, view } from 'ramda'
-import type { Path, Lens } from 'ramda'
+import type { Lens } from 'ramda'
+import { taskPath } from '../utils'
 import React from 'react'
 
 export interface FolderType {
@@ -12,6 +13,7 @@ export interface TaskType {
   id: number
   name: string
   status: boolean
+  description?: string
 }
 
 function readTasks(path: string) {
@@ -90,21 +92,35 @@ export const TasksProvider = ({
   )
 }
 
-export const taskPath = (
-  tasks: FolderType | TaskType,
-  taskId: TaskType['id']
-): Path | null => {
-  if (tasks.id === taskId) {
-    return []
-  } else if ('tasks' in tasks) {
-    for (const [i, task] of tasks.tasks.entries()) {
-      const ret = taskPath(task, taskId)
-      if (ret !== null) {
-        return ['tasks', i, ...ret]
-      }
-    }
+export interface TaskReturnType {
+  task: TaskType
+  setTask: (t: TaskType) => void
+}
+
+export function useTask(taskId: TaskType['id']): TaskReturnType {
+  const {
+    tasks: { tasks, lastId },
+    setTasks,
+  } = React.useContext(TasksContext)
+
+  const path = taskPath(tasks, taskId)
+  if (path === null) {
+    throw new Error(`Couldn't find task with id = ${taskId}`)
   }
-  return null
+  const taskLens = lensPath(path)
+
+  const setTaskHandler = (t: TaskType) => {
+    setTasks(({ tasks, lastId }) => {
+      return {
+        tasks: set(taskLens, t, tasks),
+        lastId,
+      }
+    })
+  }
+  return {
+    task: view(taskLens, tasks),
+    setTask: setTaskHandler,
+  }
 }
 
 export interface RootFolderReturnType {
@@ -141,7 +157,7 @@ export function useTasks(
   const folderLens = lensPath(folderPath)
   const newTask = (name: string, status: boolean) => {
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
-    return { id: lastId + 1, name, status }
+    return { id: lastId + 1, name, status, description: '' }
   }
   const newFolder = (name: string) => {
     setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))

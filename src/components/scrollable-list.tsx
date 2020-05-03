@@ -1,27 +1,6 @@
-import { Box, useStdout } from 'ink'
+import { Box } from 'ink'
 import React from 'react'
-
-const useStdoutSize = (): { rows: number; columns: number } => {
-  const { stdout } = useStdout()
-  if (stdout === undefined) {
-    return { rows: 0, columns: 0 }
-  }
-  const [size, setSize] = React.useState({
-    columns: stdout.columns,
-    rows: stdout.rows,
-  })
-
-  React.useEffect(() => {
-    const handler = () =>
-      setSize({ columns: stdout.columns, rows: stdout.rows })
-    stdout?.on('resize', handler)
-    return () => {
-      stdout?.off('resize', handler)
-    }
-  }, [stdout, stdout?.columns, stdout?.rows])
-
-  return size
-}
+import { useStdoutSize } from '../utils'
 
 export default function ScrollableList({
   children,

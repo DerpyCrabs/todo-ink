@@ -1,12 +1,13 @@
 import { Box } from 'ink'
 import React from 'react'
 import FOCUS from '../constants/focus'
-import { isChange, isMark } from '../constants/hotkeys'
+import { isChange, isMark, isEnter } from '../constants/hotkeys'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import Select from './select'
 import TextInput from './text-input'
 import type { TaskType } from '../hooks/tasks'
+import { useRouter } from '../hooks/router'
 
 const Task = ({
   task,
@@ -16,6 +17,7 @@ const Task = ({
   onChange?: (t: TaskType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
+  const { go } = useRouter()
   // prettier-ignore
   useHotkeys([
     [isChange, () => {
@@ -24,7 +26,10 @@ const Task = ({
     [isMark, () => {
         onChange({ ...task, status: !task.status })
       },],
-    ], isFocused(FOCUS.task(task.id)))
+    [isEnter, () => {
+        go(`/task/${task.id}`)
+      },],
+    ], isFocused(FOCUS.selectedTask(task.id)))
 
   const handleNameChange = (newName: string) => {
     onChange({ ...task, name: newName })
@@ -36,7 +41,8 @@ const Task = ({
   return (
     <Select
       selected={
-        isFocused(FOCUS.task(task.id)) || isFocused(FOCUS.editingTask(task.id))
+        isFocused(FOCUS.selectedTask(task.id)) ||
+        isFocused(FOCUS.editingTask(task.id))
       }
     >
       <Box textWrap='truncate'>

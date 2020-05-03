@@ -52,8 +52,8 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
   const { ClipboardStatus, cut, paste } = useClipboard()
 
   React.useEffect(() => {
-    if (tasks.length !== 0 && !isFocused(FOCUS.task().tag)) {
-      pushFocus(FOCUS.task(tasks[0].id))
+    if (tasks.length !== 0 && !isFocused(FOCUS.selectedTask().tag)) {
+      pushFocus(FOCUS.selectedTask(tasks[0].id))
     }
     // select first task on initial rendering of folder
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -68,7 +68,7 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
     if (v.trim()) {
       const task = newTask(v, false)
       setTasks(insert(i, task, tasks))
-      refocus(FOCUS.task(task.id))
+      refocus(FOCUS.selectedTask(task.id))
     }
   }
   const newFolderHandler = (v: string, i: number) => {
@@ -76,7 +76,7 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
     if (v.trim()) {
       const task = newFolder(v)
       setTasks(insert(i, task, tasks))
-      refocus(FOCUS.task(task.id))
+      refocus(FOCUS.selectedTask(task.id))
     }
   }
 
@@ -94,22 +94,22 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
     }],
     [isSelectNext, () => {
         if (selected !== null && selected !== tasks.length - 1) {
-          refocus(FOCUS.task(tasks[selected + 1].id))
+          refocus(FOCUS.selectedTask(tasks[selected + 1].id))
         }
       },],
     [isSelectPrev, () => {
         if (selected !== null && selected !== 0) {
-          refocus(FOCUS.task(tasks[selected - 1].id))
+          refocus(FOCUS.selectedTask(tasks[selected - 1].id))
         }
       },],
     [isCut, () => {
         if (selected !== null) {
           if (selected === 0 && tasks.length !== 1) {
-            refocus(FOCUS.task(tasks[1].id))
+            refocus(FOCUS.selectedTask(tasks[1].id))
           } else if (selected === 0 && tasks.length === 1) {
-            popFocus(FOCUS.task().tag)
+            popFocus(FOCUS.selectedTask().tag)
           } else {
-            refocus(FOCUS.task(tasks[selected - 1].id))
+            refocus(FOCUS.selectedTask(tasks[selected - 1].id))
           }
           cut(tasks[selected].id)
         }
@@ -122,7 +122,7 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
           let tc = tasks.slice()
           ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
           setTasks(tc)
-          refocus(FOCUS.task(tc[selected + 1].id))
+          refocus(FOCUS.selectedTask(tc[selected + 1].id))
         }
       },],
     [isMoveUp, () => {
@@ -130,19 +130,19 @@ const FolderView = ({ id }: { id: FolderType['id'] }) => {
           let tc = tasks.slice()
           ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
           setTasks(tc)
-          refocus(FOCUS.task(tc[selected - 1].id))
+          refocus(FOCUS.selectedTask(tc[selected - 1].id))
         }
       },],
     [isDelete, () => {
         if (selected !== null) {
           setTasks(remove(selected, 1, tasks))
-          popFocus(FOCUS.task().tag)
+          popFocus(FOCUS.selectedTask().tag)
           if (tasks.length !== 1) {
             const newSelected =
               tasks.length - 1 === selected
                 ? Math.max(0, selected - 1)
                 : selected
-            pushFocus(FOCUS.task(remove(selected, 1, tasks)[newSelected].id))
+            pushFocus(FOCUS.selectedTask(remove(selected, 1, tasks)[newSelected].id))
           }
         }
       },],

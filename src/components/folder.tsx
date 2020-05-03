@@ -1,5 +1,4 @@
 import { Box } from 'ink'
-import { sum } from 'ramda'
 import React from 'react'
 import FOCUS from '../constants/focus'
 import { isChange, isEnter } from '../constants/hotkeys'
@@ -7,8 +6,9 @@ import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import Select from './select'
 import TextInput from './text-input'
-import type { TaskType, FolderType } from '../hooks/tasks'
+import type { FolderType } from '../hooks/tasks'
 import { useRouter } from '../hooks/router'
+import { completedTasksCount, allTasksCount } from '../utils'
 
 const Folder = ({
   task,
@@ -27,7 +27,7 @@ const Folder = ({
     [isEnter, () => {
       go(`/folder/${task.id}`)
       },],
-    ], isFocused(FOCUS.task(task.id)))
+    ], isFocused(FOCUS.selectedTask(task.id)))
 
   const handleNameChange = (newName: string) => {
     onChange({ ...task, name: newName })
@@ -39,7 +39,8 @@ const Folder = ({
   return (
     <Select
       selected={
-        isFocused(FOCUS.task(task.id)) || isFocused(FOCUS.editingTask(task.id))
+        isFocused(FOCUS.selectedTask(task.id)) ||
+        isFocused(FOCUS.editingTask(task.id))
       }
     >
       <Box textWrap='truncate'>
@@ -60,19 +61,3 @@ const Folder = ({
 }
 
 export default Folder
-
-export function completedTasksCount(
-  tasks: Array<FolderType | TaskType>
-): number {
-  return sum(
-    tasks.map((task) =>
-      'tasks' in task ? completedTasksCount(task.tasks) : task.status ? 1 : 0
-    )
-  )
-}
-
-export function allTasksCount(tasks: Array<FolderType | TaskType>): number {
-  return sum(
-    tasks.map((task) => ('tasks' in task ? allTasksCount(task.tasks) : 1))
-  )
-}

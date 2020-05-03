@@ -10,11 +10,11 @@ import {
 } from 'ramda'
 import type { Lens } from 'ramda'
 import React from 'react'
-import { allTasksCount, completedTasksCount } from '../components/folder'
+import { allTasksCount, completedTasksCount, taskPath } from '../utils'
 import FOCUS from '../constants/focus'
 import { useFocus } from './focus'
-import { taskPath, useTasks } from './tasks'
-import type { RootTaskReturnType } from './tasks'
+import { useTasks } from './tasks'
+import type { RootFolderReturnType } from './tasks'
 import type { TaskType, FolderType } from './tasks'
 
 interface ClipboardContextType {
@@ -45,7 +45,7 @@ export const ClipboardProvider = ({
 
 export const useClipboard = () => {
   const { clipboard, setClipboard } = React.useContext(ClipboardContext)
-  const { folder, setFolder } = useTasks(undefined) as RootTaskReturnType
+  const { folder, setFolder } = useTasks(undefined) as RootFolderReturnType
   const { refocus } = useFocus()
 
   const ClipboardStatus = () => (

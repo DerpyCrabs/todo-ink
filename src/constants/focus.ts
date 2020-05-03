@@ -10,10 +10,15 @@ export default {
     fallthrough: false,
     after: after,
   }),
-  task: (id: number | null = null): FocusType => ({
+  selectedTask: (id: number | null = null): FocusType => ({
     tag: 'task',
     id,
     fallthrough: true,
+  }),
+  editingTask: (id: null | number = null): FocusType => ({
+    tag: 'editing',
+    id,
+    fallthrough: false,
   }),
   folder: (id: null | number = null): FocusType => ({
     tag: 'folder',
@@ -21,10 +26,11 @@ export default {
     fallthrough: false,
     route: true,
   }),
-  editingTask: (id: null | number = null): FocusType => ({
-    tag: 'editing',
+  task: (id: null | number = null): FocusType => ({
+    tag: 'task',
     id,
     fallthrough: false,
+    route: true,
   }),
   search: (id: null | number = null): FocusType => ({
     tag: 'search',
