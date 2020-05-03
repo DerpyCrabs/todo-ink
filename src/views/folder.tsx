@@ -121,12 +121,12 @@ const FolderView = ({
       },],
     [isCut, () => {
         if (selected !== null) {
-          if (selected === 0 && tasks.length !== 1) {
-            refocus(FOCUS.selectedTask(tasks[1].id))
-          } else if (selected === 0 && tasks.length === 1) {
+          if (selected === 0 && tasks.length === 1) {
             popFocus(FOCUS.selectedTask().tag)
-          } else {
+          } else if (selected === tasks.length - 1) {
             refocus(FOCUS.selectedTask(tasks[selected - 1].id))
+          } else {
+            refocus(FOCUS.selectedTask(tasks[selected + 1].id))
           }
           cut(tasks[selected].id)
         }
