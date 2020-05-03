@@ -16,6 +16,7 @@ import {
   isEnter,
 } from '../constants/hotkeys'
 import { useRouter, RouteProps } from '../hooks/router'
+import FullwidthBox from '../components/fullwidth-box'
 
 export default function SearchView({
   id,
@@ -108,13 +109,13 @@ export default function SearchView({
         {searchResults.map((res, i) => (
           <Select selected={i === position}>
             {'status' in res.item ? (
-              <Box key={res.item.id}>
+              <FullwidthBox key={res.item.id}>
                 [{res.item.status ? 'X' : ' '}] <Task searchResult={res} />
-              </Box>
+              </FullwidthBox>
             ) : (
-              <Box key={res.item.id}>
+              <FullwidthBox key={res.item.id}>
                 [F] <Folder searchResult={res} />
-              </Box>
+              </FullwidthBox>
             )}
           </Select>
         ))}
