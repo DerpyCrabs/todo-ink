@@ -2,11 +2,14 @@ import { dropLastWhile, init, last, pick } from 'ramda'
 import React from 'react'
 import FOCUS from '../constants/focus'
 import { useFocus } from '../hooks/focus'
+import { TaskType } from './tasks'
 
 const parsePath = (path: string) => {
   const parts = path.split('/').filter((p) => p !== '')
   return parts
 }
+
+export type RouteProps = { path: string } & any
 
 export const Router = ({ children }: { children: React.ReactNode }) => {
   const { focus } = useFocus()

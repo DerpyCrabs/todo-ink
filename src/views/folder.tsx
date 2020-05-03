@@ -27,7 +27,7 @@ import useHotkeys from '../hooks/hotkeys'
 import { useTasks } from '../hooks/tasks'
 import type { FolderType, TaskType, FolderReturnType } from '../hooks/tasks'
 import type { AddingFocus } from '../constants/focus'
-import { useRouter } from '../hooks/router'
+import { useRouter, RouteProps } from '../hooks/router'
 
 const FolderView = ({
   id,
@@ -35,7 +35,7 @@ const FolderView = ({
 }: {
   id: FolderType['id']
   selected?: FolderType['id']
-}) => {
+} & RouteProps) => {
   const { folder, tasks, newTask, newFolder, setTasks } = useTasks(
     id
   ) as FolderReturnType

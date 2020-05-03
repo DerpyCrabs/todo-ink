@@ -15,9 +15,11 @@ import {
   isLeave,
   isEnter,
 } from '../constants/hotkeys'
-import { useRouter } from '../hooks/router'
+import { useRouter, RouteProps } from '../hooks/router'
 
-export default function SearchView({ id }: { id: FolderType['id'] }) {
+export default function SearchView({
+  id,
+}: { id: FolderType['id'] } & RouteProps) {
   const { folder: root } = useTasks() as RootFolderReturnType
   const { folder } = useTasks(id) as RootFolderReturnType
   const { go, back } = useRouter()
