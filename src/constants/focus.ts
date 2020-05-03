@@ -31,6 +31,7 @@ export default {
     fallthrough: false,
     route: true,
     selected,
+    omitted: ['selected'],
   }),
   task: (id: null | number = null): FocusType => ({
     tag: 'task',
@@ -51,6 +52,7 @@ export interface FocusType {
   id?: number | null
   fallthrough: boolean
   route?: boolean
+  omitted?: Array<string>
 }
 
 export interface AddingFocus extends FocusType {

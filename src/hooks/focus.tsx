@@ -1,4 +1,4 @@
-import { append, dropLast, equals, last, reverse } from 'ramda'
+import { append, dropLast, equals, last, reverse, omit, defaultTo } from 'ramda'
 import React from 'react'
 import type { FocusType } from '../constants/focus'
 
@@ -44,7 +44,10 @@ export const useFocus = () => {
         focused.find((f) =>
           typeof tag === 'string'
             ? f.tag === tag
-            : f.tag === tag.tag && f.id === tag.id
+            : equals(
+                omit(append('omitted', defaultTo([], f.omitted)), f),
+                omit(append('omitted', defaultTo([], f.omitted)), tag)
+              )
         ) !== undefined
       )
     },
@@ -68,8 +71,13 @@ export const useFocus = () => {
     },
     pushFocus: (tag: FocusType) => setFocus((f) => append(tag, f)),
     refocus: (tag: FocusType) => {
-      actions.popFocus(tag.tag)
-      actions.pushFocus(tag)
+      setFocus((f: Array<FocusType>) => {
+        if (f.length !== 0) {
+          return append(tag, dropLast(1, f))
+        } else {
+          return append(tag, f)
+        }
+      })
     },
   }
   return { focus, setFocus, ...actions }
