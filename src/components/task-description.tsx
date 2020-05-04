@@ -1,6 +1,7 @@
 import { Box } from 'ink'
 import marked from 'marked'
 import TerminalRenderer from 'marked-terminal'
+import { dropLastWhile } from 'ramda'
 import React from 'react'
 import { isSelectNext, isSelectPrev } from '../constants/hotkeys'
 import useHotkeys from '../hooks/hotkeys'
@@ -19,7 +20,10 @@ export default function TaskDescription({
     renderer: new TerminalRenderer({ width: columns - 3, reflowText: true }),
   })
 
-  const lines = marked(description).trim().split('\n')
+  const lines = dropLastWhile(
+    (line: string) => line === '',
+    marked(description).split('\n')
+  )
 
   const [position, setPosition] = React.useState(0)
   React.useEffect(() => {
