@@ -66,7 +66,12 @@ const FolderView = ({
   useUndo(isFocused(FOCUS.folder(folder.id)))
 
   React.useEffect(() => {
-    if (tasks.length !== 0 && !isFocused(FOCUS.selectedTask().tag)) {
+    if (
+      tasks.length !== 0 &&
+      !isFocused(FOCUS.selectedTask().tag) &&
+      !isFocused(FOCUS.addingTask(null).tag) &&
+      !isFocused(FOCUS.addingFolder(null).tag)
+    ) {
       if (initialSelection !== undefined) {
         pushFocus(FOCUS.selectedTask(initialSelection))
       } else {

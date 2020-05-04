@@ -83,7 +83,7 @@ export const useClipboard = () => {
         if (clipboard === null) return null
         const folderP = taskPath(folder, folderId)
         if (folderP === null) {
-          return null
+          return clipboard
         }
         setFolder(
           over(
