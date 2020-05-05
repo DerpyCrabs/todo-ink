@@ -4,13 +4,14 @@ import type { Lens } from 'ramda'
 import { taskPath } from '../utils'
 import React from 'react'
 
+export type TaskId = number
 export interface FolderType {
-  id: number
+  id: TaskId
   name: string
   tasks: Array<FolderType | TaskType>
 }
 export interface TaskType {
-  id: number
+  id: TaskId
   name: string
   status: boolean
   description?: string
@@ -38,7 +39,7 @@ function writeTasks(path: string, tasks: FolderType) {
   writeFileSync(path, JSON.stringify(tasks))
 }
 
-function maxId(tasks: FolderType | TaskType): FolderType['id'] {
+function maxId(tasks: FolderType | TaskType): TaskId {
   if ('status' in tasks) {
     return tasks.id
   }
@@ -97,7 +98,7 @@ export interface TaskReturnType {
   setTask: (t: TaskType) => void
 }
 
-export function useTask(taskId: TaskType['id']): TaskReturnType {
+export function useTask(taskId: TaskId): TaskReturnType {
   const {
     tasks: { tasks, lastId },
     setTasks,
@@ -137,7 +138,7 @@ export interface FolderReturnType {
 }
 
 export function useTasks(
-  folderId?: FolderType['id']
+  folderId?: TaskId
 ): FolderReturnType | RootFolderReturnType {
   const {
     tasks: { tasks, lastId },

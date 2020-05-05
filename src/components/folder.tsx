@@ -1,4 +1,3 @@
-import { Box } from 'ink'
 import React from 'react'
 import FOCUS from '../constants/focus'
 import { isChange, isEnter } from '../constants/hotkeys'

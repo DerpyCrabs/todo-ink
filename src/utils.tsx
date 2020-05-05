@@ -1,7 +1,7 @@
 import { useStdout } from 'ink'
 import { Path, lensPath, scan, splitEvery, sum, view } from 'ramda'
 import React from 'react'
-import { FolderType, TaskType } from './hooks/tasks'
+import { FolderType, TaskId, TaskType } from './hooks/tasks'
 
 export const folderPathString = (
   folder: FolderType,
@@ -20,7 +20,7 @@ export const folderPathString = (
 
 export const taskPath = (
   tasks: FolderType | TaskType,
-  taskId: TaskType['id']
+  taskId: TaskId
 ): Path | null => {
   if (tasks.id === taskId) {
     return []

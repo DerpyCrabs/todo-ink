@@ -1,4 +1,4 @@
-import { TaskType } from '../hooks/tasks'
+import { TaskId } from '../hooks/tasks'
 
 export default {
   root: { tag: 'root' },
@@ -24,8 +24,8 @@ export default {
   }),
   folder: (
     id: null | number = null,
-    selected?: TaskType['id']
-  ): FocusType & { selected?: TaskType['id'] } => ({
+    selected?: TaskId
+  ): FocusType & { selected?: TaskId } => ({
     tag: 'folder',
     id,
     fallthrough: false,

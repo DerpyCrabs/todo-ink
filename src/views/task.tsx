@@ -1,5 +1,5 @@
 import React from 'react'
-import type { TaskType } from '../hooks/tasks'
+import type { TaskId } from '../hooks/tasks'
 import TaskHeader from '../components/task-header'
 import TaskDescription from '../components/task-description'
 import { useTask } from '../hooks/tasks'
@@ -9,7 +9,7 @@ import { isLeave, isEdit } from '../constants/hotkeys'
 import { useRouter, RouteProps } from '../hooks/router'
 import { edit } from 'external-editor'
 
-export default function TaskView({ id }: { id: TaskType['id'] } & RouteProps) {
+export default function TaskView({ id }: { id: TaskId } & RouteProps) {
   const { task, setTask } = useTask(id)
   const { back } = useRouter()
 

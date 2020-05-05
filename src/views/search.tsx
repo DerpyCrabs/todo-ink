@@ -1,7 +1,7 @@
 import React from 'react'
 import { ControlledTextInput } from '../components/text-input'
 import { Box, Color } from 'ink'
-import { useTasks } from '../hooks/tasks'
+import { useTasks, TaskId } from '../hooks/tasks'
 import { taskPath, folderPathString } from '../utils'
 import type { RootFolderReturnType, FolderType, TaskType } from '../hooks/tasks'
 import ScrollableList from '../components/scrollable-list'
@@ -18,9 +18,7 @@ import {
 import { useRouter, RouteProps } from '../hooks/router'
 import FullwidthBox from '../components/fullwidth-box'
 
-export default function SearchView({
-  id,
-}: { id: FolderType['id'] } & RouteProps) {
+export default function SearchView({ id }: { id: TaskId } & RouteProps) {
   const { folder: root } = useTasks() as RootFolderReturnType
   const { folder } = useTasks(id) as RootFolderReturnType
   const { go, back } = useRouter()

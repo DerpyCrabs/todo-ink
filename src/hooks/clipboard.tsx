@@ -15,7 +15,7 @@ import React from 'react'
 import { allTasksCount, completedTasksCount, taskPath } from '../utils'
 import FOCUS from '../constants/focus'
 import { useFocus } from './focus'
-import { useTasks } from './tasks'
+import { useTasks, TaskId } from './tasks'
 import type { RootFolderReturnType } from './tasks'
 import type { TaskType, FolderType } from './tasks'
 import FullwidthBox from '../components/fullwidth-box'
@@ -69,7 +69,7 @@ export const useClipboard = () => {
 
   return {
     ClipboardStatus,
-    cut: (id: TaskType['id']) =>
+    cut: (id: TaskId) =>
       setClipboard(
         (
           clipboard: Array<FolderType | TaskType>
@@ -81,7 +81,7 @@ export const useClipboard = () => {
           return prepend(task, clipboard)
         }
       ),
-    paste: (folderId: FolderType['id'], after: number) => {
+    paste: (folderId: TaskId, after: number) => {
       setClipboard((clipboard) => {
         if (clipboard.length === 0) return []
         const folderP = taskPath(folder, folderId)
