@@ -1,8 +1,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { compose, lensPath, lensProp, set, view } from 'ramda'
 import type { Lens } from 'ramda'
-import { taskPath } from '../utils'
 import React from 'react'
+import { taskPath } from '../utils'
 
 export type TaskId = number
 export interface FolderType {

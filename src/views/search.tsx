@@ -1,22 +1,22 @@
-import React from 'react'
-import { ControlledTextInput } from '../components/text-input'
-import { Box, Color } from 'ink'
-import { useTasks, TaskId } from '../hooks/tasks'
-import { taskPath, folderPathString } from '../utils'
-import type { RootFolderReturnType, FolderType, TaskType } from '../hooks/tasks'
-import ScrollableList from '../components/scrollable-list'
-import { assoc, lensPath, view } from 'ramda'
 import Fuse from 'fuse.js'
+import { Box, Color } from 'ink'
+import { assoc, lensPath, view } from 'ramda'
+import React from 'react'
+import FullwidthBox from '../components/fullwidth-box'
+import ScrollableList from '../components/scrollable-list'
 import Select from '../components/select'
-import useHotkeys from '../hooks/hotkeys'
+import { ControlledTextInput } from '../components/text-input'
 import {
+  isEnter,
+  isLeave,
   isSelectNext,
   isSelectPrev,
-  isLeave,
-  isEnter,
 } from '../constants/hotkeys'
-import { useRouter, RouteProps } from '../hooks/router'
-import FullwidthBox from '../components/fullwidth-box'
+import useHotkeys from '../hooks/hotkeys'
+import { RouteProps, useRouter } from '../hooks/router'
+import { TaskId, useTasks } from '../hooks/tasks'
+import type { FolderType, RootFolderReturnType, TaskType } from '../hooks/tasks'
+import { folderPathString, taskPath } from '../utils'
 
 export default function SearchView({ id }: { id: TaskId } & RouteProps) {
   const { folder: root } = useTasks() as RootFolderReturnType

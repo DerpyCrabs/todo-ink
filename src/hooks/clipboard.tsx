@@ -6,19 +6,19 @@ import {
   lensPath,
   lensProp,
   over,
-  view,
   prepend,
   tail,
+  view,
 } from 'ramda'
 import type { Lens } from 'ramda'
 import React from 'react'
-import { allTasksCount, completedTasksCount, taskPath } from '../utils'
-import FOCUS from '../constants/focus'
-import { useFocus } from './focus'
-import { useTasks, TaskId } from './tasks'
-import type { RootFolderReturnType } from './tasks'
-import type { TaskType, FolderType } from './tasks'
 import FullwidthBox from '../components/fullwidth-box'
+import FOCUS from '../constants/focus'
+import { allTasksCount, completedTasksCount, taskPath } from '../utils'
+import { useFocus } from './focus'
+import { TaskId, useTasks } from './tasks'
+import type { RootFolderReturnType } from './tasks'
+import type { FolderType, TaskType } from './tasks'
 
 interface ClipboardContextType {
   clipboard: Array<FolderType | TaskType>

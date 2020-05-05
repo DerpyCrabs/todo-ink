@@ -1,13 +1,13 @@
 import React from 'react'
 import FOCUS from '../constants/focus'
-import { isChange, isMark, isEnter } from '../constants/hotkeys'
+import { isChange, isEnter, isMark } from '../constants/hotkeys'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
+import { useRouter } from '../hooks/router'
+import type { TaskType } from '../hooks/tasks'
+import FullwidthBox from './fullwidth-box'
 import Select from './select'
 import TextInput from './text-input'
-import type { TaskType } from '../hooks/tasks'
-import { useRouter } from '../hooks/router'
-import FullwidthBox from './fullwidth-box'
 
 const Task = ({
   task,

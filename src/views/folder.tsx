@@ -8,6 +8,7 @@ import Select from '../components/select'
 import Task from '../components/task'
 import TextInput from '../components/text-input'
 import FOCUS from '../constants/focus'
+import type { AddingFocus } from '../constants/focus'
 import {
   isCut,
   isDelete,
@@ -15,22 +16,21 @@ import {
   isMoveDown,
   isMoveUp,
   isNewFolder,
-  isNewTask,
   isNewFolderBefore,
+  isNewTask,
   isNewTaskBefore,
   isPaste,
   isPasteBefore,
+  isSearch,
   isSelectNext,
   isSelectPrev,
-  isSearch,
 } from '../constants/hotkeys'
 import { useClipboard } from '../hooks/clipboard'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
-import { useTasks, TaskId } from '../hooks/tasks'
-import type { FolderType, TaskType, FolderReturnType } from '../hooks/tasks'
-import type { AddingFocus } from '../constants/focus'
-import { useRouter, RouteProps } from '../hooks/router'
+import { RouteProps, useRouter } from '../hooks/router'
+import { TaskId, useTasks } from '../hooks/tasks'
+import type { FolderReturnType, FolderType, TaskType } from '../hooks/tasks'
 import useUndo from '../hooks/undo'
 
 const FolderView = ({

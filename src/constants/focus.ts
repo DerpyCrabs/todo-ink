@@ -1,4 +1,4 @@
-import { TaskId } from '../hooks/tasks'
+import type { TaskId } from '../hooks/tasks'
 
 export default {
   root: { tag: 'root' },

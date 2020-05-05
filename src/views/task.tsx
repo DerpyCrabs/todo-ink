@@ -1,13 +1,13 @@
-import React from 'react'
-import type { TaskId } from '../hooks/tasks'
-import TaskHeader from '../components/task-header'
-import TaskDescription from '../components/task-description'
-import { useTask } from '../hooks/tasks'
-import { Box } from 'ink'
-import useHotkeys from '../hooks/hotkeys'
-import { isLeave, isEdit } from '../constants/hotkeys'
-import { useRouter, RouteProps } from '../hooks/router'
 import { edit } from 'external-editor'
+import { Box } from 'ink'
+import React from 'react'
+import TaskDescription from '../components/task-description'
+import TaskHeader from '../components/task-header'
+import { isEdit, isLeave } from '../constants/hotkeys'
+import useHotkeys from '../hooks/hotkeys'
+import { RouteProps, useRouter } from '../hooks/router'
+import type { TaskId } from '../hooks/tasks'
+import { useTask } from '../hooks/tasks'
 
 export default function TaskView({ id }: { id: TaskId } & RouteProps) {
   const { task, setTask } = useTask(id)

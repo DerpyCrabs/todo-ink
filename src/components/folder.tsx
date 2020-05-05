@@ -3,12 +3,12 @@ import FOCUS from '../constants/focus'
 import { isChange, isEnter } from '../constants/hotkeys'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
+import { useRouter } from '../hooks/router'
+import type { FolderType } from '../hooks/tasks'
+import { allTasksCount, completedTasksCount } from '../utils'
+import FullwidthBox from './fullwidth-box'
 import Select from './select'
 import TextInput from './text-input'
-import type { FolderType } from '../hooks/tasks'
-import { useRouter } from '../hooks/router'
-import { completedTasksCount, allTasksCount } from '../utils'
-import FullwidthBox from './fullwidth-box'
 
 const Folder = ({
   task,

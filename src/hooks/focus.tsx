@@ -1,4 +1,4 @@
-import { append, dropLast, equals, last, reverse, omit, defaultTo } from 'ramda'
+import { append, defaultTo, dropLast, equals, last, omit, reverse } from 'ramda'
 import React from 'react'
 import type { FocusType } from '../constants/focus'
 

@@ -1,9 +1,9 @@
-import React from 'react'
-import useHotkeys from '../hooks/hotkeys'
-import { isUndo } from '../constants/hotkeys'
-import { useTasks, FolderType } from '../hooks/tasks'
-import type { RootFolderReturnType } from '../hooks/tasks'
 import { defaultTo } from 'ramda'
+import React from 'react'
+import { isUndo } from '../constants/hotkeys'
+import useHotkeys from '../hooks/hotkeys'
+import { FolderType, useTasks } from '../hooks/tasks'
+import type { RootFolderReturnType } from '../hooks/tasks'
 
 export default function useUndo(active?: boolean) {
   const [prev, setPrev] = React.useState(null as FolderType | null)
