@@ -258,13 +258,13 @@ const FolderView = ({
               children.push(
                 'tasks' in tasks[taskIndex] ? (
                   <Folder
-                    key={i}
+                    key={tasks[taskIndex].id}
                     task={tasks[taskIndex] as FolderType}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
                 ) : (
                   <Task
-                    key={i}
+                    key={tasks[taskIndex].id}
                     task={tasks[taskIndex] as TaskType}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
