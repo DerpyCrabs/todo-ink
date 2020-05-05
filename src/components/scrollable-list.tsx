@@ -33,6 +33,13 @@ export default function ScrollableList({
       return focus
     })
   }, [rows, position, childrenArray.length, setFocus])
+
+  React.useEffect(() => {
+    if (rows >= childrenArray.length) {
+      setFocus(0)
+    }
+  }, [rows, childrenArray.length])
+
   if (childrenArray.length === 0) {
     return <Box minHeight={rows} />
   }
