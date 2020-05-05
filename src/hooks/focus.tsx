@@ -29,6 +29,38 @@ export const FocusProvider = React.memo(
   }
 )
 
+export function refocus(focus: Array<FocusType>, tag: FocusType) {
+  if (focus.length !== 0 && focus[focus.length - 1].tag === tag.tag) {
+    return append(tag, dropLast(1, focus))
+  } else {
+    return append(tag, focus)
+  }
+}
+
+export function pushFocus(focus: Array<FocusType>, tag: FocusType) {
+  return append(tag, focus)
+}
+
+export function popFocus(
+  focus: Array<FocusType>,
+  tag: FocusType['tag'] | FocusType
+) {
+  if (focus.length === 0) {
+    throw new Error('Tried to popFocus from empty focus stack')
+  } else {
+    if (
+      tag === undefined ||
+      (typeof tag === 'string'
+        ? (last(focus) as FocusType).tag === tag
+        : equals(last(focus), tag))
+    ) {
+      return dropLast(1, focus)
+    } else {
+      return focus
+    }
+  }
+}
+
 export const useFocus = () => {
   const { focus, setFocus } = React.useContext(FocusContext)
   const actions = {
@@ -55,39 +87,16 @@ export const useFocus = () => {
       )
     },
     popFocus: React.useCallback(
-      (tag: FocusType['tag'] | FocusType) => {
-        setFocus((f: Array<FocusType>) => {
-          if (f.length === 0) {
-            throw new Error('Tried to popFocus from empty focus stack')
-          } else {
-            if (
-              tag === undefined ||
-              (typeof tag === 'string'
-                ? (last(f) as FocusType).tag === tag
-                : equals(last(f), tag))
-            ) {
-              return dropLast(1, f)
-            } else {
-              return f
-            }
-          }
-        })
-      },
+      (tag: FocusType['tag'] | FocusType) => setFocus((f) => popFocus(f, tag)),
       [setFocus]
     ),
     pushFocus: React.useCallback(
-      (tag: FocusType) => setFocus((f) => append(tag, f)),
+      (tag: FocusType) => setFocus((f) => pushFocus(f, tag)),
       [setFocus]
     ),
     refocus: React.useCallback(
       (tag: FocusType) => {
-        setFocus((f: Array<FocusType>) => {
-          if (f.length !== 0 && f[f.length - 1].tag === tag.tag) {
-            return append(tag, dropLast(1, f))
-          } else {
-            return append(tag, f)
-          }
-        })
+        setFocus((f) => refocus(f, tag))
       },
       [setFocus]
     ),

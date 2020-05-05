@@ -1,5 +1,5 @@
 import { Box } from 'ink'
-import { insert, lensIndex, remove, set } from 'ramda'
+import { append, insert, lensIndex, remove, set } from 'ramda'
 import React from 'react'
 import Folder from '../components/folder'
 import FolderHeader from '../components/folder-header'
@@ -26,7 +26,11 @@ import {
   isSelectPrev,
 } from '../constants/hotkeys'
 import { useClipboard } from '../hooks/clipboard'
-import { useFocus } from '../hooks/focus'
+import {
+  popFocus as popFocusPure,
+  refocus as refocusPure,
+  useFocus,
+} from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
 import { TaskId, useTasks } from '../hooks/tasks'
@@ -43,7 +47,14 @@ const FolderView = ({
   const { folder, tasks, newTask, newFolder, setTasks } = useTasks(
     id
   ) as FolderReturnType
-  const { isFocused, pushFocus, popFocus, focus, refocus } = useFocus()
+  const {
+    isFocused,
+    pushFocus,
+    popFocus,
+    focus,
+    refocus,
+    setFocus,
+  } = useFocus()
   const { back, go } = useRouter()
   const selected = (() => {
     const last = focus[focus.length - 1]
@@ -88,20 +99,36 @@ const FolderView = ({
   }
 
   const newTaskHandler = (v: string, i: number) => {
-    popFocus(FOCUS.addingTask().tag)
+    let taskId: TaskId | null = null
     if (v.trim()) {
       const task = newTask(v, false)
       setTasks(insert(i, task, tasks))
-      refocus(FOCUS.selectedTask(task.id))
+      taskId = task.id
     }
+    setFocus((focus) => {
+      const newFocus = popFocusPure(focus, FOCUS.addingTask().tag)
+      if (v.trim()) {
+        return refocusPure(newFocus, FOCUS.selectedTask(taskId))
+      } else {
+        return newFocus
+      }
+    })
   }
   const newFolderHandler = (v: string, i: number) => {
-    popFocus(FOCUS.addingFolder().tag)
+    let taskId: TaskId | null = null
     if (v.trim()) {
       const task = newFolder(v)
       setTasks(insert(i, task, tasks))
-      refocus(FOCUS.selectedTask(task.id))
+      taskId = task.id
     }
+    setFocus((focus) => {
+      const newFocus = popFocusPure(focus, FOCUS.addingFolder().tag)
+      if (v.trim()) {
+        return refocusPure(newFocus, FOCUS.selectedTask(taskId))
+      } else {
+        return newFocus
+      }
+    })
   }
 
   const newTaskCancelHandler = () => {
@@ -163,14 +190,18 @@ const FolderView = ({
     [isDelete, () => {
         if (selected !== null) {
           setTasks(remove(selected, 1, tasks))
-          popFocus(FOCUS.selectedTask().tag)
-          if (tasks.length !== 1) {
-            const newSelected =
-              tasks.length - 1 === selected
-                ? Math.max(0, selected - 1)
-                : selected
-            pushFocus(FOCUS.selectedTask(remove(selected, 1, tasks)[newSelected].id))
-          }
+          setFocus((focus) => {
+            const newFocus = popFocusPure(focus, FOCUS.selectedTask().tag)
+            if (tasks.length !== 1) {
+              const newSelected =
+                tasks.length - 1 === selected
+                  ? Math.max(0, selected - 1)
+                  : selected
+              return append(FOCUS.selectedTask(remove(selected, 1, tasks)[newSelected].id), newFocus)
+            } else {
+              return newFocus
+            }
+          })
         }
       },],
     [isNewTask, () => {
