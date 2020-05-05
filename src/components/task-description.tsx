@@ -47,7 +47,7 @@ export default function TaskDescription({
   return (
     <ScrollableList margin={margin} position={position}>
       {lines.map((line, i) => (
-        <Box width={columns}>
+        <Box key={i} width={columns}>
           {i === position ? '> ' : '  '}
           {line}
         </Box>

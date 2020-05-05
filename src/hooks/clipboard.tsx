@@ -31,20 +31,19 @@ const ClipboardContext = React.createContext<ClipboardContextType>({
   setClipboard: () => {},
 })
 
-export const ClipboardProvider = ({
-  children,
-}: {
-  children: React.ReactNode
-}) => {
-  const [clipboard, setClipboard] = React.useState<
-    Array<FolderType | TaskType>
-  >([])
-  return (
-    <ClipboardContext.Provider value={{ clipboard, setClipboard }}>
-      {children}
-    </ClipboardContext.Provider>
-  )
-}
+// eslint-disable-next-line react/display-name
+export const ClipboardProvider = React.memo(
+  ({ children }: { children: React.ReactNode }) => {
+    const [clipboard, setClipboard] = React.useState<
+      Array<FolderType | TaskType>
+    >([])
+    return (
+      <ClipboardContext.Provider value={{ clipboard, setClipboard }}>
+        {children}
+      </ClipboardContext.Provider>
+    )
+  }
+)
 
 export const useClipboard = () => {
   const { clipboard, setClipboard } = React.useContext(ClipboardContext)

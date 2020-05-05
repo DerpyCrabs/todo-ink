@@ -67,31 +67,36 @@ const TasksContext = React.createContext<TasksContextType>({
   setTasks: () => {},
 })
 
-export const TasksProvider = ({
-  children,
-  path = 'tasks.json',
-}: {
-  children: React.ReactNode
-  path: string
-}) => {
-  const tmpTasks = readTasks(path)
-  const [tasks, setTasks] = React.useState({
-    lastId: maxId(tmpTasks),
-    tasks: tmpTasks,
-  })
-  const setTasksHandler = (tasksHandler: SetTasksHandler) => {
-    setTasks((tasks) => {
-      const newTasks = tasksHandler(tasks)
-      writeTasks(path, newTasks.tasks)
-      return newTasks
+export const TasksProvider = React.memo(
+  ({
+    children,
+    path = 'tasks.json',
+  }: {
+    children: React.ReactNode
+    path: string
+  }) => {
+    const tmpTasks = readTasks(path)
+    const [tasks, setTasks] = React.useState({
+      lastId: maxId(tmpTasks),
+      tasks: tmpTasks,
     })
+    const setTasksHandler = React.useCallback(
+      (tasksHandler: SetTasksHandler) => {
+        setTasks((tasks) => {
+          const newTasks = tasksHandler(tasks)
+          writeTasks(path, newTasks.tasks)
+          return newTasks
+        })
+      },
+      [path]
+    )
+    return (
+      <TasksContext.Provider value={{ tasks, setTasks: setTasksHandler }}>
+        {children}
+      </TasksContext.Provider>
+    )
   }
-  return (
-    <TasksContext.Provider value={{ tasks, setTasks: setTasksHandler }}>
-      {children}
-    </TasksContext.Provider>
-  )
-}
+)
 
 export interface TaskReturnType {
   task: TaskType
@@ -100,7 +105,7 @@ export interface TaskReturnType {
 
 export function useTask(taskId: TaskId): TaskReturnType {
   const {
-    tasks: { tasks, lastId },
+    tasks: { tasks },
     setTasks,
   } = React.useContext(TasksContext)
 

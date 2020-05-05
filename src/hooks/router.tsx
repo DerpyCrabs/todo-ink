@@ -55,7 +55,7 @@ export const Router = ({ children }: { children: React.ReactNode }) => {
 export const useRouter = () => {
   const { pushFocus, setFocus } = useFocus()
   return {
-    back: () => {
+    back: React.useCallback(() => {
       setFocus((f) => {
         const previousRoute = init(dropLastWhile((t) => t.route !== true, f))
         if (previousRoute !== undefined && previousRoute.length !== 0) {
@@ -64,14 +64,17 @@ export const useRouter = () => {
           return f
         }
       })
-    },
-    go: (path: string) => {
-      const parsedPath = parsePath(path)
-      pushFocus(
-        (FOCUS as any)[parsedPath[0]](
-          ...parsedPath.slice(1).map((p) => JSON.parse(p))
+    }, [setFocus]),
+    go: React.useCallback(
+      (path: string) => {
+        const parsedPath = parsePath(path)
+        pushFocus(
+          (FOCUS as any)[parsedPath[0]](
+            ...parsedPath.slice(1).map((p) => JSON.parse(p))
+          )
         )
-      )
-    },
+      },
+      [pushFocus]
+    ),
   }
 }

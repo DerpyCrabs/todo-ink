@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js'
 import { Box, Color } from 'ink'
-import { assoc, lensPath, view } from 'ramda'
+import { Path, assoc, lensPath, view } from 'ramda'
 import React from 'react'
 import FullwidthBox from '../components/fullwidth-box'
 import ScrollableList from '../components/scrollable-list'
@@ -18,9 +18,24 @@ import { TaskId, useTasks } from '../hooks/tasks'
 import type { FolderType, RootFolderReturnType, TaskType } from '../hooks/tasks'
 import { folderPathString, taskPath } from '../utils'
 
+function flattenFolder(
+  task: FolderType | TaskType
+): Array<(TaskType | FolderType) & { path: string }> {
+  if ('status' in task) {
+    return [assoc('path', '', task)]
+  }
+  return [
+    assoc('path', '', task),
+    ...task.tasks
+      .map(flattenFolder)
+      .flat()
+      .map((t) => assoc('path', `${task.name}/${t.path}`, t)),
+  ]
+}
+
 export default function SearchView({ id }: { id: TaskId } & RouteProps) {
   const { folder: root } = useTasks() as RootFolderReturnType
-  const { folder } = useTasks(id) as RootFolderReturnType
+  const folder = view(lensPath(taskPath(root, id) as Path), root) as FolderType
   const { go, back } = useRouter()
   const [searchQuery, setSearchQuery] = React.useState('')
 
@@ -28,7 +43,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
     new Fuse(
       flattenFolder(folder).map((task) => ({
         ...task,
-        path: task.path.replace(/[^\/]*\//, ''),
+        path: task.path.replace(/[^/]*\//, ''),
       })),
       {
         isCaseSensitive: false,
@@ -43,7 +58,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
 
   React.useEffect(() => {
     setFuzzySearcher(makeSearcher(folder))
-  }, [id])
+  }, [id, folder])
 
   const searchResults = fuzzySearcher.search(searchQuery)
 
@@ -97,7 +112,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
       />
       <ScrollableList position={position} margin={2}>
         {searchResults.map((res, i) => (
-          <Select selected={i === position}>
+          <Select selected={i === position} key={i}>
             {'status' in res.item ? (
               <FullwidthBox key={res.item.id}>
                 [{res.item.status ? 'X' : ' '}] <Task searchResult={res} />
@@ -182,19 +197,4 @@ const FuzzyResult = ({
       )}
     </>
   )
-}
-
-const flattenFolder = (
-  task: FolderType | TaskType
-): Array<(TaskType | FolderType) & { path: string }> => {
-  if ('status' in task) {
-    return [assoc('path', '', task)]
-  }
-  return [
-    assoc('path', '', task),
-    ...task.tasks
-      .map(flattenFolder)
-      .flat()
-      .map((t) => assoc('path', `${task.name}/${t.path}`, t)),
-  ]
 }

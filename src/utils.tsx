@@ -37,9 +37,9 @@ export const taskPath = (
 
 export const useStdoutSize = (): { rows: number; columns: number } => {
   const { stdout } = useStdout()
-  if (stdout === undefined) {
-    return { rows: 0, columns: 0 }
-  }
+
+  if (stdout === undefined) throw new Error('Failed to fetch stdout size')
+
   const [size, setSize] = React.useState({
     columns: stdout.columns,
     rows: stdout.rows,
@@ -52,7 +52,7 @@ export const useStdoutSize = (): { rows: number; columns: number } => {
     return () => {
       stdout?.off('resize', handler)
     }
-  }, [stdout, stdout?.columns, stdout?.rows])
+  }, [stdout, stdout.columns, stdout.rows])
 
   return size
 }

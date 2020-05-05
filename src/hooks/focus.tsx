@@ -10,21 +10,24 @@ const FocusContext = React.createContext<FocusContextType>({
   focus: [],
   setFocus: () => {},
 })
-export const FocusProvider = ({
-  children,
-  initialFocus = [],
-}: {
-  children: React.ReactNode
-  initialFocus: Array<FocusType>
-}) => {
-  const [focus, setFocus] = React.useState(initialFocus)
+// eslint-disable-next-line react/display-name
+export const FocusProvider = React.memo(
+  ({
+    children,
+    initialFocus = [],
+  }: {
+    children: React.ReactNode
+    initialFocus: Array<FocusType>
+  }) => {
+    const [focus, setFocus] = React.useState(initialFocus)
 
-  return (
-    <FocusContext.Provider value={{ focus, setFocus }}>
-      {children}
-    </FocusContext.Provider>
-  )
-}
+    return (
+      <FocusContext.Provider value={{ focus, setFocus }}>
+        {children}
+      </FocusContext.Provider>
+    )
+  }
+)
 
 export const useFocus = () => {
   const { focus, setFocus } = React.useContext(FocusContext)
@@ -32,7 +35,7 @@ export const useFocus = () => {
     isFocused: (tag: FocusType['tag'] | FocusType) => {
       if (focus.length === 0) return false
 
-      let focused = []
+      const focused = []
       for (const f of reverse(focus)) {
         focused.push(f)
         if (f.fallthrough !== undefined && f.fallthrough === false) {
@@ -51,34 +54,43 @@ export const useFocus = () => {
         ) !== undefined
       )
     },
-    popFocus: (tag: FocusType['tag'] | FocusType) => {
-      setFocus((f: Array<FocusType>) => {
-        if (f.length === 0) {
-          throw new Error('Tried to popFocus from empty focus stack')
-        } else {
-          if (
-            tag === undefined ||
-            (typeof tag === 'string'
-              ? (last(f) as FocusType).tag === tag
-              : equals(last(f), tag))
-          ) {
-            return dropLast(1, f)
+    popFocus: React.useCallback(
+      (tag: FocusType['tag'] | FocusType) => {
+        setFocus((f: Array<FocusType>) => {
+          if (f.length === 0) {
+            throw new Error('Tried to popFocus from empty focus stack')
           } else {
-            return f
+            if (
+              tag === undefined ||
+              (typeof tag === 'string'
+                ? (last(f) as FocusType).tag === tag
+                : equals(last(f), tag))
+            ) {
+              return dropLast(1, f)
+            } else {
+              return f
+            }
           }
-        }
-      })
-    },
-    pushFocus: (tag: FocusType) => setFocus((f) => append(tag, f)),
-    refocus: (tag: FocusType) => {
-      setFocus((f: Array<FocusType>) => {
-        if (f.length !== 0 && f[f.length - 1].tag === tag.tag) {
-          return append(tag, dropLast(1, f))
-        } else {
-          return append(tag, f)
-        }
-      })
-    },
+        })
+      },
+      [setFocus]
+    ),
+    pushFocus: React.useCallback(
+      (tag: FocusType) => setFocus((f) => append(tag, f)),
+      [setFocus]
+    ),
+    refocus: React.useCallback(
+      (tag: FocusType) => {
+        setFocus((f: Array<FocusType>) => {
+          if (f.length !== 0 && f[f.length - 1].tag === tag.tag) {
+            return append(tag, dropLast(1, f))
+          } else {
+            return append(tag, f)
+          }
+        })
+      },
+      [setFocus]
+    ),
   }
   return { focus, setFocus, ...actions }
 }

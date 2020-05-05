@@ -146,7 +146,7 @@ const FolderView = ({
       },],
     [isMoveDown, () => {
         if (selected !== null && selected < tasks.length - 1) {
-          let tc = tasks.slice()
+          const tc = tasks.slice()
           ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
           setTasks(tc)
           refocus(FOCUS.selectedTask(tc[selected + 1].id))
@@ -154,7 +154,7 @@ const FolderView = ({
       },],
     [isMoveUp, () => {
         if (selected !== null && selected > 0) {
-          let tc = tasks.slice()
+          const tc = tasks.slice()
           ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
           setTasks(tc)
           refocus(FOCUS.selectedTask(tc[selected - 1].id))
@@ -231,8 +231,8 @@ const FolderView = ({
         margin={3}
       >
         {(() => {
-          let children: Array<React.ReactElement> = []
-          let task_index = 0
+          const children: Array<React.ReactElement> = []
+          let taskIndex = 0
           for (let i = 0; i < tasks.length + 1; i++) {
             if (isFocused(FOCUS.addingTask(i))) {
               children.push(
@@ -254,23 +254,23 @@ const FolderView = ({
                   />
                 </Select>
               )
-            } else if (task_index < tasks.length) {
+            } else if (taskIndex < tasks.length) {
               children.push(
-                'tasks' in tasks[task_index] ? (
+                'tasks' in tasks[taskIndex] ? (
                   <Folder
                     key={i}
-                    task={tasks[task_index] as FolderType}
+                    task={tasks[taskIndex] as FolderType}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
                 ) : (
                   <Task
                     key={i}
-                    task={tasks[task_index] as TaskType}
+                    task={tasks[taskIndex] as TaskType}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
                 )
               )
-              task_index += 1
+              taskIndex += 1
             }
           }
           return children

@@ -21,7 +21,7 @@ export default function TaskView({ id }: { id: TaskId } & RouteProps) {
     [isEdit, () => {
       try {
         setTask({...task, description: edit(task.description, { postfix: '.md' })})
-      } catch (e) {}
+      } catch (e) {/* ignore */}
       },],
     ], true)
 
@@ -31,7 +31,7 @@ export default function TaskView({ id }: { id: TaskId } & RouteProps) {
       {task.description !== undefined && task.description !== '' ? (
         <TaskDescription description={task.description} margin={3} />
       ) : (
-        <Box>No description. Press 'e' to open description editor</Box>
+        <Box>No description. Press {`'e'`} to open description editor</Box>
       )}
     </Box>
   )

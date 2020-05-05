@@ -7,7 +7,7 @@ type HotkeyHandler = [Hotkey, () => void]
 export default function useHotkeys(
   hotkeys: Array<HotkeyHandler>,
   active = true
-) {
+): void {
   useInput(
     (input, key) => {
       if (active) {

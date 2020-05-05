@@ -13,7 +13,7 @@ export default function ScrollableList({
 }) {
   const [focus, setFocus] = React.useState(0)
   const { rows: _rows } = useStdoutSize()
-  let rows = _rows - margin
+  const rows = _rows - margin
   const childrenArray = React.Children.toArray(children)
   React.useEffect(() => {
     setFocus((focus) => {
