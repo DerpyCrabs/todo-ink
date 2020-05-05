@@ -5,6 +5,10 @@ export const isExit: Hotkey = (key, input) =>
 export const isNewTask: Hotkey = (key, input) => input === 'n' || input === 'т'
 export const isNewFolder: Hotkey = (key, input) =>
   input === 'f' || input === 'а'
+export const isNewTaskBefore: Hotkey = (key, input) =>
+  input === 'N' || input === 'Т'
+export const isNewFolderBefore: Hotkey = (key, input) =>
+  input === 'F' || input === 'А'
 export const isChange: Hotkey = (key, input) => input === 'c' || input === 'с'
 export const isMark: Hotkey = (key, input) => input === 'm' || input === 'ь'
 export const isDelete: Hotkey = (key, input) => input === 'd' || input === 'в'

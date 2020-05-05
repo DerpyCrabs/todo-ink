@@ -2,15 +2,15 @@ import { TaskType } from '../hooks/tasks'
 
 export default {
   root: { tag: 'root' },
-  addingTask: (after: number | null): AddingFocus => ({
+  addingTask: (position?: number): AddingFocus => ({
     tag: 'addingTask',
     fallthrough: false,
-    after: after,
+    position: position,
   }),
-  addingFolder: (after: number | null): AddingFocus => ({
+  addingFolder: (position?: number): AddingFocus => ({
     tag: 'addingFolder',
     fallthrough: false,
-    after: after,
+    position: position,
   }),
   selectedTask: (id: number | null = null): FocusType => ({
     tag: 'selectedTask',
@@ -56,5 +56,5 @@ export interface FocusType {
 }
 
 export interface AddingFocus extends FocusType {
-  after: number | null
+  position?: number
 }

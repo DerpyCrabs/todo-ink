@@ -16,6 +16,8 @@ import {
   isMoveUp,
   isNewFolder,
   isNewTask,
+  isNewFolderBefore,
+  isNewTaskBefore,
   isPaste,
   isPasteBefore,
   isSelectNext,
@@ -69,8 +71,8 @@ const FolderView = ({
     if (
       tasks.length !== 0 &&
       !isFocused(FOCUS.selectedTask().tag) &&
-      !isFocused(FOCUS.addingTask(null).tag) &&
-      !isFocused(FOCUS.addingFolder(null).tag)
+      !isFocused(FOCUS.addingTask().tag) &&
+      !isFocused(FOCUS.addingFolder().tag)
     ) {
       if (initialSelection !== undefined) {
         pushFocus(FOCUS.selectedTask(initialSelection))
@@ -86,7 +88,7 @@ const FolderView = ({
   }
 
   const newTaskHandler = (v: string, i: number) => {
-    popFocus(FOCUS.addingTask(null).tag)
+    popFocus(FOCUS.addingTask().tag)
     if (v.trim()) {
       const task = newTask(v, false)
       setTasks(insert(i, task, tasks))
@@ -94,7 +96,7 @@ const FolderView = ({
     }
   }
   const newFolderHandler = (v: string, i: number) => {
-    popFocus(FOCUS.addingFolder(null).tag)
+    popFocus(FOCUS.addingFolder().tag)
     if (v.trim()) {
       const task = newFolder(v)
       setTasks(insert(i, task, tasks))
@@ -103,10 +105,10 @@ const FolderView = ({
   }
 
   const newTaskCancelHandler = () => {
-    popFocus(FOCUS.addingTask(null).tag)
+    popFocus(FOCUS.addingTask().tag)
   }
   const newFolderCancelHandler = () => {
-    popFocus(FOCUS.addingFolder(null).tag)
+    popFocus(FOCUS.addingFolder().tag)
   }
 
   // prettier-ignore
@@ -172,10 +174,32 @@ const FolderView = ({
         }
       },],
     [isNewTask, () => {
-        pushFocus(FOCUS.addingTask(selected))
+      if (selected !== null) {
+        pushFocus(FOCUS.addingTask(selected + 1))
+      } else {
+        pushFocus(FOCUS.addingTask(0))
+      }
       },],
     [isNewFolder, () => {
+      if (selected !== null) {
+        pushFocus(FOCUS.addingFolder(selected + 1))
+      } else {
+        pushFocus(FOCUS.addingFolder(0))
+      }
+      },],
+    [isNewTaskBefore, () => {
+      if (selected !== null) {
+        pushFocus(FOCUS.addingTask(selected))
+      } else {
+        pushFocus(FOCUS.addingTask(0))
+      }
+      },],
+    [isNewFolderBefore, () => {
+      if (selected !== null) {
         pushFocus(FOCUS.addingFolder(selected))
+      } else {
+        pushFocus(FOCUS.addingFolder(0))
+      }
       },],
     [isLeave, () => {
       back()
@@ -188,13 +212,13 @@ const FolderView = ({
       <ScrollableList
         position={(() => {
           if (
-            isFocused(FOCUS.addingTask(null).tag) ||
-            isFocused(FOCUS.addingFolder(null).tag)
+            isFocused(FOCUS.addingTask().tag) ||
+            isFocused(FOCUS.addingFolder().tag)
           ) {
             const addingPosition = (focus[focus.length - 1] as AddingFocus)
-              .after
-            if (addingPosition !== null) {
-              return addingPosition + 1
+              .position
+            if (addingPosition !== undefined) {
+              return addingPosition
             } else {
               return 0
             }
@@ -206,63 +230,51 @@ const FolderView = ({
         })()}
         margin={3}
       >
-        {tasks.map((task, i) => [
-          ...[
-            'tasks' in task ? (
-              <Folder
-                key={i}
-                task={task}
-                onChange={(t) => taskChangeHandler(t, i)}
-              />
-            ) : (
-              <Task
-                key={i}
-                task={task}
-                onChange={(t) => taskChangeHandler(t, i)}
-              />
-            ),
-          ],
-          ...[
-            isFocused(FOCUS.addingTask(i)) && (
-              <Select key={`${i}-addingTask`} selected={true}>
-                <TextInput
-                  prompt='> '
-                  onSubmit={(v: string) => newTaskHandler(v, i + 1)}
-                  onCancel={newTaskCancelHandler}
-                />
-              </Select>
-            ),
-          ],
-          ...[
-            isFocused(FOCUS.addingFolder(i)) && (
-              <Select key={`${i}-addingFolder`} selected={true}>
-                <TextInput
-                  prompt='[F] > '
-                  onSubmit={(v: string) => newFolderHandler(v, i + 1)}
-                  onCancel={newFolderCancelHandler}
-                />
-              </Select>
-            ),
-          ],
-        ])}
-        {isFocused(FOCUS.addingTask(null)) && (
-          <Select selected={true}>
-            <TextInput
-              prompt='> '
-              onSubmit={(v: string) => newTaskHandler(v, 0)}
-              onCancel={newTaskCancelHandler}
-            />
-          </Select>
-        )}
-        {isFocused(FOCUS.addingFolder(null)) && (
-          <Select selected={true}>
-            <TextInput
-              prompt='[F] > '
-              onSubmit={(v: string) => newFolderHandler(v, 0)}
-              onCancel={newFolderCancelHandler}
-            />
-          </Select>
-        )}
+        {(() => {
+          let children: Array<React.ReactElement> = []
+          let task_index = 0
+          for (let i = 0; i < tasks.length + 1; i++) {
+            if (isFocused(FOCUS.addingTask(i))) {
+              children.push(
+                <Select key={`${i}-addingTask`} selected={true}>
+                  <TextInput
+                    prompt='> '
+                    onSubmit={(v: string) => newTaskHandler(v, i)}
+                    onCancel={newTaskCancelHandler}
+                  />
+                </Select>
+              )
+            } else if (isFocused(FOCUS.addingFolder(i))) {
+              children.push(
+                <Select key={`${i}-addingFolder`} selected={true}>
+                  <TextInput
+                    prompt='[F] > '
+                    onSubmit={(v: string) => newFolderHandler(v, i)}
+                    onCancel={newFolderCancelHandler}
+                  />
+                </Select>
+              )
+            } else if (task_index < tasks.length) {
+              children.push(
+                'tasks' in tasks[task_index] ? (
+                  <Folder
+                    key={i}
+                    task={tasks[task_index] as FolderType}
+                    onChange={(t) => taskChangeHandler(t, i)}
+                  />
+                ) : (
+                  <Task
+                    key={i}
+                    task={tasks[task_index] as TaskType}
+                    onChange={(t) => taskChangeHandler(t, i)}
+                  />
+                )
+              )
+              task_index += 1
+            }
+          }
+          return children
+        })()}
       </ScrollableList>
       <ClipboardStatus />
     </Box>
