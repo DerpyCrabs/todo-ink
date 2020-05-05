@@ -1,4 +1,4 @@
-import { Box, Color } from 'ink'
+import { Color } from 'ink'
 import {
   compose,
   dissocPath,
@@ -7,6 +7,8 @@ import {
   lensProp,
   over,
   view,
+  prepend,
+  tail,
 } from 'ramda'
 import type { Lens } from 'ramda'
 import React from 'react'
@@ -19,13 +21,13 @@ import type { TaskType, FolderType } from './tasks'
 import FullwidthBox from '../components/fullwidth-box'
 
 interface ClipboardContextType {
-  clipboard: FolderType | TaskType | null
+  clipboard: Array<FolderType | TaskType>
   setClipboard: React.Dispatch<
-    React.SetStateAction<FolderType | TaskType | null>
+    React.SetStateAction<Array<FolderType | TaskType>>
   >
 }
 const ClipboardContext = React.createContext<ClipboardContextType>({
-  clipboard: null,
+  clipboard: [],
   setClipboard: () => {},
 })
 
@@ -35,8 +37,8 @@ export const ClipboardProvider = ({
   children: React.ReactNode
 }) => {
   const [clipboard, setClipboard] = React.useState<
-    FolderType | TaskType | null
-  >(null)
+    Array<FolderType | TaskType>
+  >([])
   return (
     <ClipboardContext.Provider value={{ clipboard, setClipboard }}>
       {children}
@@ -51,14 +53,15 @@ export const useClipboard = () => {
 
   const ClipboardStatus = () => (
     <FullwidthBox>
-      {clipboard !== null && (
+      {clipboard.length !== 0 && (
         <Color>
           Clipboard content:{' '}
-          {'tasks' in clipboard
-            ? `folder "${clipboard.name}" (${completedTasksCount(
-                clipboard.tasks
-              )}/${allTasksCount(clipboard.tasks)})`
-            : `task "${clipboard?.name}"`}
+          {'tasks' in clipboard[0]
+            ? `folder "${clipboard[0].name}" (${completedTasksCount(
+                clipboard[0].tasks
+              )}/${allTasksCount(clipboard[0].tasks)})`
+            : `task "${clipboard[0]?.name}"`}{' '}
+          {clipboard.length > 1 && `and ${clipboard.length - 1} more tasks`}
         </Color>
       )}
     </FullwidthBox>
@@ -67,20 +70,20 @@ export const useClipboard = () => {
   return {
     ClipboardStatus,
     cut: (id: TaskType['id']) =>
-      setClipboard((clipboard: FolderType | TaskType | null):
-        | FolderType
-        | TaskType
-        | null => {
-        if (clipboard !== null) return clipboard
-        const taskP = taskPath(folder, id)
-        if (taskP === null) return null
-        const task = view(lensPath(taskP), folder) as TaskType
-        setFolder(dissocPath(taskP, folder))
-        return task
-      }),
+      setClipboard(
+        (
+          clipboard: Array<FolderType | TaskType>
+        ): Array<FolderType | TaskType> => {
+          const taskP = taskPath(folder, id)
+          if (taskP === null) return clipboard
+          const task = view(lensPath(taskP), folder) as TaskType
+          setFolder(dissocPath(taskP, folder))
+          return prepend(task, clipboard)
+        }
+      ),
     paste: (folderId: FolderType['id'], after: number) => {
       setClipboard((clipboard) => {
-        if (clipboard === null) return null
+        if (clipboard.length === 0) return []
         const folderP = taskPath(folder, folderId)
         if (folderP === null) {
           return clipboard
@@ -88,12 +91,12 @@ export const useClipboard = () => {
         setFolder(
           over(
             compose(lensPath(folderP), lensProp('tasks')) as Lens,
-            insert(after, clipboard),
+            insert(after, clipboard[0]),
             folder
           )
         )
-        refocus(FOCUS.selectedTask(clipboard.id))
-        return null
+        refocus(FOCUS.selectedTask(clipboard[0].id))
+        return tail(clipboard)
       })
     },
   }
