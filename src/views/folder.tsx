@@ -1,5 +1,5 @@
 import { Box } from 'ink'
-import { append, insert, lensIndex, remove, set } from 'ramda'
+import { insert, lensIndex, remove, set } from 'ramda'
 import React from 'react'
 import Folder from '../components/folder'
 import FolderHeader from '../components/folder-header'
@@ -28,6 +28,7 @@ import {
 import { useClipboard } from '../hooks/clipboard'
 import {
   popFocus as popFocusPure,
+  pushFocus as pushFocusPure,
   refocus as refocusPure,
   useFocus,
 } from '../hooks/focus'
@@ -47,6 +48,7 @@ const FolderView = ({
   const { folder, tasks, newTask, newFolder, setTasks } = useTasks(
     id
   ) as FolderReturnType
+
   const {
     isFocused,
     pushFocus,
@@ -56,6 +58,9 @@ const FolderView = ({
     setFocus,
   } = useFocus()
   const { back, go } = useRouter()
+  const { ClipboardStatus, cut, paste } = useClipboard()
+  useUndo(isFocused(FOCUS.folder(folder.id)))
+
   const selected = (() => {
     const last = focus[focus.length - 1]
     if (last === undefined) return null
@@ -74,10 +79,6 @@ const FolderView = ({
     }
   })()
 
-  const { ClipboardStatus, cut, paste } = useClipboard()
-
-  useUndo(isFocused(FOCUS.folder(folder.id)))
-
   React.useEffect(() => {
     if (
       tasks.length !== 0 &&
@@ -86,9 +87,9 @@ const FolderView = ({
       !isFocused(FOCUS.addingFolder().tag)
     ) {
       if (initialSelection !== undefined) {
-        pushFocus(FOCUS.selectedTask(initialSelection))
+        refocus(FOCUS.selectedTask(initialSelection))
       } else {
-        pushFocus(FOCUS.selectedTask(tasks[0].id))
+        refocus(FOCUS.selectedTask(tasks[0].id))
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -197,7 +198,7 @@ const FolderView = ({
                 tasks.length - 1 === selected
                   ? Math.max(0, selected - 1)
                   : selected
-              return append(FOCUS.selectedTask(remove(selected, 1, tasks)[newSelected].id), newFocus)
+              return pushFocusPure(newFocus, FOCUS.selectedTask(remove(selected, 1, tasks)[newSelected].id))
             } else {
               return newFocus
             }
