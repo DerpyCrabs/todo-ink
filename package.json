@@ -7,7 +7,8 @@
     "type-check:watch": "yarn type-check --watch",
     "build": "npx babel src --out-dir lib --extensions \".js,.jsx,.ts,.tsx\" --source-maps inline",
     "package": "yarn build && npx pkg -t node13-linux,node13-win lib/index.js -o lib/todo-ink",
-    "start": "yarn build && NODE_ENV=production node ./lib/index.js"
+    "start": "yarn build && DEV=true NODE_ENV=production node ./lib/index.js",
+    "devtools": "npx react-devtools"
   },
   "dependencies": {
     "@babel/cli": "^7.8.4",
@@ -55,6 +56,7 @@
     "import-sort-parser-typescript": "^6.0.0",
     "pkg": "^4.4.8",
     "prettier": "^2.0.5",
+    "react-devtools": "^4.6.0",
     "typescript": "^3.8.3"
   },
   "importSort": {
