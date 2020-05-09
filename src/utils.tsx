@@ -1,5 +1,5 @@
 import { useStdout } from 'ink'
-import { Path, lensPath, scan, splitEvery, sum, view } from 'ramda'
+import { Path, lensPath, scan, splitEvery, view } from 'ramda'
 import React from 'react'
 import { FolderType, TaskId, TaskType } from './hooks/tasks'
 
@@ -57,18 +57,24 @@ export const useStdoutSize = (): { rows: number; columns: number } => {
   return size
 }
 
+export function allTasksCount(tasks: Array<FolderType | TaskType>): number {
+  return tasks.length
+}
+
 export function completedTasksCount(
   tasks: Array<FolderType | TaskType>
 ): number {
-  return sum(
-    tasks.map((task) =>
-      'tasks' in task ? completedTasksCount(task.tasks) : task.status ? 1 : 0
-    )
-  )
-}
-
-export function allTasksCount(tasks: Array<FolderType | TaskType>): number {
-  return sum(
-    tasks.map((task) => ('tasks' in task ? allTasksCount(task.tasks) : 1))
-  )
+  let count = 0
+  for (const task of tasks) {
+    if ('status' in task) {
+      if (task.status) {
+        count += 1
+      }
+    } else {
+      if (completedTasksCount(task.tasks) === allTasksCount(task.tasks)) {
+        count += 1
+      }
+    }
+  }
+  return count
 }
