@@ -86,14 +86,18 @@ export function useTask(taskId: TaskId): TaskReturnType {
   }
   const taskLens = lensPath(path)
 
-  const setTaskHandler = (t: TaskType) => {
-    setTasks(({ tasks, lastId }) => {
-      return {
-        tasks: set(taskLens, t, tasks),
-        lastId,
-      }
-    })
-  }
+  const setTaskHandler = React.useCallback(
+    (t: TaskType) => {
+      setTasks(({ tasks, lastId }) => {
+        return {
+          tasks: set(taskLens, t, tasks),
+          lastId,
+        }
+      })
+    },
+    [setTasks, taskLens]
+  )
+
   return {
     task: view(taskLens, tasks),
     setTask: setTaskHandler,
@@ -105,10 +109,13 @@ export function useTasks(): RootFolderReturnType {
     tasks: { tasks },
     setTasks,
   } = React.useContext(TasksContext)
+  const setRoot = React.useCallback(
+    (t: FolderType) => setTasks(({ lastId }) => ({ tasks: t, lastId })),
+    [setTasks]
+  )
   return {
     root: tasks,
-    setRoot: (t: FolderType) =>
-      setTasks(({ lastId }) => ({ tasks: t, lastId })),
+    setRoot,
   }
 }
 
@@ -123,22 +130,35 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     throw new Error(`Couldn't find task with id = ${folderId}`)
   }
   const folderLens = lensPath(folderPath)
-  const newTask = (name: string, status: boolean) => {
-    setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
-    return { id: lastId + 1, name, status, description: '' }
-  }
-  const newFolder = (name: string) => {
-    setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
-    return { id: lastId + 1, name, tasks: [] }
-  }
-  const setTasksHandler = (t: Array<FolderType | TaskType>) => {
-    setTasks(({ tasks, lastId }) => {
-      return {
-        tasks: set(compose(folderLens, lensProp('tasks')) as Lens, t, tasks),
-        lastId,
-      }
-    })
-  }
+
+  const newTask = React.useCallback(
+    (name: string, status: boolean) => {
+      setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
+      return { id: lastId + 1, name, status, description: '' }
+    },
+    [lastId, setTasks]
+  )
+
+  const newFolder = React.useCallback(
+    (name: string) => {
+      setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
+      return { id: lastId + 1, name, tasks: [] }
+    },
+    [lastId, setTasks]
+  )
+
+  const setTasksHandler = React.useCallback(
+    (t: Array<FolderType | TaskType>) => {
+      setTasks(({ tasks, lastId }) => {
+        return {
+          tasks: set(compose(folderLens, lensProp('tasks')) as Lens, t, tasks),
+          lastId,
+        }
+      })
+    },
+    [folderLens, setTasks]
+  )
+
   return {
     tasks: view(compose(folderLens, lensProp('tasks')) as Lens, tasks),
     folder: view(folderLens, tasks),
