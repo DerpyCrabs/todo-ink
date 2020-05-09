@@ -1,4 +1,5 @@
 import { Box, Color } from 'ink'
+import { defaultTo } from 'ramda'
 import React from 'react'
 import useInput from '../hooks/input'
 
@@ -76,23 +77,84 @@ export const UncontrolledTextInput = ({
   onSubmit,
   onCancel = () => {},
 }: UncontrolledTextInput) => {
-  const [value, setValue] = React.useState(_value ? _value : '')
+  const [state, dispatch] = React.useReducer(
+    (
+      state: { cursor: number; value: string },
+      action: {
+        type: 'removeCharacter' | 'moveLeft' | 'moveRight' | 'input'
+        input?: string
+      }
+    ) => {
+      switch (action.type) {
+        case 'removeCharacter':
+          if (state.cursor === 0) return state
+          return {
+            value:
+              state.value.slice(0, state.cursor - 1) +
+              state.value.slice(state.cursor, state.value.length),
+            cursor: state.cursor - 1,
+          }
+        case 'moveLeft':
+          return { ...state, cursor: Math.max(0, state.cursor - 1) }
+        case 'moveRight':
+          return {
+            ...state,
+            cursor: Math.min(state.value.length, state.cursor + 1),
+          }
+        case 'input':
+          if (action.input === undefined) return state
+          return {
+            cursor: state.cursor + action.input.length,
+            value:
+              state.value.slice(0, state.cursor) +
+              action.input +
+              state.value.slice(state.cursor, state.value.length),
+          }
+      }
+      return state
+    },
+    {
+      cursor: defaultTo('', _value).length,
+      value: defaultTo('', _value),
+    }
+  )
 
   useInput((input, key) => {
     if (key.escape) {
       onCancel()
     } else if (key.return) {
-      onSubmit(value)
+      onSubmit(state.value)
+    } else if (key.backspace) {
+      dispatch({ type: 'removeCharacter' })
+    } else if (key.leftArrow) {
+      dispatch({ type: 'moveLeft' })
+    } else if (key.rightArrow) {
+      dispatch({ type: 'moveRight' })
+    } else {
+      dispatch({ type: 'input', input })
     }
   })
 
   return (
-    <ControlledTextInput
-      prompt={prompt}
-      placeholder={placeholder}
-      value={value}
-      onChange={setValue}
-    />
+    <Box textWrap='truncate-start'>
+      {prompt}
+      {state.value === '' && placeholder ? (
+        <Color dim>{placeholder}</Color>
+      ) : (
+        <>
+          {Array.from(state.value).map((v, i) =>
+            i === state.cursor ? (
+              <Color dim key={i}>
+                {v}
+              </Color>
+            ) : (
+              <Color key={i}>{v}</Color>
+            )
+          )}
+          {state.cursor === state.value.length && <Color dim>_</Color>}
+        </>
+      )}
+    </Box>
   )
 }
 
