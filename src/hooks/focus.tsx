@@ -63,46 +63,56 @@ export function popFocus(
 
 export const useFocus = () => {
   const { focus, setFocus } = React.useContext(FocusContext)
-  const actions = {
-    isFocused: React.useCallback(
-      (tag: FocusType['tag'] | FocusType) => {
-        if (focus.length === 0) return false
 
-        const focused = []
-        for (const f of reverse(focus)) {
-          focused.push(f)
-          if (f.fallthrough !== undefined && f.fallthrough === false) {
-            break
-          }
+  const isFocused = React.useCallback(
+    (tag: FocusType['tag'] | FocusType) => {
+      if (focus.length === 0) return false
+
+      const focused = []
+      for (const f of reverse(focus)) {
+        focused.push(f)
+        if (f.fallthrough !== undefined && f.fallthrough === false) {
+          break
         }
+      }
 
-        return (
-          focused.find((f) =>
-            typeof tag === 'string'
-              ? f.tag === tag
-              : equals(
-                  omit(append('omitted', defaultTo([], f.omitted)), f),
-                  omit(append('omitted', defaultTo([], f.omitted)), tag)
-                )
-          ) !== undefined
-        )
-      },
-      [focus]
-    ),
-    popFocus: React.useCallback(
-      (tag: FocusType['tag'] | FocusType) => setFocus((f) => popFocus(f, tag)),
-      [setFocus]
-    ),
-    pushFocus: React.useCallback(
-      (tag: FocusType) => setFocus((f) => pushFocus(f, tag)),
-      [setFocus]
-    ),
-    refocus: React.useCallback(
-      (tag: FocusType) => {
-        setFocus((f) => refocus(f, tag))
-      },
-      [setFocus]
-    ),
+      return (
+        focused.find((f) =>
+          typeof tag === 'string'
+            ? f.tag === tag
+            : equals(
+                omit(append('omitted', defaultTo([], f.omitted)), f),
+                omit(append('omitted', defaultTo([], f.omitted)), tag)
+              )
+        ) !== undefined
+      )
+    },
+    [focus]
+  )
+
+  const popFocusHandler = React.useCallback(
+    (tag: FocusType['tag'] | FocusType) => setFocus((f) => popFocus(f, tag)),
+    [setFocus]
+  )
+
+  const pushFocusHandler = React.useCallback(
+    (tag: FocusType) => setFocus((f) => pushFocus(f, tag)),
+    [setFocus]
+  )
+
+  const refocusHandler = React.useCallback(
+    (tag: FocusType) => {
+      setFocus((f) => refocus(f, tag))
+    },
+    [setFocus]
+  )
+
+  return {
+    focus,
+    setFocus,
+    refocus: refocusHandler,
+    pushFocus: pushFocusHandler,
+    popFocus: popFocusHandler,
+    isFocused,
   }
-  return { focus, setFocus, ...actions }
 }

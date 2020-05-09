@@ -54,27 +54,31 @@ export const Router = ({ children }: { children: React.ReactNode }) => {
 
 export const useRouter = () => {
   const { pushFocus, setFocus } = useFocus()
-  return {
-    back: React.useCallback(() => {
-      setFocus((f) => {
-        const previousRoute = init(dropLastWhile((t) => t.route !== true, f))
-        if (previousRoute !== undefined && previousRoute.length !== 0) {
-          return previousRoute
-        } else {
-          return f
-        }
-      })
-    }, [setFocus]),
-    go: React.useCallback(
-      (path: string) => {
-        const parsedPath = parsePath(path)
-        pushFocus(
-          (FOCUS as any)[parsedPath[0]](
-            ...parsedPath.slice(1).map((p) => JSON.parse(p))
-          )
+  const back = React.useCallback(() => {
+    setFocus((f) => {
+      const previousRoute = init(dropLastWhile((t) => t.route !== true, f))
+      if (previousRoute !== undefined && previousRoute.length !== 0) {
+        return previousRoute
+      } else {
+        return f
+      }
+    })
+  }, [setFocus])
+
+  const go = React.useCallback(
+    (path: string) => {
+      const parsedPath = parsePath(path)
+      pushFocus(
+        (FOCUS as any)[parsedPath[0]](
+          ...parsedPath.slice(1).map((p) => JSON.parse(p))
         )
-      },
-      [pushFocus]
-    ),
+      )
+    },
+    [pushFocus]
+  )
+
+  return {
+    back,
+    go,
   }
 }

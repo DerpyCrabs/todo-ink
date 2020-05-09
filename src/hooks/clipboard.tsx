@@ -65,9 +65,8 @@ export const useClipboard = () => {
     </FullwidthBox>
   )
 
-  return {
-    ClipboardStatus,
-    cut: (id: TaskId) =>
+  const cut = React.useCallback(
+    (id: TaskId) =>
       setClipboard(
         (
           clipboard: Array<FolderType | TaskType>
@@ -79,7 +78,10 @@ export const useClipboard = () => {
           return prepend(task, clipboard)
         }
       ),
-    paste: (folderId: TaskId, after: number) => {
+    [root, setClipboard, setRoot]
+  )
+  const paste = React.useCallback(
+    (folderId: TaskId, after: number) => {
       setClipboard((clipboard) => {
         if (clipboard.length === 0) return []
         const folderP = taskPath(root, folderId)
@@ -97,5 +99,12 @@ export const useClipboard = () => {
         return tail(clipboard)
       })
     },
+    [refocus, root, setClipboard, setRoot]
+  )
+
+  return {
+    ClipboardStatus,
+    cut,
+    paste,
   }
 }
