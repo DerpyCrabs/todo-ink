@@ -4,19 +4,6 @@ import type { Lens } from 'ramda'
 import React from 'react'
 import { taskPath } from '../utils'
 
-export type TaskId = number
-export interface FolderType {
-  id: TaskId
-  name: string
-  tasks: Array<FolderType | TaskType>
-}
-export interface TaskType {
-  id: TaskId
-  name: string
-  status: boolean
-  description?: string
-}
-
 function readTasks(path: string) {
   if (existsSync(path)) {
     const content = readFileSync(path)
@@ -49,17 +36,6 @@ function maxId(tasks: FolderType | TaskType): TaskId {
       FolderType | TaskType
     >).map((t: FolderType | TaskType) => maxId(t))
   )
-}
-
-interface TasksState {
-  lastId: number
-  tasks: FolderType
-}
-
-type SetTasksHandler = (state: TasksState) => TasksState
-interface TasksContextType {
-  tasks: TasksState
-  setTasks: (handler: SetTasksHandler) => void
 }
 
 const TasksContext = React.createContext<TasksContextType>({
@@ -98,11 +74,6 @@ export const TasksProvider = React.memo(
   }
 )
 
-export interface TaskReturnType {
-  task: TaskType
-  setTask: (t: TaskType) => void
-}
-
 export function useTask(taskId: TaskId): TaskReturnType {
   const {
     tasks: { tasks },
@@ -129,33 +100,24 @@ export function useTask(taskId: TaskId): TaskReturnType {
   }
 }
 
-export interface RootFolderReturnType {
-  folder: FolderType
-  setFolder: (t: FolderType) => void
+export function useTasks(): RootFolderReturnType {
+  const {
+    tasks: { tasks },
+    setTasks,
+  } = React.useContext(TasksContext)
+  return {
+    root: tasks,
+    setRoot: (t: FolderType) =>
+      setTasks(({ lastId }) => ({ tasks: t, lastId })),
+  }
 }
 
-export interface FolderReturnType {
-  tasks: Array<FolderType | TaskType>
-  folder: FolderType
-  setTasks: (t: Array<FolderType | TaskType>) => void
-  newTask: (name: string, status: false) => TaskType
-  newFolder: (name: string) => FolderType
-}
-
-export function useTasks(
-  folderId?: TaskId
-): FolderReturnType | RootFolderReturnType {
+export function useFolder(folderId: TaskId): FolderReturnType {
   const {
     tasks: { tasks, lastId },
     setTasks,
   } = React.useContext(TasksContext)
-  if (folderId === undefined) {
-    return {
-      folder: tasks,
-      setFolder: (t: FolderType) =>
-        setTasks(({ lastId }) => ({ tasks: t, lastId })),
-    }
-  }
+
   const folderPath = taskPath(tasks, folderId)
   if (folderPath === null) {
     throw new Error(`Couldn't find task with id = ${folderId}`)
@@ -184,4 +146,46 @@ export function useTasks(
     newTask,
     newFolder,
   }
+}
+
+export interface RootFolderReturnType {
+  root: FolderType
+  setRoot: (t: FolderType) => void
+}
+
+export interface FolderReturnType {
+  tasks: Array<FolderType | TaskType>
+  setTasks: (t: Array<FolderType | TaskType>) => void
+  folder: FolderType
+  newTask: (name: string, status: false) => TaskType
+  newFolder: (name: string) => FolderType
+}
+
+export interface TaskReturnType {
+  task: TaskType
+  setTask: (t: TaskType) => void
+}
+
+interface TasksState {
+  lastId: number
+  tasks: FolderType
+}
+
+type SetTasksHandler = (state: TasksState) => TasksState
+interface TasksContextType {
+  tasks: TasksState
+  setTasks: (handler: SetTasksHandler) => void
+}
+
+export type TaskId = number
+export interface FolderType {
+  id: TaskId
+  name: string
+  tasks: Array<FolderType | TaskType>
+}
+export interface TaskType {
+  id: TaskId
+  name: string
+  status: boolean
+  description?: string
 }

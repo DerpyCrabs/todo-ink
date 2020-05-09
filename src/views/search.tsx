@@ -15,7 +15,7 @@ import {
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
 import { TaskId, useTasks } from '../hooks/tasks'
-import type { FolderType, RootFolderReturnType, TaskType } from '../hooks/tasks'
+import type { FolderType, TaskType } from '../hooks/tasks'
 import { folderPathString, taskPath } from '../utils'
 
 function flattenFolder(
@@ -34,7 +34,7 @@ function flattenFolder(
 }
 
 export default function SearchView({ id }: { id: TaskId } & RouteProps) {
-  const { folder: root } = useTasks() as RootFolderReturnType
+  const { root } = useTasks()
   const folder = view(lensPath(taskPath(root, id) as Path), root) as FolderType
   const { go, back } = useRouter()
   const [searchQuery, setSearchQuery] = React.useState('')

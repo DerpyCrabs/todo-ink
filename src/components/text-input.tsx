@@ -16,60 +16,58 @@ interface UncontrolledTextInput extends TextInput {
   onCancel: () => void
 }
 
-export const ControlledTextInput = ({
-  prompt = '',
-  placeholder = '',
-  value,
-  onChange,
-}: ControlledTextInput) => {
-  const [cursorOffset, setCursorOffset] = React.useState(value.length)
+// eslint-disable-next-line react/display-name
+export const ControlledTextInput = React.memo(
+  ({ prompt = '', placeholder = '', value, onChange }: ControlledTextInput) => {
+    const [cursorOffset, setCursorOffset] = React.useState(value.length)
 
-  useInput((input, key) => {
-    if (key.backspace) {
-      if (cursorOffset === 0) return
-      onChange(
-        value.slice(0, cursorOffset - 1) +
-          value.slice(cursorOffset, value.length)
-      )
-      setCursorOffset((o) => o - 1)
-    } else if (key.leftArrow) {
-      setCursorOffset((o) => Math.max(0, o - 1))
-    } else if (key.rightArrow) {
-      setCursorOffset((o) => Math.min(value.length, o + 1))
-    } else if (key.downArrow || key.upArrow) {
-      return
-    } else {
-      onChange(
-        value.slice(0, cursorOffset) +
-          input +
-          value.slice(cursorOffset, value.length)
-      )
-      setCursorOffset((o) => o + input.length)
-    }
-  })
+    useInput((input, key) => {
+      if (key.backspace) {
+        if (cursorOffset === 0) return
+        onChange(
+          value.slice(0, cursorOffset - 1) +
+            value.slice(cursorOffset, value.length)
+        )
+        setCursorOffset((o) => o - 1)
+      } else if (key.leftArrow) {
+        setCursorOffset((o) => Math.max(0, o - 1))
+      } else if (key.rightArrow) {
+        setCursorOffset((o) => Math.min(value.length, o + 1))
+      } else if (key.downArrow || key.upArrow) {
+        return
+      } else {
+        setCursorOffset((o) => o + input.length)
+        onChange(
+          value.slice(0, cursorOffset) +
+            input +
+            value.slice(cursorOffset, value.length)
+        )
+      }
+    })
 
-  return (
-    <Box textWrap='truncate-start'>
-      {prompt}
-      {value === '' && placeholder ? (
-        <Color dim>{placeholder}</Color>
-      ) : (
-        <>
-          {Array.from(value).map((v, i) =>
-            i === cursorOffset ? (
-              <Color dim key={i}>
-                {v}
-              </Color>
-            ) : (
-              <Color key={i}>{v}</Color>
-            )
-          )}
-          {cursorOffset === value.length && <Color dim>_</Color>}
-        </>
-      )}
-    </Box>
-  )
-}
+    return (
+      <Box textWrap='truncate-start'>
+        {prompt}
+        {value === '' && placeholder ? (
+          <Color dim>{placeholder}</Color>
+        ) : (
+          <>
+            {Array.from(value).map((v, i) =>
+              i === cursorOffset ? (
+                <Color dim key={i}>
+                  {v}
+                </Color>
+              ) : (
+                <Color key={i}>{v}</Color>
+              )
+            )}
+            {cursorOffset === value.length && <Color dim>_</Color>}
+          </>
+        )}
+      </Box>
+    )
+  }
+)
 
 export const UncontrolledTextInput = ({
   prompt = '',
@@ -98,4 +96,4 @@ export const UncontrolledTextInput = ({
   )
 }
 
-export default UncontrolledTextInput
+export default React.memo(UncontrolledTextInput)

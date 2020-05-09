@@ -1,12 +1,12 @@
 import { Box } from 'ink'
 import { dropLast } from 'ramda'
 import React from 'react'
-import { RootFolderReturnType, TaskType, useTasks } from '../hooks/tasks'
+import { TaskType, useTasks } from '../hooks/tasks'
 import { folderPathString, taskPath } from '../utils'
 import FullwidthBox from './fullwidth-box'
 
 export default function TaskHeader({ task }: { task: TaskType }) {
-  const { folder: root } = useTasks() as RootFolderReturnType
+  const { root } = useTasks()
   return (
     <Box flexDirection='column'>
       <FullwidthBox>Task: {task.name}</FullwidthBox>

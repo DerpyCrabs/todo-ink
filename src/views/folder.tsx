@@ -34,8 +34,8 @@ import {
 } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
-import { TaskId, useTasks } from '../hooks/tasks'
-import type { FolderReturnType, FolderType, TaskType } from '../hooks/tasks'
+import { TaskId, useFolder } from '../hooks/tasks'
+import type { FolderType, TaskType } from '../hooks/tasks'
 import useUndo from '../hooks/undo'
 
 const FolderView = ({
@@ -45,9 +45,7 @@ const FolderView = ({
   id: TaskId
   selected?: TaskId
 } & RouteProps) => {
-  const { folder, tasks, newTask, newFolder, setTasks } = useTasks(
-    id
-  ) as FolderReturnType
+  const { folder, tasks, newTask, newFolder, setTasks } = useFolder(id)
 
   const {
     isFocused,

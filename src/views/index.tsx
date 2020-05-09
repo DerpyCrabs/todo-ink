@@ -12,13 +12,13 @@ import SearchView from './search'
 import TaskView from './task'
 
 const Index = () => {
-  const { folder } = useTasks(undefined)
+  const { root } = useTasks()
 
   const { exit } = useApp()
   useHotkeys([[isExit, exit]])
 
   return (
-    <FocusProvider initialFocus={[FOCUS.folder(folder.id)]}>
+    <FocusProvider initialFocus={[FOCUS.folder(root.id)]}>
       <ClipboardProvider>
         <Router>
           <FolderView path='/folder/:id/:selected' />

@@ -17,7 +17,6 @@ import FOCUS from '../constants/focus'
 import { allTasksCount, completedTasksCount, taskPath } from '../utils'
 import { useFocus } from './focus'
 import { TaskId, useTasks } from './tasks'
-import type { RootFolderReturnType } from './tasks'
 import type { FolderType, TaskType } from './tasks'
 
 interface ClipboardContextType {
@@ -47,7 +46,7 @@ export const ClipboardProvider = React.memo(
 
 export const useClipboard = () => {
   const { clipboard, setClipboard } = React.useContext(ClipboardContext)
-  const { folder, setFolder } = useTasks(undefined) as RootFolderReturnType
+  const { root, setRoot } = useTasks()
   const { refocus } = useFocus()
 
   const ClipboardStatus = () => (
@@ -73,25 +72,25 @@ export const useClipboard = () => {
         (
           clipboard: Array<FolderType | TaskType>
         ): Array<FolderType | TaskType> => {
-          const taskP = taskPath(folder, id)
+          const taskP = taskPath(root, id)
           if (taskP === null) return clipboard
-          const task = view(lensPath(taskP), folder) as TaskType
-          setFolder(dissocPath(taskP, folder))
+          const task = view(lensPath(taskP), root) as TaskType
+          setRoot(dissocPath(taskP, root))
           return prepend(task, clipboard)
         }
       ),
     paste: (folderId: TaskId, after: number) => {
       setClipboard((clipboard) => {
         if (clipboard.length === 0) return []
-        const folderP = taskPath(folder, folderId)
+        const folderP = taskPath(root, folderId)
         if (folderP === null) {
           return clipboard
         }
-        setFolder(
+        setRoot(
           over(
             compose(lensPath(folderP), lensProp('tasks')) as Lens,
             insert(after, clipboard[0]),
-            folder
+            root
           )
         )
         refocus(FOCUS.selectedTask(clipboard[0].id))
