@@ -12,6 +12,11 @@ export default {
     fallthrough: false,
     position: position,
   }),
+  addingNote: (position?: number): AddingFocus => ({
+    tag: 'addingNote',
+    fallthrough: false,
+    position: position,
+  }),
   selectedTask: (id: number | null = null): FocusType => ({
     tag: 'selectedTask',
     id,
@@ -35,6 +40,12 @@ export default {
   }),
   task: (id: null | number = null): FocusType => ({
     tag: 'task',
+    id,
+    fallthrough: false,
+    route: true,
+  }),
+  note: (id: null | number = null): FocusType => ({
+    tag: 'note',
     id,
     fallthrough: false,
     route: true,

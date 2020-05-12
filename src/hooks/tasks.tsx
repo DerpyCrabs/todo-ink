@@ -26,15 +26,15 @@ function writeTasks(path: string, tasks: FolderType) {
   writeFileSync(path, JSON.stringify(tasks))
 }
 
-function maxId(tasks: FolderType | TaskType): TaskId {
-  if ('status' in tasks) {
+function maxId(tasks: FolderType | TaskType | NoteType): TaskId {
+  if (!('tasks' in tasks)) {
     return tasks.id
   }
   return Math.max(
     tasks.id,
     ...(tasks.tasks as Array<
-      FolderType | TaskType
-    >).map((t: FolderType | TaskType) => maxId(t))
+      FolderType | TaskType | NoteType
+    >).map((t: FolderType | TaskType | NoteType) => maxId(t))
   )
 }
 
@@ -104,6 +104,36 @@ export function useTask(taskId: TaskId): TaskReturnType {
   }
 }
 
+export function useNote(taskId: TaskId): NoteReturnType {
+  const {
+    tasks: { tasks },
+    setTasks,
+  } = React.useContext(TasksContext)
+
+  const path = taskPath(tasks, taskId)
+  if (path === null) {
+    throw new Error(`Couldn't find note with id = ${taskId}`)
+  }
+  const noteLens = lensPath(path)
+
+  const setNoteHandler = React.useCallback(
+    (n: NoteType) => {
+      setTasks(({ tasks, lastId }) => {
+        return {
+          tasks: set(noteLens, n, tasks),
+          lastId,
+        }
+      })
+    },
+    [setTasks, noteLens]
+  )
+
+  return {
+    note: view(noteLens, tasks),
+    setNote: setNoteHandler,
+  }
+}
+
 export function useTasks(): RootFolderReturnType {
   const {
     tasks: { tasks },
@@ -147,8 +177,16 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     [lastId, setTasks]
   )
 
+  const newNote = React.useCallback(
+    (name: string) => {
+      setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
+      return { id: lastId + 1, name, description: '' }
+    },
+    [lastId, setTasks]
+  )
+
   const setTasksHandler = React.useCallback(
-    (t: Array<FolderType | TaskType>) => {
+    (t: Array<FolderType | TaskType | NoteType>) => {
       setTasks(({ tasks, lastId }) => {
         return {
           tasks: set(compose(folderLens, lensProp('tasks')) as Lens, t, tasks),
@@ -165,6 +203,7 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     setTasks: setTasksHandler,
     newTask,
     newFolder,
+    newNote,
   }
 }
 
@@ -174,16 +213,22 @@ export interface RootFolderReturnType {
 }
 
 export interface FolderReturnType {
-  tasks: Array<FolderType | TaskType>
-  setTasks: (t: Array<FolderType | TaskType>) => void
+  tasks: Array<FolderType | TaskType | NoteType>
+  setTasks: (t: Array<FolderType | TaskType | NoteType>) => void
   folder: FolderType
   newTask: (name: string, status: false) => TaskType
   newFolder: (name: string) => FolderType
+  newNote: (name: string) => NoteType
 }
 
 export interface TaskReturnType {
   task: TaskType
   setTask: (t: TaskType) => void
+}
+
+export interface NoteReturnType {
+  note: NoteType
+  setNote: (t: NoteType) => void
 }
 
 interface TasksState {
@@ -201,11 +246,18 @@ export type TaskId = number
 export interface FolderType {
   id: TaskId
   name: string
-  tasks: Array<FolderType | TaskType>
+  tasks: Array<FolderType | TaskType | NoteType>
 }
+
 export interface TaskType {
   id: TaskId
   name: string
   status: boolean
-  description?: string
+  description: string
+}
+
+export interface NoteType {
+  id: TaskId
+  name: string
+  description: string
 }

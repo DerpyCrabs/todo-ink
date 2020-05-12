@@ -1,16 +1,16 @@
 import { edit } from 'external-editor'
 import { Box } from 'ink'
 import React from 'react'
+import NoteHeader from '../components/note-header'
 import TaskDescription from '../components/task-description'
-import TaskHeader from '../components/task-header'
 import { isEdit, isLeave } from '../constants/hotkeys'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
 import type { TaskId } from '../hooks/tasks'
-import { useTask } from '../hooks/tasks'
+import { useNote } from '../hooks/tasks'
 
-export default function TaskView({ id }: { id: TaskId } & RouteProps) {
-  const { task, setTask } = useTask(id)
+export default function NoteView({ id }: { id: TaskId } & RouteProps) {
+  const { note, setNote } = useNote(id)
   const { back } = useRouter()
 
   // prettier-ignore
@@ -20,16 +20,16 @@ export default function TaskView({ id }: { id: TaskId } & RouteProps) {
       },],
     [isEdit, () => {
       try {
-        setTask({...task, description: edit(task.description, { postfix: '.md' })})
+        setNote({...note, description: edit(note.description, { postfix: '.md' })})
       } catch (e) {/* ignore */}
       },],
     ], true)
 
   return (
     <Box flexDirection='column'>
-      <TaskHeader task={task} />
-      {task.description !== '' ? (
-        <TaskDescription description={task.description} margin={3} />
+      <NoteHeader note={note} />
+      {note.description !== '' ? (
+        <TaskDescription description={note.description} margin={3} />
       ) : (
         <Box>No description. Press {`'e'`} to open description editor</Box>
       )}

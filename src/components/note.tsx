@@ -4,29 +4,27 @@ import { isChange, isEnter } from '../constants/hotkeys'
 import { useFocus } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { useRouter } from '../hooks/router'
-import type { FolderType } from '../hooks/tasks'
-import { allTasksCount, completedTasksCount } from '../utils'
+import type { NoteType } from '../hooks/tasks'
 import FullwidthBox from './fullwidth-box'
 import Select from './select'
 import TextInput from './text-input'
 
-const Folder = ({
+const Note = ({
   task,
   onChange = () => {},
 }: {
-  task: FolderType
-  onChange?: (t: FolderType) => void
+  task: NoteType
+  onChange?: (t: NoteType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   const { go } = useRouter()
-
   // prettier-ignore
   useHotkeys([
     [isChange, () => {
         pushFocus(FOCUS.editingTask(task.id))
       },],
     [isEnter, () => {
-      go(`/folder/${task.id}`)
+        go(`/note/${task.id}`)
       },],
     ], isFocused(FOCUS.selectedTask(task.id)))
 
@@ -45,7 +43,7 @@ const Folder = ({
       }
     >
       <FullwidthBox>
-        [F]{' '}
+        [N]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput
             value={task.name}
@@ -54,15 +52,10 @@ const Folder = ({
           />
         ) : (
           task.name
-        )}{' '}
-        {allTasksCount(task.tasks) !== 0 && (
-          <>
-            ({completedTasksCount(task.tasks)}/{allTasksCount(task.tasks)})
-          </>
         )}
       </FullwidthBox>
     </Select>
   )
 }
 
-export default Folder
+export default Note

@@ -3,6 +3,7 @@ import { insert, lensIndex, remove, set } from 'ramda'
 import React from 'react'
 import Folder from '../components/folder'
 import FolderHeader from '../components/folder-header'
+import Note from '../components/note'
 import ScrollableList from '../components/scrollable-list'
 import Select from '../components/select'
 import Task from '../components/task'
@@ -17,6 +18,8 @@ import {
   isMoveUp,
   isNewFolder,
   isNewFolderBefore,
+  isNewNote,
+  isNewNoteBefore,
   isNewTask,
   isNewTaskBefore,
   isPaste,
@@ -34,7 +37,7 @@ import {
 } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
-import { TaskId, useFolder } from '../hooks/tasks'
+import { NoteType, TaskId, useFolder } from '../hooks/tasks'
 import type { FolderType, TaskType } from '../hooks/tasks'
 import useUndo from '../hooks/undo'
 
@@ -45,7 +48,7 @@ const FolderView = ({
   id: TaskId
   selected?: TaskId
 } & RouteProps) => {
-  const { folder, tasks, newTask, newFolder, setTasks } = useFolder(id)
+  const { folder, tasks, newTask, newFolder, newNote, setTasks } = useFolder(id)
 
   const {
     isFocused,
@@ -82,6 +85,7 @@ const FolderView = ({
       tasks.length !== 0 &&
       !isFocused(FOCUS.selectedTask().tag) &&
       !isFocused(FOCUS.addingTask().tag) &&
+      !isFocused(FOCUS.addingNote().tag) &&
       !isFocused(FOCUS.addingFolder().tag)
     ) {
       if (initialSelection !== undefined) {
@@ -93,7 +97,10 @@ const FolderView = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folder.id, initialSelection, tasks[0]])
 
-  const taskChangeHandler = (task: TaskType | FolderType, i: number) => {
+  const taskChangeHandler = (
+    task: TaskType | FolderType | NoteType,
+    i: number
+  ) => {
     setTasks(set(lensIndex(i), task, tasks))
   }
 
@@ -106,6 +113,22 @@ const FolderView = ({
     }
     setFocus((focus) => {
       const newFocus = popFocusPure(focus, FOCUS.addingTask().tag)
+      if (v.trim()) {
+        return refocusPure(newFocus, FOCUS.selectedTask(taskId))
+      } else {
+        return newFocus
+      }
+    })
+  }
+  const newNoteHandler = (v: string, i: number) => {
+    let taskId: TaskId | null = null
+    if (v.trim()) {
+      const task = newNote(v)
+      setTasks(insert(i, task, tasks))
+      taskId = task.id
+    }
+    setFocus((focus) => {
+      const newFocus = popFocusPure(focus, FOCUS.addingNote().tag)
       if (v.trim()) {
         return refocusPure(newFocus, FOCUS.selectedTask(taskId))
       } else {
@@ -135,6 +158,9 @@ const FolderView = ({
   }
   const newFolderCancelHandler = () => {
     popFocus(FOCUS.addingFolder().tag)
+  }
+  const newNoteCancelHandler = () => {
+    popFocus(FOCUS.addingNote().tag)
   }
 
   // prettier-ignore
@@ -210,6 +236,13 @@ const FolderView = ({
         pushFocus(FOCUS.addingTask(0))
       }
       },],
+    [isNewNote, () => {
+      if (selected !== null) {
+        pushFocus(FOCUS.addingNote(selected + 1))
+      } else {
+        pushFocus(FOCUS.addingNote(0))
+      }
+      },],
     [isNewFolder, () => {
       if (selected !== null) {
         pushFocus(FOCUS.addingFolder(selected + 1))
@@ -222,6 +255,13 @@ const FolderView = ({
         pushFocus(FOCUS.addingTask(selected))
       } else {
         pushFocus(FOCUS.addingTask(0))
+      }
+      },],
+    [isNewNoteBefore, () => {
+      if (selected !== null) {
+        pushFocus(FOCUS.addingNote(selected))
+      } else {
+        pushFocus(FOCUS.addingNote(0))
       }
       },],
     [isNewFolderBefore, () => {
@@ -243,6 +283,7 @@ const FolderView = ({
         position={(() => {
           if (
             isFocused(FOCUS.addingTask().tag) ||
+            isFocused(FOCUS.addingNote().tag) ||
             isFocused(FOCUS.addingFolder().tag)
           ) {
             const addingPosition = (focus[focus.length - 1] as AddingFocus)
@@ -274,6 +315,16 @@ const FolderView = ({
                   />
                 </Select>
               )
+            } else if (isFocused(FOCUS.addingNote(i))) {
+              children.push(
+                <Select key={`${i}-addingNote`} selected={true}>
+                  <TextInput
+                    prompt='> '
+                    onSubmit={(v: string) => newNoteHandler(v, i)}
+                    onCancel={newNoteCancelHandler}
+                  />
+                </Select>
+              )
             } else if (isFocused(FOCUS.addingFolder(i))) {
               children.push(
                 <Select key={`${i}-addingFolder`} selected={true}>
@@ -285,17 +336,24 @@ const FolderView = ({
                 </Select>
               )
             } else if (taskIndex < tasks.length) {
+              const task = tasks[taskIndex]
               children.push(
-                'tasks' in tasks[taskIndex] ? (
+                'tasks' in task ? (
                   <Folder
-                    key={tasks[taskIndex].id}
-                    task={tasks[taskIndex] as FolderType}
+                    key={task.id}
+                    task={task}
+                    onChange={(t) => taskChangeHandler(t, i)}
+                  />
+                ) : 'status' in task ? (
+                  <Task
+                    key={task.id}
+                    task={task}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
                 ) : (
-                  <Task
-                    key={tasks[taskIndex].id}
-                    task={tasks[taskIndex] as TaskType}
+                  <Note
+                    key={task.id}
+                    task={task}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
                 )

@@ -16,13 +16,13 @@ import FullwidthBox from '../components/fullwidth-box'
 import FOCUS from '../constants/focus'
 import { allTasksCount, completedTasksCount, taskPath } from '../utils'
 import { useFocus } from './focus'
-import { TaskId, useTasks } from './tasks'
+import { NoteType, TaskId, useTasks } from './tasks'
 import type { FolderType, TaskType } from './tasks'
 
 interface ClipboardContextType {
-  clipboard: Array<FolderType | TaskType>
+  clipboard: Array<FolderType | TaskType | NoteType>
   setClipboard: React.Dispatch<
-    React.SetStateAction<Array<FolderType | TaskType>>
+    React.SetStateAction<Array<FolderType | TaskType | NoteType>>
   >
 }
 const ClipboardContext = React.createContext<ClipboardContextType>({
@@ -34,7 +34,7 @@ const ClipboardContext = React.createContext<ClipboardContextType>({
 export const ClipboardProvider = React.memo(
   ({ children }: { children: React.ReactNode }) => {
     const [clipboard, setClipboard] = React.useState<
-      Array<FolderType | TaskType>
+      Array<FolderType | TaskType | NoteType>
     >([])
     return (
       <ClipboardContext.Provider value={{ clipboard, setClipboard }}>
@@ -58,7 +58,9 @@ export const useClipboard = () => {
             ? `folder "${clipboard[0].name}" (${completedTasksCount(
                 clipboard[0].tasks
               )}/${allTasksCount(clipboard[0].tasks)})`
-            : `task "${clipboard[0]?.name}"`}{' '}
+            : 'status' in clipboard[0]
+            ? `task "${clipboard[0]?.name}"`
+            : `note "${clipboard[0]?.name}"`}{' '}
           {clipboard.length > 1 && `and ${clipboard.length - 1} more tasks`}
         </Color>
       )}
@@ -69,8 +71,8 @@ export const useClipboard = () => {
     (id: TaskId) =>
       setClipboard(
         (
-          clipboard: Array<FolderType | TaskType>
-        ): Array<FolderType | TaskType> => {
+          clipboard: Array<FolderType | TaskType | NoteType>
+        ): Array<FolderType | TaskType | NoteType> => {
           const taskP = taskPath(root, id)
           if (taskP === null) return clipboard
           const task = view(lensPath(taskP), root) as TaskType

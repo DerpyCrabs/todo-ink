@@ -14,14 +14,14 @@ import {
 } from '../constants/hotkeys'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
-import { TaskId, useTasks } from '../hooks/tasks'
+import { NoteType, TaskId, useTasks } from '../hooks/tasks'
 import type { FolderType, TaskType } from '../hooks/tasks'
 import { folderPathString, taskPath } from '../utils'
 
 function flattenFolder(
-  task: FolderType | TaskType
-): Array<(TaskType | FolderType) & { path: string }> {
-  if ('status' in task) {
+  task: FolderType | TaskType | NoteType
+): Array<(TaskType | FolderType | NoteType) & { path: string }> {
+  if ('status' in task || !('tasks' in task)) {
     return [assoc('path', '', task)]
   }
   return [
@@ -86,7 +86,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
       if (position === null || searchResults.length === 0) return
       
       const task = searchResults[position].item
-      if ('status' in task) {
+      if (!('tasks' in task)) {
         const path = taskPath(folder, task.id)
         if (path === null) throw new Error(`Failed to find task with id ${task.id}`)
         
@@ -113,15 +113,28 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
       <ScrollableList position={position} margin={2}>
         {searchResults.map((res, i) => (
           <Select selected={i === position} key={i}>
-            {'status' in res.item ? (
-              <FullwidthBox key={res.item.id}>
-                [{res.item.status ? 'X' : ' '}] <Task searchResult={res} />
-              </FullwidthBox>
-            ) : (
-              <FullwidthBox key={res.item.id}>
-                [F] <Folder searchResult={res} />
-              </FullwidthBox>
-            )}
+            {(() => {
+              const task = res.item
+              if ('status' in task) {
+                return (
+                  <FullwidthBox key={task.id}>
+                    [{task.status ? 'X' : ' '}] <Task searchResult={res} />
+                  </FullwidthBox>
+                )
+              } else if ('tasks' in task) {
+                return (
+                  <FullwidthBox key={task.id}>
+                    [F] <Folder searchResult={res} />
+                  </FullwidthBox>
+                )
+              } else {
+                return (
+                  <FullwidthBox key={task.id}>
+                    [N] <Task searchResult={res} />
+                  </FullwidthBox>
+                )
+              }
+            })()}
           </Select>
         ))}
       </ScrollableList>
@@ -132,7 +145,9 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
 const Folder = ({
   searchResult,
 }: {
-  searchResult: Fuse.FuseResult<(TaskType | FolderType) & { path: string }>
+  searchResult: Fuse.FuseResult<
+    (TaskType | FolderType | NoteType) & { path: string }
+  >
 }) => {
   const nameResult = searchResult.matches?.find((k) => k.key === 'name')
   const pathResult = searchResult.matches?.find((k) => k.key === 'path')
@@ -155,7 +170,9 @@ const Folder = ({
 const Task = ({
   searchResult,
 }: {
-  searchResult: Fuse.FuseResult<(TaskType | FolderType) & { path: string }>
+  searchResult: Fuse.FuseResult<
+    (TaskType | FolderType | NoteType) & { path: string }
+  >
 }) => {
   const nameResult = searchResult.matches?.find((k) => k.key === 'name')
   const pathResult = searchResult.matches?.find((k) => k.key === 'path')

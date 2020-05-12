@@ -1,7 +1,7 @@
 import { useStdout } from 'ink'
 import { Path, lensPath, scan, splitEvery, view } from 'ramda'
 import React from 'react'
-import { FolderType, TaskId, TaskType } from './hooks/tasks'
+import { FolderType, NoteType, TaskId, TaskType } from './hooks/tasks'
 
 export const folderPathString = (
   folder: FolderType,
@@ -19,7 +19,7 @@ export const folderPathString = (
 }
 
 export const taskPath = (
-  tasks: FolderType | TaskType,
+  tasks: FolderType | TaskType | NoteType,
   taskId: TaskId
 ): Path | null => {
   if (tasks.id === taskId) {
@@ -57,12 +57,16 @@ export const useStdoutSize = (): { rows: number; columns: number } => {
   return size
 }
 
-export function allTasksCount(tasks: Array<FolderType | TaskType>): number {
-  return tasks.length
+export function allTasksCount(
+  tasks: Array<FolderType | TaskType | NoteType>
+): number {
+  return tasks.filter(
+    (t) => 'status' in t || ('tasks' in t && allTasksCount(t.tasks) !== 0)
+  ).length
 }
 
 export function completedTasksCount(
-  tasks: Array<FolderType | TaskType>
+  tasks: Array<FolderType | TaskType | NoteType>
 ): number {
   let count = 0
   for (const task of tasks) {
@@ -70,8 +74,11 @@ export function completedTasksCount(
       if (task.status) {
         count += 1
       }
-    } else {
-      if (completedTasksCount(task.tasks) === allTasksCount(task.tasks)) {
+    } else if ('tasks' in task) {
+      if (
+        completedTasksCount(task.tasks) === allTasksCount(task.tasks) &&
+        allTasksCount(task.tasks) !== 0
+      ) {
         count += 1
       }
     }

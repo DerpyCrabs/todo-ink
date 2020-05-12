@@ -2,13 +2,16 @@ import type { Hotkey } from '../hooks/hotkeys'
 
 export const isExit: Hotkey = (key, input) =>
   key.ctrl && (input === 'c' || input === 'с')
-export const isNewTask: Hotkey = (key, input) => input === 'n' || input === 'т'
+export const isNewTask: Hotkey = (key, input) => input === 't' || input === 'е'
 export const isNewFolder: Hotkey = (key, input) =>
   input === 'f' || input === 'а'
 export const isNewTaskBefore: Hotkey = (key, input) =>
-  input === 'N' || input === 'Т'
+  input === 'T' || input === 'Е'
 export const isNewFolderBefore: Hotkey = (key, input) =>
   input === 'F' || input === 'А'
+export const isNewNote: Hotkey = (key, input) => input === 'n' || input === 'т'
+export const isNewNoteBefore: Hotkey = (key, input) =>
+  input === 'N' || input === 'Т'
 export const isChange: Hotkey = (key, input) => input === 'c' || input === 'с'
 export const isMark: Hotkey = (key, input) => input === 'm' || input === 'ь'
 export const isDelete: Hotkey = (key, input) => input === 'd' || input === 'в'
