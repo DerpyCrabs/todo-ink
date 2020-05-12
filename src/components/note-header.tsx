@@ -12,10 +12,7 @@ export default function NoteHeader({ note }: { note: NoteType }) {
       <FullwidthBox>Note: {note.name}</FullwidthBox>
       <FullwidthBox>
         Folder:{' /'}
-        {folderPathString(
-          root,
-          dropLast(2, taskPath(root, note.id) as Array<string | number>)
-        )}
+        {folderPathString(root, dropLast(2, taskPath(root, note.id)))}
       </FullwidthBox>
     </Box>
   )

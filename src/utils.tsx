@@ -35,18 +35,28 @@ export const folderPathString = (
 export const taskPath = (
   tasks: FolderType | TaskType | NoteType,
   taskId: TaskId
-): Path | null => {
-  if (tasks.id === taskId) {
-    return []
-  } else if (isFolder(tasks)) {
-    for (const [i, task] of tasks.tasks.entries()) {
-      const ret = taskPath(task, taskId)
-      if (ret !== null) {
-        return ['tasks', i, ...ret]
+): Path => {
+  const taskPathImpl = (
+    tasks: FolderType | TaskType | NoteType
+  ): Path | null => {
+    if (tasks.id === taskId) {
+      return []
+    } else if (isFolder(tasks)) {
+      for (const [i, task] of tasks.tasks.entries()) {
+        const ret = taskPathImpl(task)
+        if (ret !== null) {
+          return ['tasks', i, ...ret]
+        }
       }
     }
+    return null
   }
-  return null
+
+  const path = taskPathImpl(tasks)
+  if (path === null) {
+    throw new Error(`Cannot find task with id ${taskId}`)
+  }
+  return path
 }
 
 export const useStdoutSize = (): { rows: number; columns: number } => {

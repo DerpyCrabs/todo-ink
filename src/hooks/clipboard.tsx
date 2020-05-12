@@ -83,7 +83,6 @@ export const useClipboard = () => {
           clipboard: Array<FolderType | TaskType | NoteType>
         ): Array<FolderType | TaskType | NoteType> => {
           const taskP = taskPath(root, id)
-          if (taskP === null) return clipboard
           const task = view(lensPath(taskP), root) as TaskType
           setRoot(dissocPath(taskP, root))
           return prepend(task, clipboard)
@@ -96,9 +95,6 @@ export const useClipboard = () => {
       setClipboard((clipboard) => {
         if (clipboard.length === 0) return []
         const folderP = taskPath(root, folderId)
-        if (folderP === null) {
-          return clipboard
-        }
         setRoot(
           over(
             compose(lensPath(folderP), lensProp('tasks')) as Lens,

@@ -81,9 +81,6 @@ export function useTask(taskId: TaskId): TaskReturnType {
   } = React.useContext(TasksContext)
 
   const path = taskPath(tasks, taskId)
-  if (path === null) {
-    throw new Error(`Couldn't find task with id = ${taskId}`)
-  }
   const taskLens = lensPath(path)
 
   const setTaskHandler = React.useCallback(
@@ -111,9 +108,6 @@ export function useNote(taskId: TaskId): NoteReturnType {
   } = React.useContext(TasksContext)
 
   const path = taskPath(tasks, taskId)
-  if (path === null) {
-    throw new Error(`Couldn't find note with id = ${taskId}`)
-  }
   const noteLens = lensPath(path)
 
   const setNoteHandler = React.useCallback(
@@ -156,9 +150,6 @@ export function useFolder(folderId: TaskId): FolderReturnType {
   } = React.useContext(TasksContext)
 
   const folderPath = taskPath(tasks, folderId)
-  if (folderPath === null) {
-    throw new Error(`Couldn't find task with id = ${folderId}`)
-  }
   const folderLens = lensPath(folderPath)
 
   const newTask = React.useCallback(

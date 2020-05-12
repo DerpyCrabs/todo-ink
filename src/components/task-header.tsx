@@ -12,10 +12,7 @@ export default function TaskHeader({ task }: { task: TaskType }) {
       <FullwidthBox>Task: {task.name}</FullwidthBox>
       <FullwidthBox>
         Folder:{' /'}
-        {folderPathString(
-          root,
-          dropLast(2, taskPath(root, task.id) as Array<string | number>)
-        )}
+        {folderPathString(root, dropLast(2, taskPath(root, task.id)))}
       </FullwidthBox>
     </Box>
   )

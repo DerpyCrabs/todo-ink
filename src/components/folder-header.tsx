@@ -10,7 +10,6 @@ import FullwidthBox from './fullwidth-box'
 export default function FolderHeader({ folderId }: { folderId: TaskId }) {
   const { root } = useTasks()
   const folderPath = taskPath(root, folderId)
-  if (folderPath === null) return null
   const tasks = view(
     compose(lensPath(folderPath), lensProp('tasks')) as Lens,
     root

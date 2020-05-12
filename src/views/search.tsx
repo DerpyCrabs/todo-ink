@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js'
 import { Box, Color } from 'ink'
-import { Path, assoc, lensPath, view } from 'ramda'
+import { assoc, lensPath, view } from 'ramda'
 import React from 'react'
 import FullwidthBox from '../components/fullwidth-box'
 import ScrollableList from '../components/scrollable-list'
@@ -35,7 +35,7 @@ function flattenFolder(
 
 export default function SearchView({ id }: { id: TaskId } & RouteProps) {
   const { root } = useTasks()
-  const folder = view(lensPath(taskPath(root, id) as Path), root) as FolderType
+  const folder = view(lensPath(taskPath(root, id)), root) as FolderType
   const { go, back } = useRouter()
   const [searchQuery, setSearchQuery] = React.useState('')
 
@@ -88,7 +88,6 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
       const task = searchResults[position].item
       if (isTask(task) || isNote(task)) {
         const path = taskPath(folder, task.id)
-        if (path === null) throw new Error(`Failed to find task with id ${task.id}`)
         
         const folderId = (view(lensPath(path.slice(0, -2)), folder) as FolderType).id
         go(`/folder/${folderId}/${task.id}`)
@@ -103,10 +102,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
   return (
     <Box flexDirection='column'>
       <ControlledTextInput
-        prompt={`Search in /${folderPathString(
-          root,
-          taskPath(root, id) as Array<string | number>
-        )}: `}
+        prompt={`Search in /${folderPathString(root, taskPath(root, id))}: `}
         placeholder='search query'
         value={searchQuery}
         onChange={setSearchQuery}
