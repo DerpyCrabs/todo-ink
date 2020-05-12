@@ -14,7 +14,14 @@ import type { Lens } from 'ramda'
 import React from 'react'
 import FullwidthBox from '../components/fullwidth-box'
 import FOCUS from '../constants/focus'
-import { allTasksCount, completedTasksCount, taskPath } from '../utils'
+import {
+  allTasksCount,
+  completedTasksCount,
+  isFolder,
+  isNote,
+  isTask,
+  taskPath,
+} from '../utils'
 import { useFocus } from './focus'
 import { NoteType, TaskId, useTasks } from './tasks'
 import type { FolderType, TaskType } from './tasks'
@@ -54,13 +61,15 @@ export const useClipboard = () => {
       {clipboard.length !== 0 && (
         <Color>
           Clipboard content:{' '}
-          {'tasks' in clipboard[0]
+          {isFolder(clipboard[0])
             ? `folder "${clipboard[0].name}" (${completedTasksCount(
                 clipboard[0].tasks
               )}/${allTasksCount(clipboard[0].tasks)})`
-            : 'status' in clipboard[0]
+            : isTask(clipboard[0])
             ? `task "${clipboard[0]?.name}"`
-            : `note "${clipboard[0]?.name}"`}{' '}
+            : isNote(clipboard[0])
+            ? `note "${clipboard[0]?.name}"`
+            : 'unknown variant of task'}{' '}
           {clipboard.length > 1 && `and ${clipboard.length - 1} more tasks`}
         </Color>
       )}

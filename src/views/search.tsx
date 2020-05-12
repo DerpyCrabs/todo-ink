@@ -16,12 +16,12 @@ import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
 import { NoteType, TaskId, useTasks } from '../hooks/tasks'
 import type { FolderType, TaskType } from '../hooks/tasks'
-import { folderPathString, taskPath } from '../utils'
+import { folderPathString, isFolder, isNote, isTask, taskPath } from '../utils'
 
 function flattenFolder(
   task: FolderType | TaskType | NoteType
 ): Array<(TaskType | FolderType | NoteType) & { path: string }> {
-  if ('status' in task || !('tasks' in task)) {
+  if (isTask(task) || isNote(task)) {
     return [assoc('path', '', task)]
   }
   return [
@@ -86,16 +86,17 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
       if (position === null || searchResults.length === 0) return
       
       const task = searchResults[position].item
-      if (!('tasks' in task)) {
+      if (isTask(task) || isNote(task)) {
         const path = taskPath(folder, task.id)
         if (path === null) throw new Error(`Failed to find task with id ${task.id}`)
         
         const folderId = (view(lensPath(path.slice(0, -2)), folder) as FolderType).id
         go(`/folder/${folderId}/${task.id}`)
-      } else {
+      } else if (isFolder(task)) {
         go(`/folder/${task.id}`)
+      } else {
+        throw new Error('Trying to go to unknown variant of task')
       }
-        
       },],
     ], true)
 
@@ -115,23 +116,27 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
           <Select selected={i === position} key={i}>
             {(() => {
               const task = res.item
-              if ('status' in task) {
+              if (isTask(task)) {
                 return (
                   <FullwidthBox key={task.id}>
                     [{task.status ? 'X' : ' '}] <Task searchResult={res} />
                   </FullwidthBox>
                 )
-              } else if ('tasks' in task) {
+              } else if (isFolder(task)) {
                 return (
                   <FullwidthBox key={task.id}>
                     [F] <Folder searchResult={res} />
                   </FullwidthBox>
                 )
-              } else {
+              } else if (isNote(task)) {
                 return (
                   <FullwidthBox key={task.id}>
                     [N] <Task searchResult={res} />
                   </FullwidthBox>
+                )
+              } else {
+                return (
+                  <FullwidthBox key={i}>Unknown variant of task</FullwidthBox>
                 )
               }
             })()}

@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { compose, lensPath, lensProp, set, view } from 'ramda'
 import type { Lens } from 'ramda'
 import React from 'react'
-import { taskPath } from '../utils'
+import { isNote, isTask, taskPath } from '../utils'
 
 function readTasks(path: string) {
   if (existsSync(path)) {
@@ -27,7 +27,7 @@ function writeTasks(path: string, tasks: FolderType) {
 }
 
 function maxId(tasks: FolderType | TaskType | NoteType): TaskId {
-  if (!('tasks' in tasks)) {
+  if (isTask(tasks) || isNote(tasks)) {
     return tasks.id
   }
   return Math.max(

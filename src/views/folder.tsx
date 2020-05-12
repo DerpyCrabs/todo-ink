@@ -40,6 +40,7 @@ import { RouteProps, useRouter } from '../hooks/router'
 import { NoteType, TaskId, useFolder } from '../hooks/tasks'
 import type { FolderType, TaskType } from '../hooks/tasks'
 import useUndo from '../hooks/undo'
+import { isFolder, isNote, isTask } from '../utils'
 
 const FolderView = ({
   id,
@@ -337,27 +338,33 @@ const FolderView = ({
               )
             } else if (taskIndex < tasks.length) {
               const task = tasks[taskIndex]
-              children.push(
-                'tasks' in task ? (
+              if (isFolder(task)) {
+                children.push(
                   <Folder
                     key={task.id}
                     task={task}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
-                ) : 'status' in task ? (
+                )
+              } else if (isTask(task)) {
+                children.push(
                   <Task
                     key={task.id}
                     task={task}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
-                ) : (
+                )
+              } else if (isNote(task)) {
+                children.push(
                   <Note
                     key={task.id}
                     task={task}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
                 )
-              )
+              } else {
+                throw new Error('Unexpected task variant in folder')
+              }
               taskIndex += 1
             }
           }
