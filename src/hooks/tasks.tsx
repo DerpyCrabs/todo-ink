@@ -105,8 +105,8 @@ export function useTask(taskId: TaskId): TaskReturnType {
     setTasks,
   } = React.useContext(TasksContext)
 
-  const path = taskPath(tasks, taskId)
-  const taskLens = lensPath(path)
+  const path = React.useMemo(() => taskPath(tasks, taskId), [tasks, taskId])
+  const taskLens = React.useMemo(() => lensPath(path), [path])
 
   const setTaskHandler = React.useCallback(
     (t: TaskType) => {
@@ -132,8 +132,8 @@ export function useNote(taskId: TaskId): NoteReturnType {
     setTasks,
   } = React.useContext(TasksContext)
 
-  const path = taskPath(tasks, taskId)
-  const noteLens = lensPath(path)
+  const path = React.useMemo(() => taskPath(tasks, taskId), [tasks, taskId])
+  const noteLens = React.useMemo(() => lensPath(path), [path])
 
   const setNoteHandler = React.useCallback(
     (n: NoteType) => {
@@ -174,8 +174,11 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     setTasks,
   } = React.useContext(TasksContext)
 
-  const folderPath = taskPath(tasks, folderId)
-  const folderLens = lensPath(folderPath)
+  const folderPath = React.useMemo(() => taskPath(tasks, folderId), [
+    tasks,
+    folderId,
+  ])
+  const folderLens = React.useMemo(() => lensPath(folderPath), [folderPath])
 
   const newTask = React.useCallback(
     (name: string, status: boolean) => {

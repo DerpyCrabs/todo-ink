@@ -8,7 +8,8 @@
     "build": "npx babel src --out-dir lib --extensions \".js,.jsx,.ts,.tsx\" --source-maps inline",
     "package": "yarn build && npx pkg -t node13-linux,node13-win lib/index.js -o lib/todo-ink",
     "start": "yarn build && DEV=true NODE_ENV=production node ./lib/index.js",
-    "devtools": "npx react-devtools"
+    "devtools": "npx react-devtools",
+    "test": "jest"
   },
   "dependencies": {
     "external-editor": "^3.1.0",
@@ -42,6 +43,8 @@
     "@babel/preset-env": "^7.9.5",
     "@babel/preset-react": "^7.9.4",
     "@babel/preset-typescript": "^7.9.0",
+    "@testing-library/react-hooks": "^3.2.1",
+    "@types/jest": "^25.2.2",
     "@types/marked": "^0.7.4",
     "@types/marked-terminal": "^3.1.1",
     "@types/node": "^13.13.2",
@@ -54,9 +57,11 @@
     "eslint-plugin-react": "^7.19.0",
     "eslint-plugin-react-hooks": "^3.0.0",
     "import-sort-parser-typescript": "^6.0.0",
+    "jest": "^26.0.1",
     "pkg": "^4.4.8",
     "prettier": "^2.0.5",
     "react-devtools": "^4.6.0",
+    "react-test-renderer": "^16.13.1",
     "typescript": "^3.8.3"
   },
   "importSort": {

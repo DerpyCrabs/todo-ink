@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "name": "test folder 1",
+  "tasks": [
+    {
+      "id": 2,
+      "name": "test task 1",
+      "status": true,
+      "description": "test task 1 description"
+    },
+    { "id": 3, "name": "test note 1", "description": "test note 1 description" }
+  ]
+}

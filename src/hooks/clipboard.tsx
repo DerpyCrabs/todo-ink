@@ -51,12 +51,9 @@ export const ClipboardProvider = React.memo(
   }
 )
 
-export const useClipboard = () => {
-  const { clipboard, setClipboard } = React.useContext(ClipboardContext)
-  const { root, setRoot } = useTasks()
-  const { refocus } = useFocus()
-
-  const ClipboardStatus = () => (
+// eslint-disable-next-line react/display-name
+export const ClipboardStatus = React.memo(
+  ({ clipboard }: { clipboard: Array<FolderType | TaskType | NoteType> }) => (
     <FullwidthBox>
       {clipboard.length !== 0 && (
         <Color>
@@ -75,6 +72,12 @@ export const useClipboard = () => {
       )}
     </FullwidthBox>
   )
+)
+
+export const useClipboard = () => {
+  const { clipboard, setClipboard } = React.useContext(ClipboardContext)
+  const { root, setRoot } = useTasks()
+  const { refocus } = useFocus()
 
   const cut = React.useCallback(
     (id: TaskId) =>
@@ -110,7 +113,7 @@ export const useClipboard = () => {
   )
 
   return {
-    ClipboardStatus,
+    clipboard,
     cut,
     paste,
   }
