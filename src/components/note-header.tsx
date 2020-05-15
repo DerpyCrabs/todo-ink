@@ -14,6 +14,9 @@ export default function NoteHeader({ note }: { note: NoteType }) {
         Folder:{' /'}
         {folderPathString(root, dropLast(2, taskPath(root, note.id)))}
       </FullwidthBox>
+      <FullwidthBox>Creation date: {note.creationDate}</FullwidthBox>
+      <FullwidthBox>Modification date: {note.modificationDate}</FullwidthBox>
+      <Box> </Box>
     </Box>
   )
 }

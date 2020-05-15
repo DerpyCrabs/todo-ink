@@ -14,6 +14,9 @@ export default function TaskHeader({ task }: { task: TaskType }) {
         Folder:{' /'}
         {folderPathString(root, dropLast(2, taskPath(root, task.id)))}
       </FullwidthBox>
+      <FullwidthBox>Creation date: {task.creationDate}</FullwidthBox>
+      <FullwidthBox>Modification date: {task.modificationDate}</FullwidthBox>
+      <Box> </Box>
     </Box>
   )
 }

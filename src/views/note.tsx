@@ -29,7 +29,7 @@ export default function NoteView({ id }: { id: TaskId } & RouteProps) {
     <Box flexDirection='column'>
       <NoteHeader note={note} />
       {note.description !== '' ? (
-        <TaskDescription description={note.description} margin={3} />
+        <TaskDescription description={note.description} margin={6} />
       ) : (
         <Box>No description. Press {`'e'`} to open description editor</Box>
       )}

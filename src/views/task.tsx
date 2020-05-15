@@ -29,7 +29,7 @@ export default function TaskView({ id }: { id: TaskId } & RouteProps) {
     <Box flexDirection='column'>
       <TaskHeader task={task} />
       {task.description !== '' ? (
-        <TaskDescription description={task.description} margin={3} />
+        <TaskDescription description={task.description} margin={6} />
       ) : (
         <Box>No description. Press {`'e'`} to open description editor</Box>
       )}
