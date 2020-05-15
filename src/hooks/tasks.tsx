@@ -5,6 +5,26 @@ import React from 'react'
 import { isNote, isTask, taskPath } from '../utils'
 
 function readTasks(path: string) {
+  const addDates = (
+    task: FolderType | TaskType | NoteType
+  ): FolderType | TaskType | NoteType => {
+    if (isTask(task) || isNote(task)) {
+      if (
+        task.creationDate === undefined ||
+        task.modificationDate === undefined
+      ) {
+        return {
+          ...task,
+          creationDate: new Date().toJSON(),
+          modificationDate: new Date().toJSON(),
+        }
+      } else {
+        return task
+      }
+    } else {
+      return { ...task, tasks: task.tasks.map((t) => addDates(t)) }
+    }
+  }
   if (existsSync(path)) {
     const content = readFileSync(path)
     const tasks = JSON.parse(content.toString())
@@ -12,10 +32,15 @@ function readTasks(path: string) {
       return {
         id: Math.max(0, ...tasks.map((t: TaskType) => t.id)) + 1,
         name: 'root',
-        tasks,
+        tasks: tasks.map((t: NoteType | FolderType | TaskType) => addDates(t)),
       }
     } else {
-      return tasks
+      return {
+        ...tasks,
+        tasks: tasks.tasks.map((t: NoteType | FolderType | TaskType) =>
+          addDates(t)
+        ),
+      }
     }
   } else {
     return { id: 0, name: 'root', tasks: [] }
@@ -155,7 +180,14 @@ export function useFolder(folderId: TaskId): FolderReturnType {
   const newTask = React.useCallback(
     (name: string, status: boolean) => {
       setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
-      return { id: lastId + 1, name, status, description: '' }
+      return {
+        id: lastId + 1,
+        name,
+        status,
+        description: '',
+        creationDate: new Date().toJSON(),
+        modificationDate: new Date().toJSON(),
+      }
     },
     [lastId, setTasks]
   )
@@ -171,7 +203,13 @@ export function useFolder(folderId: TaskId): FolderReturnType {
   const newNote = React.useCallback(
     (name: string) => {
       setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
-      return { id: lastId + 1, name, description: '' }
+      return {
+        id: lastId + 1,
+        name,
+        description: '',
+        creationDate: new Date().toJSON(),
+        modificationDate: new Date().toJSON(),
+      }
     },
     [lastId, setTasks]
   )
@@ -245,10 +283,14 @@ export interface TaskType {
   name: string
   status: boolean
   description: string
+  creationDate: string
+  modificationDate: string
 }
 
 export interface NoteType {
   id: TaskId
   name: string
   description: string
+  creationDate: string
+  modificationDate: string
 }
