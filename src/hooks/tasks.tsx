@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
-import { compose, lensPath, lensProp, set, view } from 'ramda'
+import { compose, equals, lensPath, lensProp, set, view } from 'ramda'
 import type { Lens } from 'ramda'
 import React from 'react'
 import { isNote, isTask, taskPath } from '../utils'
@@ -111,9 +111,17 @@ export function useTask(taskId: TaskId): TaskReturnType {
   const setTaskHandler = React.useCallback(
     (t: TaskType) => {
       setTasks(({ tasks, lastId }) => {
-        return {
-          tasks: set(taskLens, t, tasks),
-          lastId,
+        if (!equals(t, view(taskLens, tasks))) {
+          return {
+            tasks: set(
+              taskLens,
+              { ...t, modificationDate: new Date().toJSON() },
+              tasks
+            ),
+            lastId,
+          }
+        } else {
+          return { tasks, lastId }
         }
       })
     },
@@ -138,9 +146,17 @@ export function useNote(taskId: TaskId): NoteReturnType {
   const setNoteHandler = React.useCallback(
     (n: NoteType) => {
       setTasks(({ tasks, lastId }) => {
-        return {
-          tasks: set(noteLens, n, tasks),
-          lastId,
+        if (!equals(n, view(noteLens, tasks))) {
+          return {
+            tasks: set(
+              noteLens,
+              { ...n, modificationDate: new Date().toJSON() },
+              tasks
+            ),
+            lastId,
+          }
+        } else {
+          return { tasks, lastId }
         }
       })
     },
@@ -218,10 +234,30 @@ export function useFolder(folderId: TaskId): FolderReturnType {
   )
 
   const setTasksHandler = React.useCallback(
-    (t: Array<FolderType | TaskType | NoteType>) => {
+    (newTasks: Array<FolderType | TaskType | NoteType>) => {
       setTasks(({ tasks, lastId }) => {
+        const oldTasks = view(
+          compose(folderLens, lensProp('tasks')) as Lens,
+          tasks
+        ) as Array<FolderType | TaskType | NoteType>
+        const updatedTasks = newTasks.map((task) => {
+          const oldTask = oldTasks.find((t) => t.id === task.id)
+          if (
+            oldTask !== undefined &&
+            (isNote(task) || isTask(task)) &&
+            !equals(oldTask, task)
+          ) {
+            return { ...task, modificationDate: new Date().toJSON() }
+          } else {
+            return task
+          }
+        })
         return {
-          tasks: set(compose(folderLens, lensProp('tasks')) as Lens, t, tasks),
+          tasks: set(
+            compose(folderLens, lensProp('tasks')) as Lens,
+            updatedTasks,
+            tasks
+          ),
           lastId,
         }
       })
