@@ -112,8 +112,8 @@ export const useClipboard = () => {
     [refocus, root, setClipboard, setRoot]
   )
 
-  const clipboardStatus = React.useMemo(
-    () => () => <ClipboardStatus clipboard={clipboard} />,
+  const clipboardStatus = React.useCallback(
+    () => <ClipboardStatus clipboard={clipboard} />,
     [clipboard]
   )
   return {

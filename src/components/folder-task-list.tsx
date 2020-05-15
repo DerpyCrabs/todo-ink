@@ -1,6 +1,6 @@
 import { insert, lensIndex, set } from 'ramda'
 import React from 'react'
-import FOCUS from '../constants/focus'
+import FOCUS, { FocusType } from '../constants/focus'
 import type { AddingFocus } from '../constants/focus'
 import {
   popFocus as popFocusPure,
@@ -35,15 +35,19 @@ const FolderViewTaskList = ({
     setTasks(set(lensIndex(i), task, tasks))
   }
 
-  const newTaskHandler = (v: string, i: number) => {
+  const newTaskHandlerFactory = (
+    newTaskFn: (name: string) => TaskType | FolderType | NoteType,
+    focusTag: FocusType
+  ) => (v: string, i: number) => {
     let taskId: TaskId | null = null
     if (v.trim()) {
-      const task = newTask(v, false)
+      const task = newTaskFn(v)
       setTasks(insert(i, task, tasks))
+
       taskId = task.id
     }
     setFocus((focus) => {
-      const newFocus = popFocusPure(focus, FOCUS.addingTask().tag)
+      const newFocus = popFocusPure(focus, focusTag.tag)
       if (v.trim()) {
         return refocusPure(newFocus, FOCUS.selectedTask(taskId))
       } else {
@@ -51,38 +55,12 @@ const FolderViewTaskList = ({
       }
     })
   }
-  const newNoteHandler = (v: string, i: number) => {
-    let taskId: TaskId | null = null
-    if (v.trim()) {
-      const task = newNote(v)
-      setTasks(insert(i, task, tasks))
-      taskId = task.id
-    }
-    setFocus((focus) => {
-      const newFocus = popFocusPure(focus, FOCUS.addingNote().tag)
-      if (v.trim()) {
-        return refocusPure(newFocus, FOCUS.selectedTask(taskId))
-      } else {
-        return newFocus
-      }
-    })
-  }
-  const newFolderHandler = (v: string, i: number) => {
-    let taskId: TaskId | null = null
-    if (v.trim()) {
-      const task = newFolder(v)
-      setTasks(insert(i, task, tasks))
-      taskId = task.id
-    }
-    setFocus((focus) => {
-      const newFocus = popFocusPure(focus, FOCUS.addingFolder().tag)
-      if (v.trim()) {
-        return refocusPure(newFocus, FOCUS.selectedTask(taskId))
-      } else {
-        return newFocus
-      }
-    })
-  }
+  const newTaskHandler = newTaskHandlerFactory(newTask, FOCUS.addingTask())
+  const newNoteHandler = newTaskHandlerFactory(newNote, FOCUS.addingNote())
+  const newFolderHandler = newTaskHandlerFactory(
+    newFolder,
+    FOCUS.addingFolder()
+  )
 
   const newTaskCancelHandler = () => {
     popFocus(FOCUS.addingTask().tag)
@@ -153,33 +131,25 @@ const FolderViewTaskList = ({
             )
           } else if (taskIndex < tasks.length) {
             const task = tasks[taskIndex]
-            if (isFolder(task)) {
-              children.push(
-                <Folder
-                  key={task.id}
-                  task={task}
-                  onChange={(t) => taskChangeHandler(t, i)}
-                />
-              )
-            } else if (isTask(task)) {
-              children.push(
-                <Task
-                  key={task.id}
-                  task={task}
-                  onChange={(t) => taskChangeHandler(t, i)}
-                />
-              )
-            } else if (isNote(task)) {
-              children.push(
-                <Note
-                  key={task.id}
-                  task={task}
-                  onChange={(t) => taskChangeHandler(t, i)}
-                />
-              )
-            } else {
-              throw new Error('Unexpected task variant in folder')
+            const Component = isFolder(task)
+              ? Folder
+              : isTask(task)
+              ? Task
+              : isNote(task)
+              ? Note
+              : undefined
+            if (Component === undefined) {
+              throw new Error('Unexpected task variant')
             }
+            children.push(
+              <Component
+                key={task.id}
+                task={task as any}
+                onChange={(t: TaskType | FolderType | NoteType) =>
+                  taskChangeHandler(t, i)
+                }
+              />
+            )
             taskIndex += 1
           }
         }

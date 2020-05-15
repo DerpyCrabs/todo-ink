@@ -197,12 +197,12 @@ export function useFolder(folderId: TaskId): FolderReturnType {
   const folderLens = React.useMemo(() => lensPath(folderPath), [folderPath])
 
   const newTask = React.useCallback(
-    (name: string, status: boolean) => {
+    (name: string) => {
       setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
       return {
         id: lastId + 1,
         name,
-        status,
+        status: false,
         description: '',
         creationDate: new Date().toJSON(),
         modificationDate: new Date().toJSON(),
@@ -284,7 +284,7 @@ export interface FolderReturnType {
   tasks: Array<FolderType | TaskType | NoteType>
   setTasks: (t: Array<FolderType | TaskType | NoteType>) => void
   folder: FolderType
-  newTask: (name: string, status: false) => TaskType
+  newTask: (name: string) => TaskType
   newFolder: (name: string) => FolderType
   newNote: (name: string) => NoteType
 }

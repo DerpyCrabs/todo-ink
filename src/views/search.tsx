@@ -121,7 +121,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
               } else if (isFolder(task)) {
                 return (
                   <FullwidthBox key={task.id}>
-                    [F] <Folder searchResult={res} />
+                    [F] <Task searchResult={res} />
                   </FullwidthBox>
                 )
               } else if (isNote(task)) {
@@ -143,31 +143,6 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
   )
 }
 
-const Folder = ({
-  searchResult,
-}: {
-  searchResult: Fuse.FuseResult<
-    (TaskType | FolderType | NoteType) & { path: string }
-  >
-}) => {
-  const nameResult = searchResult.matches?.find((k) => k.key === 'name')
-  const pathResult = searchResult.matches?.find((k) => k.key === 'path')
-  return (
-    <>
-      {pathResult ? (
-        <FuzzyResult result={pathResult} />
-      ) : (
-        searchResult.item.path
-      )}
-      {nameResult ? (
-        <FuzzyResult result={nameResult} />
-      ) : (
-        searchResult.item.name
-      )}
-    </>
-  )
-}
-
 const Task = ({
   searchResult,
 }: {
@@ -177,21 +152,38 @@ const Task = ({
 }) => {
   const nameResult = searchResult.matches?.find((k) => k.key === 'name')
   const pathResult = searchResult.matches?.find((k) => k.key === 'path')
-  return (
-    <>
-      {nameResult ? (
-        <FuzzyResult result={nameResult} />
-      ) : (
-        searchResult.item.name
-      )}
-      :{' '}
-      {pathResult ? (
-        <FuzzyResult result={pathResult} />
-      ) : (
-        searchResult.item.path
-      )}
-    </>
-  )
+  if (isFolder(searchResult.item)) {
+    return (
+      <>
+        {pathResult ? (
+          <FuzzyResult result={pathResult} />
+        ) : (
+          searchResult.item.path
+        )}
+        {nameResult ? (
+          <FuzzyResult result={nameResult} />
+        ) : (
+          searchResult.item.name
+        )}
+      </>
+    )
+  } else {
+    return (
+      <>
+        {nameResult ? (
+          <FuzzyResult result={nameResult} />
+        ) : (
+          searchResult.item.name
+        )}
+        :{' '}
+        {pathResult ? (
+          <FuzzyResult result={pathResult} />
+        ) : (
+          searchResult.item.path
+        )}
+      </>
+    )
+  }
 }
 
 const FuzzyResult = ({
