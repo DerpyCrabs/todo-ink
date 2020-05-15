@@ -22,7 +22,7 @@ import {
   isSelectNext,
   isSelectPrev,
 } from '../constants/hotkeys'
-import { ClipboardStatus, useClipboard } from '../hooks/clipboard'
+import { useClipboard } from '../hooks/clipboard'
 import {
   popFocus as popFocusPure,
   pushFocus as pushFocusPure,
@@ -51,7 +51,7 @@ const FolderView = ({
     setFocus,
   } = useFocus()
   const { back, go } = useRouter()
-  const { clipboard, cut, paste } = useClipboard()
+  const { ClipboardStatus, cut, paste } = useClipboard()
   useUndo(isFocused(FOCUS.folder(folder.id)))
 
   const selected = (() => {
@@ -206,7 +206,7 @@ const FolderView = ({
     <Box flexDirection='column'>
       <FolderHeader folderId={folder.id} />
       <FolderViewTaskList id={folder.id} selected={selected} />
-      <ClipboardStatus clipboard={clipboard} />
+      <ClipboardStatus />
     </Box>
   )
 }

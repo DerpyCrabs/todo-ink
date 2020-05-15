@@ -52,7 +52,7 @@ export const ClipboardProvider = React.memo(
 )
 
 // eslint-disable-next-line react/display-name
-export const ClipboardStatus = React.memo(
+const ClipboardStatus = React.memo(
   ({ clipboard }: { clipboard: Array<FolderType | TaskType | NoteType> }) => (
     <FullwidthBox>
       {clipboard.length !== 0 && (
@@ -112,8 +112,12 @@ export const useClipboard = () => {
     [refocus, root, setClipboard, setRoot]
   )
 
+  const clipboardStatus = React.useMemo(
+    () => () => <ClipboardStatus clipboard={clipboard} />,
+    [clipboard]
+  )
   return {
-    clipboard,
+    ClipboardStatus: clipboardStatus,
     cut,
     paste,
   }
