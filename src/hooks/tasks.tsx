@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
-import { compose, equals, lensPath, lensProp, set, view } from 'ramda'
+import { compose, equals, lensPath, lensProp, over, set, view } from 'ramda'
 import type { Lens } from 'ramda'
 import React from 'react'
 import { isNote, isTask, taskPath } from '../utils'
@@ -22,9 +22,22 @@ function readTasks(path: string) {
         return task
       }
     } else {
-      return { ...task, tasks: task.tasks.map((t) => addDates(t)) }
+      if (
+        task.creationDate === undefined ||
+        task.modificationDate === undefined
+      ) {
+        return {
+          ...task,
+          creationDate: new Date().toJSON(),
+          modificationDate: new Date().toJSON(),
+          tasks: task.tasks.map((t) => addDates(t)),
+        }
+      } else {
+        return { ...task, tasks: task.tasks.map((t) => addDates(t)) }
+      }
     }
   }
+
   if (existsSync(path)) {
     const content = readFileSync(path)
     const tasks = JSON.parse(content.toString())
@@ -32,18 +45,21 @@ function readTasks(path: string) {
       return {
         id: Math.max(0, ...tasks.map((t: TaskType) => t.id)) + 1,
         name: 'root',
+        creationDate: new Date().toJSON(),
+        modificationDate: new Date().toJSON(),
         tasks: tasks.map((t: NoteType | FolderType | TaskType) => addDates(t)),
       }
     } else {
-      return {
-        ...tasks,
-        tasks: tasks.tasks.map((t: NoteType | FolderType | TaskType) =>
-          addDates(t)
-        ),
-      }
+      return addDates(tasks) as FolderType
     }
   } else {
-    return { id: 0, name: 'root', tasks: [] }
+    return {
+      id: 0,
+      name: 'root',
+      creationDate: new Date().toJSON(),
+      modificationDate: new Date().toJSON(),
+      tasks: [],
+    }
   }
 }
 
@@ -64,7 +80,16 @@ function maxId(tasks: FolderType | TaskType | NoteType): TaskId {
 }
 
 const TasksContext = React.createContext<TasksContextType>({
-  tasks: { lastId: 0, tasks: { id: 0, name: 'root', tasks: [] } },
+  tasks: {
+    lastId: 0,
+    tasks: {
+      id: 0,
+      name: 'root',
+      tasks: [],
+      creationDate: new Date().toJSON(),
+      modificationDate: new Date().toJSON(),
+    },
+  },
   setTasks: () => {},
 })
 
@@ -214,7 +239,13 @@ export function useFolder(folderId: TaskId): FolderReturnType {
   const newFolder = React.useCallback(
     (name: string) => {
       setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
-      return { id: lastId + 1, name, tasks: [] }
+      return {
+        id: lastId + 1,
+        name,
+        tasks: [],
+        creationDate: new Date().toJSON(),
+        modificationDate: new Date().toJSON(),
+      }
     },
     [lastId, setTasks]
   )
@@ -252,13 +283,23 @@ export function useFolder(folderId: TaskId): FolderReturnType {
             return task
           }
         })
-        return {
-          tasks: set(
-            compose(folderLens, lensProp('tasks')) as Lens,
-            updatedTasks,
+
+        if (!equals(oldTasks, updatedTasks)) {
+          const updatedFolder = over(
+            folderLens,
+            (folder) => ({
+              ...folder,
+              modificationDate: new Date().toJSON(),
+              tasks: updatedTasks,
+            }),
             tasks
-          ),
-          lastId,
+          )
+          return {
+            tasks: updatedFolder,
+            lastId,
+          }
+        } else {
+          return { tasks, lastId }
         }
       })
     },
@@ -305,16 +346,20 @@ interface TasksState {
 }
 
 type SetTasksHandler = (state: TasksState) => TasksState
+
 interface TasksContextType {
   tasks: TasksState
   setTasks: (handler: SetTasksHandler) => void
 }
 
 export type TaskId = number
+
 export interface FolderType {
   id: TaskId
   name: string
   tasks: Array<FolderType | TaskType | NoteType>
+  creationDate: string
+  modificationDate: string
 }
 
 export interface TaskType {

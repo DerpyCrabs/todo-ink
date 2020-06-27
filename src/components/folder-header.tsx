@@ -1,8 +1,7 @@
-import { compose, lensPath, lensProp, view } from 'ramda'
-import type { Lens } from 'ramda'
+import { lensPath, view } from 'ramda'
 import React from 'react'
-import { NoteType, TaskId, useTasks } from '../hooks/tasks'
-import type { FolderType, TaskType } from '../hooks/tasks'
+import { TaskId, useTasks } from '../hooks/tasks'
+import type { FolderType } from '../hooks/tasks'
 import { taskPath } from '../utils'
 import { allTasksCount, completedTasksCount, folderPathString } from '../utils'
 import FullwidthBox from './fullwidth-box'
@@ -10,21 +9,19 @@ import FullwidthBox from './fullwidth-box'
 export default function FolderHeader({ folderId }: { folderId: TaskId }) {
   const { root } = useTasks()
   const folderPath = taskPath(root, folderId)
-  const tasks = view(
-    compose(lensPath(folderPath), lensProp('tasks')) as Lens,
-    root
-  ) as Array<FolderType | TaskType | NoteType>
+  const folder = view(lensPath(folderPath), root) as FolderType
 
   const path = folderPathString(root, folderPath)
 
   return (
     <FullwidthBox>
       {'    '}Folder: /{path}{' '}
-      {allTasksCount(tasks) !== 0 && (
+      {allTasksCount(folder.tasks) !== 0 && (
         <>
-          ({completedTasksCount(tasks)}/{allTasksCount(tasks)})
+          ({completedTasksCount(folder.tasks)}/{allTasksCount(folder.tasks)})
         </>
-      )}
+      )}{' '}
+      (modified {folder.modificationDate}) (created {folder.creationDate})
     </FullwidthBox>
   )
 }
