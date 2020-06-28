@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
-import { compose, equals, lensPath, lensProp, over, set, view } from 'ramda'
+import { compose, equals, lensPath, lensProp, set, view } from 'ramda'
 import type { Lens } from 'ramda'
 import React from 'react'
 import { isNote, isTask, taskPath } from '../utils'

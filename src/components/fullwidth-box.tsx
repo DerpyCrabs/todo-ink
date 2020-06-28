@@ -12,8 +12,8 @@ export default function FullwidthBox({
   const { columns } = useStdoutSize()
 
   return (
-    <Box textWrap='truncate-end' width={columns - indentation - 1}>
-      {' '.repeat(indentation)}
+    <Box textWrap='truncate-end' width={columns - indentation * 3 - 1}>
+      {' '.repeat(indentation * 3)}
       {children}
     </Box>
   )

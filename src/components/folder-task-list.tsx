@@ -1,4 +1,4 @@
-import { insert, lensIndex, set } from 'ramda'
+import { Lens, compose, insert, lensIndex, lensProp, over, set } from 'ramda'
 import React from 'react'
 import FOCUS, { FocusType } from '../constants/focus'
 import type { AddingFocus } from '../constants/focus'
@@ -12,6 +12,7 @@ import type { FolderType, TaskType } from '../hooks/tasks'
 import { isFolder, isNote, isTask } from '../utils'
 import { TaskTreeItem } from '../views/folder'
 import Folder from './folder'
+import FullwidthBox from './fullwidth-box'
 import Note from './note'
 import ScrollableList from './scrollable-list'
 import Select from './select'
@@ -37,19 +38,36 @@ const FolderViewTaskList = ({
   ) => setFolder(set(tasks[i].lens, task, folder))
 
   const newTaskHandlerFactory = (
-    newTaskFn: (name: string) => TaskType | FolderType | NoteType,
-    focusTag: FocusType
+    newTaskFn: (name: string) => TaskType | FolderType | NoteType
   ) => (v: string, i: number) => {
-    // TODO fix based on lens
     let taskId: TaskId | null = null
     if (v.trim()) {
       const task = newTaskFn(v)
-      // setTasks(insert(i, task, tasks))
-
+      if (tasks.length !== 0) {
+        if (isFolder(tasks[i].task) && tasks[i].expanded) {
+          setFolder(
+            over(
+              compose(tasks[i].lens, lensProp('tasks')) as Lens,
+              insert(0, task),
+              folder
+            )
+          )
+        } else {
+          setFolder(
+            over(
+              compose(tasks[i].parentLens, lensProp('tasks')) as Lens,
+              insert(tasks[i].parentIndex + 1, task),
+              folder
+            )
+          )
+        }
+      } else {
+        setFolder(over(lensProp('tasks'), insert(0, task), folder))
+      }
       taskId = task.id
     }
     setFocus((focus) => {
-      const newFocus = popFocusPure(focus, focusTag.tag)
+      const newFocus = popFocusPure(focus)
       if (v.trim()) {
         return refocusPure(newFocus, FOCUS.selectedTask(taskId))
       } else {
@@ -57,32 +75,60 @@ const FolderViewTaskList = ({
       }
     })
   }
-  // TODO addingTaskBefore handlers
-  const newTaskHandler = newTaskHandlerFactory(newTask, FOCUS.addingTask())
-  const newNoteHandler = newTaskHandlerFactory(newNote, FOCUS.addingNote())
-  const newFolderHandler = newTaskHandlerFactory(
-    newFolder,
-    FOCUS.addingFolder()
-  )
-
-  const newTaskCancelHandler = () => {
-    popFocus(FOCUS.addingTask().tag)
+  const newTaskBeforeHandlerFactory = (
+    newTaskFn: (name: string) => TaskType | FolderType | NoteType
+  ) => (v: string, i: number) => {
+    let taskId: TaskId | null = null
+    if (v.trim()) {
+      const task = newTaskFn(v)
+      if (tasks.length !== 0) {
+        setFolder(
+          over(
+            compose(tasks[i].parentLens, lensProp('tasks')) as Lens,
+            insert(tasks[i].parentIndex, task),
+            folder
+          )
+        )
+      } else {
+        setFolder(over(lensProp('tasks'), insert(0, task), folder))
+      }
+      taskId = task.id
+    }
+    setFocus((focus) => {
+      const newFocus = popFocusPure(focus)
+      if (v.trim()) {
+        return refocusPure(newFocus, FOCUS.selectedTask(taskId))
+      } else {
+        return newFocus
+      }
+    })
   }
-  const newFolderCancelHandler = () => {
-    popFocus(FOCUS.addingFolder().tag)
-  }
-  const newNoteCancelHandler = () => {
-    popFocus(FOCUS.addingNote().tag)
-  }
+  const newTaskHandler = newTaskHandlerFactory(newTask)
+  const newNoteHandler = newTaskHandlerFactory(newNote)
+  const newFolderHandler = newTaskHandlerFactory(newFolder)
+  const newTaskBeforeHandler = newTaskBeforeHandlerFactory(newTask)
+  const newNoteBeforeHandler = newTaskBeforeHandlerFactory(newNote)
+  const newFolderBeforeHandler = newTaskBeforeHandlerFactory(newFolder)
 
   return (
     <ScrollableList
       position={(() => {
-        // TODO fix position calculation based on addingTask focus changes
         if (
           isFocused(FOCUS.addingTask().tag) ||
           isFocused(FOCUS.addingNote().tag) ||
           isFocused(FOCUS.addingFolder().tag)
+        ) {
+          const addingPosition = (focus[focus.length - 1] as AddingFocus)
+            .position
+          if (addingPosition !== undefined) {
+            return addingPosition + 1
+          } else {
+            return 0
+          }
+        } else if (
+          isFocused(FOCUS.addingTaskBefore().tag) ||
+          isFocused(FOCUS.addingNoteBefore().tag) ||
+          isFocused(FOCUS.addingFolderBefore().tag)
         ) {
           const addingPosition = (focus[focus.length - 1] as AddingFocus)
             .position
@@ -100,66 +146,141 @@ const FolderViewTaskList = ({
       margin={3}
     >
       {(() => {
-        const children: Array<React.ReactElement> = []
-        // TODO rewrite addingTask view based on focus changes
-        let taskIndex = 0
-        for (let i = 0; i < tasks.length + 1; i++) {
-          if (isFocused(FOCUS.addingTask(i))) {
-            children.push(
-              <Select key={`${i}-addingTask`} selected={true}>
+        if (tasks.length === 0) {
+          if (isFocused(FOCUS.addingTask().tag)) {
+            return (
+              <Select key={`addingTask`} selected={true}>
                 <TextInput
                   prompt='> '
-                  onSubmit={(v: string) => newTaskHandler(v, i)}
-                  onCancel={newTaskCancelHandler}
+                  onSubmit={(v: string) => newTaskHandler(v, 0)}
+                  onCancel={popFocus}
                 />
               </Select>
             )
-          } else if (isFocused(FOCUS.addingNote(i))) {
-            children.push(
-              <Select key={`${i}-addingNote`} selected={true}>
+          } else if (isFocused(FOCUS.addingNote().tag)) {
+            return (
+              <Select key={`addingNote`} selected={true}>
                 <TextInput
                   prompt='> '
-                  onSubmit={(v: string) => newNoteHandler(v, i)}
-                  onCancel={newNoteCancelHandler}
+                  onSubmit={(v: string) => newNoteHandler(v, 0)}
+                  onCancel={popFocus}
                 />
               </Select>
             )
-          } else if (isFocused(FOCUS.addingFolder(i))) {
-            children.push(
-              <Select key={`${i}-addingFolder`} selected={true}>
+          } else if (isFocused(FOCUS.addingFolder().tag)) {
+            return (
+              <Select key={`addingFolder`} selected={true}>
                 <TextInput
                   prompt='[F] > '
-                  onSubmit={(v: string) => newFolderHandler(v, i)}
-                  onCancel={newFolderCancelHandler}
+                  onSubmit={(v: string) => newFolderHandler(v, 0)}
+                  onCancel={popFocus}
                 />
               </Select>
             )
-          } else if (taskIndex < tasks.length) {
-            const task = tasks[taskIndex]
-            const Component = isFolder(task.task)
-              ? Folder
-              : isTask(task.task)
-              ? Task
-              : isNote(task.task)
-              ? Note
-              : undefined
-            if (Component === undefined) {
-              throw new Error('Unexpected task variant')
-            }
-            children.push(
-              <Component
-                key={task.task.id}
-                indentation={task.indentation}
-                task={task.task as any}
-                onChange={(t: TaskType | FolderType | NoteType) =>
-                  taskChangeHandler(t, i)
-                }
-              />
-            )
-            taskIndex += 1
           }
+        } else {
+          return tasks.map((task, i) => {
+            const beforeIndent = task.indentation
+            const afterIndent = task.expanded
+              ? task.indentation + 1
+              : task.indentation
+            return (
+              <React.Fragment key={task.task.id}>
+                {isFocused(FOCUS.addingTaskBefore(i)) && (
+                  <FullwidthBox indentation={beforeIndent}>
+                    <Select key={`${i}-addingTaskBefore`} selected={true}>
+                      <TextInput
+                        prompt='> '
+                        onSubmit={(v: string) => newTaskBeforeHandler(v, i)}
+                        onCancel={popFocus}
+                      />
+                    </Select>
+                  </FullwidthBox>
+                )}
+                {isFocused(FOCUS.addingNoteBefore(i)) && (
+                  <FullwidthBox indentation={beforeIndent}>
+                    <Select key={`${i}-addingNoteBefore`} selected={true}>
+                      <TextInput
+                        prompt='[N] > '
+                        onSubmit={(v: string) => newNoteBeforeHandler(v, i)}
+                        onCancel={popFocus}
+                      />
+                    </Select>
+                  </FullwidthBox>
+                )}
+                {isFocused(FOCUS.addingFolderBefore(i)) && (
+                  <FullwidthBox indentation={beforeIndent}>
+                    <Select key={`${i}-addingFolderBefore`} selected={true}>
+                      <TextInput
+                        prompt='[F] > '
+                        onSubmit={(v: string) => newFolderBeforeHandler(v, i)}
+                        onCancel={popFocus}
+                      />
+                    </Select>
+                  </FullwidthBox>
+                )}
+                {isFolder(task.task) && (
+                  <Folder
+                    key={task.task.id}
+                    indentation={task.indentation}
+                    task={task.task}
+                    onChange={(t) => taskChangeHandler(t, i)}
+                    expanded={task.expanded}
+                  />
+                )}
+                {isTask(task.task) && (
+                  <Task
+                    key={task.task.id}
+                    indentation={task.indentation}
+                    task={task.task}
+                    onChange={(t) => taskChangeHandler(t, i)}
+                  />
+                )}
+                {isNote(task.task) && (
+                  <Note
+                    key={task.task.id}
+                    indentation={task.indentation}
+                    task={task.task}
+                    onChange={(t) => taskChangeHandler(t, i)}
+                  />
+                )}
+                {isFocused(FOCUS.addingTask(i)) && (
+                  <FullwidthBox indentation={afterIndent}>
+                    <Select key={`${i}-addingTask`} selected={true}>
+                      <TextInput
+                        prompt='> '
+                        onSubmit={(v: string) => newTaskHandler(v, i)}
+                        onCancel={popFocus}
+                      />
+                    </Select>
+                  </FullwidthBox>
+                )}
+                {isFocused(FOCUS.addingNote(i)) && (
+                  <FullwidthBox indentation={afterIndent}>
+                    <Select key={`${i}-addingNote`} selected={true}>
+                      <TextInput
+                        prompt='[N] > '
+                        onSubmit={(v: string) => newNoteHandler(v, i)}
+                        onCancel={popFocus}
+                      />
+                    </Select>
+                  </FullwidthBox>
+                )}
+                {isFocused(FOCUS.addingFolder(i)) && (
+                  <FullwidthBox indentation={afterIndent}>
+                    <Select key={`${i}-addingFolder`} selected={true}>
+                      <TextInput
+                        prompt='[F] > '
+                        onSubmit={(v: string) => newFolderHandler(v, i)}
+                        onCancel={popFocus}
+                      />
+                    </Select>
+                  </FullwidthBox>
+                )}
+              </React.Fragment>
+            )
+          })
         }
-        return children
       })()}
     </ScrollableList>
   )

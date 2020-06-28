@@ -14,10 +14,12 @@ const Folder = ({
   task,
   indentation = 0,
   onChange = () => {},
+  expanded = false,
 }: {
   task: FolderType
   indentation?: number
   onChange?: (t: FolderType) => void
+  expanded: boolean
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   const { go } = useRouter()
@@ -47,7 +49,7 @@ const Folder = ({
       }
     >
       <FullwidthBox indentation={indentation}>
-        [F]{' '}
+        {expanded ? '\\F/' : '[F]'}{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput
             value={task.name}
