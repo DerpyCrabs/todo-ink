@@ -264,15 +264,12 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     [lastId, setTasks]
   )
 
-  const setTasksHandler = React.useCallback(
-    (newTasks: Array<FolderType | TaskType | NoteType>) => {
+  const setFolderHandler = React.useCallback(
+    (newFolder: FolderType) => {
       setTasks(({ tasks, lastId }) => {
-        const oldTasks = view(
-          compose(folderLens, lensProp('tasks')) as Lens,
-          tasks
-        ) as Array<FolderType | TaskType | NoteType>
-        const updatedTasks = newTasks.map((task) => {
-          const oldTask = oldTasks.find((t) => t.id === task.id)
+        const oldFolder = view(folderLens, tasks) as FolderType
+        const updatedTasks = newFolder.tasks.map((task) => {
+          const oldTask = oldFolder.tasks.find((t) => t.id === task.id)
           if (
             oldTask !== undefined &&
             (isNote(task) || isTask(task)) &&
@@ -284,18 +281,19 @@ export function useFolder(folderId: TaskId): FolderReturnType {
           }
         })
 
-        if (!equals(oldTasks, updatedTasks)) {
-          const updatedFolder = over(
-            folderLens,
-            (folder) => ({
-              ...folder,
-              modificationDate: new Date().toJSON(),
-              tasks: updatedTasks,
-            }),
-            tasks
-          )
+        const updatedFolder = set(
+          folderLens,
+          { ...newFolder, tasks: updatedTasks },
+          tasks
+        )
+
+        if (!equals(oldFolder, updatedFolder)) {
           return {
-            tasks: updatedFolder,
+            tasks: set(
+              compose(folderLens, lensProp('modificationDate')) as Lens,
+              new Date().toJSON(),
+              updatedFolder
+            ),
             lastId,
           }
         } else {
@@ -306,9 +304,16 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     [folderLens, setTasks]
   )
 
+  const setTasksHandler = React.useCallback(
+    (tasks: Array<TaskType | NoteType | FolderType>) =>
+      setFolderHandler({ ...view(folderLens, tasks), tasks }),
+    [folderLens, setFolderHandler]
+  )
+
   return {
     tasks: view(compose(folderLens, lensProp('tasks')) as Lens, tasks),
     folder: view(folderLens, tasks),
+    setFolder: setFolderHandler,
     setTasks: setTasksHandler,
     newTask,
     newFolder,
@@ -325,6 +330,7 @@ export interface FolderReturnType {
   tasks: Array<FolderType | TaskType | NoteType>
   setTasks: (t: Array<FolderType | TaskType | NoteType>) => void
   folder: FolderType
+  setFolder: (f: FolderType) => void
   newTask: (name: string) => TaskType
   newFolder: (name: string) => FolderType
   newNote: (name: string) => NoteType
