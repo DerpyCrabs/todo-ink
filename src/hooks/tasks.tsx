@@ -305,9 +305,9 @@ export function useFolder(folderId: TaskId): FolderReturnType {
   )
 
   const setTasksHandler = React.useCallback(
-    (tasks: Array<TaskType | NoteType | FolderType>) =>
-      setFolderHandler({ ...view(folderLens, tasks), tasks }),
-    [folderLens, setFolderHandler]
+    (newTasks: Array<TaskType | NoteType | FolderType>) =>
+      setFolderHandler({ ...view(folderLens, tasks), tasks: newTasks }),
+    [folderLens, setFolderHandler, tasks]
   )
 
   return {
