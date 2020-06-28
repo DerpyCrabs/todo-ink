@@ -11,9 +11,11 @@ import TextInput from './text-input'
 
 const Task = ({
   task,
+  indentation = 0,
   onChange = () => {},
 }: {
   task: TaskType
+  indentation?: number
   onChange?: (t: TaskType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
@@ -45,7 +47,7 @@ const Task = ({
         isFocused(FOCUS.editingTask(task.id))
       }
     >
-      <FullwidthBox>
+      <FullwidthBox indentation={indentation}>
         [{task.status ? 'X' : ' '}]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput

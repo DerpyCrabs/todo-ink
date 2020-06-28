@@ -10,6 +10,7 @@ import {
 import { NoteType, TaskId, useFolder } from '../hooks/tasks'
 import type { FolderType, TaskType } from '../hooks/tasks'
 import { isFolder, isNote, isTask } from '../utils'
+import { TaskTreeItem } from '../views/folder'
 import Folder from './folder'
 import Note from './note'
 import ScrollableList from './scrollable-list'
@@ -19,30 +20,31 @@ import TextInput from './text-input'
 
 const FolderViewTaskList = ({
   id,
+  tasks,
   selected,
 }: {
   id: TaskId
+  tasks: Array<TaskTreeItem>
   selected: number | null
 }) => {
-  const { tasks, newTask, newFolder, newNote, setTasks } = useFolder(id)
+  const { newTask, newFolder, newNote, setFolder, folder } = useFolder(id)
 
   const { isFocused, popFocus, focus, setFocus } = useFocus()
 
   const taskChangeHandler = (
     task: TaskType | FolderType | NoteType,
     i: number
-  ) => {
-    setTasks(set(lensIndex(i), task, tasks))
-  }
+  ) => setFolder(set(tasks[i].lens, task, folder))
 
   const newTaskHandlerFactory = (
     newTaskFn: (name: string) => TaskType | FolderType | NoteType,
     focusTag: FocusType
   ) => (v: string, i: number) => {
+    // TODO fix based on lens
     let taskId: TaskId | null = null
     if (v.trim()) {
       const task = newTaskFn(v)
-      setTasks(insert(i, task, tasks))
+      // setTasks(insert(i, task, tasks))
 
       taskId = task.id
     }
@@ -55,6 +57,7 @@ const FolderViewTaskList = ({
       }
     })
   }
+  // TODO addingTaskBefore handlers
   const newTaskHandler = newTaskHandlerFactory(newTask, FOCUS.addingTask())
   const newNoteHandler = newTaskHandlerFactory(newNote, FOCUS.addingNote())
   const newFolderHandler = newTaskHandlerFactory(
@@ -75,6 +78,7 @@ const FolderViewTaskList = ({
   return (
     <ScrollableList
       position={(() => {
+        // TODO fix position calculation based on addingTask focus changes
         if (
           isFocused(FOCUS.addingTask().tag) ||
           isFocused(FOCUS.addingNote().tag) ||
@@ -97,6 +101,7 @@ const FolderViewTaskList = ({
     >
       {(() => {
         const children: Array<React.ReactElement> = []
+        // TODO rewrite addingTask view based on focus changes
         let taskIndex = 0
         for (let i = 0; i < tasks.length + 1; i++) {
           if (isFocused(FOCUS.addingTask(i))) {
@@ -131,11 +136,11 @@ const FolderViewTaskList = ({
             )
           } else if (taskIndex < tasks.length) {
             const task = tasks[taskIndex]
-            const Component = isFolder(task)
+            const Component = isFolder(task.task)
               ? Folder
-              : isTask(task)
+              : isTask(task.task)
               ? Task
-              : isNote(task)
+              : isNote(task.task)
               ? Note
               : undefined
             if (Component === undefined) {
@@ -143,8 +148,9 @@ const FolderViewTaskList = ({
             }
             children.push(
               <Component
-                key={task.id}
-                task={task as any}
+                key={task.task.id}
+                indentation={task.indentation}
+                task={task.task as any}
                 onChange={(t: TaskType | FolderType | NoteType) =>
                   taskChangeHandler(t, i)
                 }

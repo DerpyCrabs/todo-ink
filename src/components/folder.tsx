@@ -12,9 +12,11 @@ import TextInput from './text-input'
 
 const Folder = ({
   task,
+  indentation = 0,
   onChange = () => {},
 }: {
   task: FolderType
+  indentation?: number
   onChange?: (t: FolderType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
@@ -44,7 +46,7 @@ const Folder = ({
         isFocused(FOCUS.editingTask(task.id))
       }
     >
-      <FullwidthBox>
+      <FullwidthBox indentation={indentation}>
         [F]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput

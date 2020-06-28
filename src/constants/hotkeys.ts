@@ -28,3 +28,4 @@ export const isSelectNext: Hotkey = (key) => key.downArrow
 export const isSelectPrev: Hotkey = (key) => key.upArrow
 export const isEdit: Hotkey = (key, input) => input === 'e' || input === 'у'
 export const isUndo: Hotkey = (key, input) => input === 'u' || input === 'г'
+export const isExpand: Hotkey = (key, input) => input === 'e' || input === 'у'

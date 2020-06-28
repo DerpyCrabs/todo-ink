@@ -1,27 +1,10 @@
 import { Box } from 'ink'
-import { remove } from 'ramda'
+import { Lens, lensPath, remove, view } from 'ramda'
 import React from 'react'
 import FolderHeader from '../components/folder-header'
 import FolderViewTaskList from '../components/folder-task-list'
 import FOCUS from '../constants/focus'
-import {
-  isCut,
-  isDelete,
-  isLeave,
-  isMoveDown,
-  isMoveUp,
-  isNewFolder,
-  isNewFolderBefore,
-  isNewNote,
-  isNewNoteBefore,
-  isNewTask,
-  isNewTaskBefore,
-  isPaste,
-  isPasteBefore,
-  isSearch,
-  isSelectNext,
-  isSelectPrev,
-} from '../constants/hotkeys'
+import * as hotkeys from '../constants/hotkeys'
 import { useClipboard } from '../hooks/clipboard'
 import {
   popFocus as popFocusPure,
@@ -30,8 +13,54 @@ import {
 } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
-import { TaskId, useFolder } from '../hooks/tasks'
+import {
+  FolderType,
+  NoteType,
+  TaskId,
+  TaskType,
+  useFolder,
+} from '../hooks/tasks'
 import useUndo from '../hooks/undo'
+import { isFolder } from '../utils'
+
+export interface TaskTreeItem {
+  indentation: number
+  task: FolderType | NoteType | TaskType
+  lens: Lens
+  parentLens: Lens
+  parentIndex: number
+  expanded: boolean
+}
+
+const expandTaskTree = (
+  tasks: Array<FolderType | NoteType | TaskType>,
+  expanded: Array<TaskId>,
+  indentation: number,
+  parentPath: Array<number | string>
+): Array<TaskTreeItem> => {
+  return tasks
+    .map((t, i) => {
+      const currentItem = {
+        indentation,
+        task: t,
+        lens: lensPath([...parentPath, 'tasks', i]),
+        parentLens: lensPath(parentPath),
+        parentIndex: i,
+        expanded: expanded.includes(t.id),
+      }
+
+      if (isFolder(t) && expanded.includes(t.id)) {
+        const newPath = [...parentPath, 'tasks', i]
+        return [
+          currentItem,
+          ...expandTaskTree(t.tasks, expanded, indentation + 1, newPath),
+        ]
+      } else {
+        return [currentItem]
+      }
+    })
+    .flat()
+}
 
 const FolderView = ({
   id,
@@ -40,7 +69,9 @@ const FolderView = ({
   id: TaskId
   selected?: TaskId
 } & RouteProps) => {
-  const { folder, tasks, setTasks } = useFolder(id)
+  const [expanded, setExpanded] = React.useState([id])
+  const { folder, setTasks } = useFolder(id)
+  const tasks = expandTaskTree(folder.tasks, expanded, 0, [])
 
   const {
     isFocused,
@@ -61,7 +92,7 @@ const FolderView = ({
       last.tag === FOCUS.selectedTask().tag ||
       last.tag === FOCUS.editingTask().tag
     ) {
-      const index = tasks.findIndex((t) => t.id === last.id)
+      const index = tasks.findIndex((t) => t.task.id === last.id)
       if (index !== -1) {
         return index
       } else {
@@ -76,14 +107,18 @@ const FolderView = ({
     if (
       tasks.length !== 0 &&
       !isFocused(FOCUS.selectedTask().tag) &&
+      !isFocused(FOCUS.editingTask().tag) &&
       !isFocused(FOCUS.addingTask().tag) &&
       !isFocused(FOCUS.addingNote().tag) &&
-      !isFocused(FOCUS.addingFolder().tag)
+      !isFocused(FOCUS.addingFolder().tag) &&
+      !isFocused(FOCUS.addingTaskBefore().tag) &&
+      !isFocused(FOCUS.addingNoteBefore().tag) &&
+      !isFocused(FOCUS.addingFolderBefore().tag)
     ) {
       if (initialSelection !== undefined) {
         refocus(FOCUS.selectedTask(initialSelection))
       } else {
-        refocus(FOCUS.selectedTask(tasks[0].id))
+        refocus(FOCUS.selectedTask(tasks[0].task.id))
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -91,113 +126,132 @@ const FolderView = ({
 
   // prettier-ignore
   useHotkeys([
-    [isSearch, () => {
+    [hotkeys.isSearch, () => {
       go(`/search/${folder.id}`)
     }],
-    [isSelectNext, () => {
+    [hotkeys.isSelectNext, () => {
         if (selected !== null && selected !== tasks.length - 1) {
-          refocus(FOCUS.selectedTask(tasks[selected + 1].id))
+          refocus(FOCUS.selectedTask(tasks[selected + 1].task.id))
         }
       },],
-    [isSelectPrev, () => {
+    [hotkeys.isSelectPrev, () => {
         if (selected !== null && selected !== 0) {
-          refocus(FOCUS.selectedTask(tasks[selected - 1].id))
+          refocus(FOCUS.selectedTask(tasks[selected - 1].task.id))
         }
       },],
-    [isCut, () => {
+    [hotkeys.isCut, () => {
         if (selected !== null) {
           if (selected === 0 && tasks.length === 1) {
             popFocus(FOCUS.selectedTask().tag)
           } else if (selected === tasks.length - 1) {
-            refocus(FOCUS.selectedTask(tasks[selected - 1].id))
+            refocus(FOCUS.selectedTask(tasks[selected - 1].task.id))
           } else {
-            refocus(FOCUS.selectedTask(tasks[selected + 1].id))
+            refocus(FOCUS.selectedTask(tasks[selected + 1].task.id))
           }
-          cut(tasks[selected].id)
+          cut(tasks[selected].task.id)
         }
       },],
-    [isPaste, () => {
-        paste(folder.id, selected !== null ? selected + 1 : 0)
-      },],
-    [isPasteBefore, () => {
-        paste(folder.id, selected !== null ? selected : 0)
-      },],
-    [isMoveDown, () => {
-        if (selected !== null && selected < tasks.length - 1) {
-          const tc = tasks.slice()
-          ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
-          setTasks(tc)
-          refocus(FOCUS.selectedTask(tc[selected + 1].id))
-        }
-      },],
-    [isMoveUp, () => {
-        if (selected !== null && selected > 0) {
-          const tc = tasks.slice()
-          ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
-          setTasks(tc)
-          refocus(FOCUS.selectedTask(tc[selected - 1].id))
-        }
-      },],
-    [isDelete, () => {
+    [hotkeys.isPaste, () => {
         if (selected !== null) {
-          setTasks(remove(selected, 1, tasks))
-          setFocus((focus) => {
-            const newFocus = popFocusPure(focus, FOCUS.selectedTask().tag)
-            if (tasks.length !== 1) {
-              const newSelected =
-                tasks.length - 1 === selected
-                  ? Math.max(0, selected - 1)
-                  : selected
-              return pushFocusPure(newFocus, FOCUS.selectedTask(remove(selected, 1, tasks)[newSelected].id))
-            } else {
-              return newFocus
-            }
-          })
+          paste((view(tasks[selected].parentLens, folder) as FolderType).id, tasks[selected].parentIndex + 1)
+        } else {
+          paste(folder.id, 0)
         }
       },],
-    [isNewTask, () => {
-      if (selected !== null) {
-        pushFocus(FOCUS.addingTask(selected + 1))
-      } else {
-        pushFocus(FOCUS.addingTask(0))
-      }
+    [hotkeys.isPasteBefore, () => {
+        if (selected !== null) {
+          paste((view(tasks[selected].parentLens, folder) as FolderType).id, tasks[selected].parentIndex)
+        } else {
+          paste(folder.id, 0)
+        }
       },],
-    [isNewNote, () => {
-      if (selected !== null) {
-        pushFocus(FOCUS.addingNote(selected + 1))
-      } else {
-        pushFocus(FOCUS.addingNote(0))
-      }
+    [hotkeys.isMoveDown, () => {
+      // TODO fix based on lens
+        // if (selected !== null && selected < tasks.length - 1) {
+        //   const tc = tasks.slice()
+        //   ;[tc[selected], tc[selected + 1]] = [tc[selected + 1], tc[selected]]
+        //   setTasks(tc)
+        //   refocus(FOCUS.selectedTask(tc[selected + 1].id))
+        // }
       },],
-    [isNewFolder, () => {
-      if (selected !== null) {
-        pushFocus(FOCUS.addingFolder(selected + 1))
-      } else {
-        pushFocus(FOCUS.addingFolder(0))
-      }
+    [hotkeys.isMoveUp, () => {
+      // TODO fix based on lens
+        // if (selected !== null && selected > 0) {
+        //   const tc = tasks.slice()
+        //   ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
+        //   setTasks(tc)
+        //   refocus(FOCUS.selectedTask(tc[selected - 1].id))
+        // }
       },],
-    [isNewTaskBefore, () => {
+    [hotkeys.isDelete, () => {
+      // TODO fix based on lens
+        // if (selected !== null) {
+        //   setTasks(remove(selected, 1, tasks))
+        //   setFocus((focus) => {
+        //     const newFocus = popFocusPure(focus, FOCUS.selectedTask().tag)
+        //     if (tasks.length !== 1) {
+        //       const newSelected =
+        //         tasks.length - 1 === selected
+        //           ? Math.max(0, selected - 1)
+        //           : selected
+        //       return pushFocusPure(newFocus, FOCUS.selectedTask(remove(selected, 1, tasks)[newSelected].id))
+        //     } else {
+        //       return newFocus
+        //     }
+        //   })
+        // }
+      },],
+    [hotkeys.isNewTask, () => {
       if (selected !== null) {
         pushFocus(FOCUS.addingTask(selected))
       } else {
         pushFocus(FOCUS.addingTask(0))
       }
       },],
-    [isNewNoteBefore, () => {
+    [hotkeys.isNewNote, () => {
       if (selected !== null) {
         pushFocus(FOCUS.addingNote(selected))
       } else {
         pushFocus(FOCUS.addingNote(0))
       }
       },],
-    [isNewFolderBefore, () => {
+    [hotkeys.isNewFolder, () => {
       if (selected !== null) {
         pushFocus(FOCUS.addingFolder(selected))
       } else {
         pushFocus(FOCUS.addingFolder(0))
       }
       },],
-    [isLeave, () => {
+    [hotkeys.isNewTaskBefore, () => {
+      if (selected !== null) {
+        pushFocus(FOCUS.addingTaskBefore(selected))
+      } else {
+        pushFocus(FOCUS.addingTask(0))
+      }
+      },],
+    [hotkeys.isNewNoteBefore, () => {
+      if (selected !== null) {
+        pushFocus(FOCUS.addingNoteBefore(selected))
+      } else {
+        pushFocus(FOCUS.addingNote(0))
+      }
+      },],
+    [hotkeys.isNewFolderBefore, () => {
+      if (selected !== null) {
+        pushFocus(FOCUS.addingFolderBefore(selected))
+      } else {
+        pushFocus(FOCUS.addingFolder(0))
+      }
+      },],
+    [hotkeys.isExpand, () => {
+      if (selected !== null) {
+        const task = tasks[selected].task
+        if (isFolder(task)) {
+          setExpanded(expanded => expanded.includes(task.id) ? expanded.filter(t => t !== task.id) : [...expanded, task.id])
+        }
+      }
+    },],
+    [hotkeys.isLeave, () => {
       back()
       },],
     ], isFocused(FOCUS.folder(folder.id)))
@@ -205,7 +259,7 @@ const FolderView = ({
   return (
     <Box flexDirection='column'>
       <FolderHeader folderId={folder.id} />
-      <FolderViewTaskList id={folder.id} selected={selected} />
+      <FolderViewTaskList id={folder.id} tasks={tasks} selected={selected} />
       <ClipboardStatus />
     </Box>
   )
