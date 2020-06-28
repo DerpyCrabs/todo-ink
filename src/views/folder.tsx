@@ -1,5 +1,5 @@
 import { Box } from 'ink'
-import { Lens, lensPath, remove, view } from 'ramda'
+import { Lens, compose, lensPath, lensProp, over, remove, view } from 'ramda'
 import React from 'react'
 import FolderHeader from '../components/folder-header'
 import FolderViewTaskList from '../components/folder-task-list'
@@ -69,8 +69,10 @@ const FolderView = ({
   id: TaskId
   selected?: TaskId
 } & RouteProps) => {
+  // TODO get expanded from Route
+  // TODO check that entering task in expanded folder and leaving works as expected
   const [expanded, setExpanded] = React.useState([id])
-  const { folder, setTasks } = useFolder(id)
+  const { folder, setFolder } = useFolder(id)
   const tasks = expandTaskTree(folder.tasks, expanded, 0, [])
 
   const {
@@ -188,22 +190,21 @@ const FolderView = ({
         // }
       },],
     [hotkeys.isDelete, () => {
-      // TODO fix based on lens
-        // if (selected !== null) {
-        //   setTasks(remove(selected, 1, tasks))
-        //   setFocus((focus) => {
-        //     const newFocus = popFocusPure(focus, FOCUS.selectedTask().tag)
-        //     if (tasks.length !== 1) {
-        //       const newSelected =
-        //         tasks.length - 1 === selected
-        //           ? Math.max(0, selected - 1)
-        //           : selected
-        //       return pushFocusPure(newFocus, FOCUS.selectedTask(remove(selected, 1, tasks)[newSelected].id))
-        //     } else {
-        //       return newFocus
-        //     }
-        //   })
-        // }
+        if (selected !== null) {
+          setFolder(over(compose(tasks[selected].parentLens, lensProp('tasks')) as Lens, remove(tasks[selected].parentIndex, 1), folder))
+          setFocus((focus) => {
+            const newFocus = popFocusPure(focus, FOCUS.selectedTask().tag)
+            if (tasks.length !== 1) {
+              const newSelected =
+                tasks.length - 1 === selected
+                  ? Math.max(0, selected - 1)
+                  : selected
+              return pushFocusPure(newFocus, FOCUS.selectedTask(remove(selected, 1, tasks)[newSelected].task.id))
+            } else {
+              return newFocus
+            }
+          })
+        }
       },],
     [hotkeys.isNewTask, () => {
       if (selected !== null) {

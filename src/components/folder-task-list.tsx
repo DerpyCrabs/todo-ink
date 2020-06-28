@@ -1,6 +1,6 @@
-import { Lens, compose, insert, lensIndex, lensProp, over, set } from 'ramda'
+import { Lens, compose, insert, lensProp, over, set } from 'ramda'
 import React from 'react'
-import FOCUS, { FocusType } from '../constants/focus'
+import FOCUS from '../constants/focus'
 import type { AddingFocus } from '../constants/focus'
 import {
   popFocus as popFocusPure,
