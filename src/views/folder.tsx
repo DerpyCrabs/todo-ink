@@ -153,7 +153,11 @@ const FolderView = ({
       },],
     [hotkeys.isPaste, () => {
         if (selected !== null) {
-          paste((view(tasks[selected].parentLens, folder) as FolderType).id, tasks[selected].parentIndex + 1)
+          if (tasks[selected].expanded) {
+            paste((view(tasks[selected].lens, folder) as FolderType).id, 0)
+          } else {
+            paste((view(tasks[selected].parentLens, folder) as FolderType).id, tasks[selected].parentIndex + 1)
+          }
         } else {
           paste(folder.id, 0)
         }
