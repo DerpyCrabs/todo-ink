@@ -179,16 +179,20 @@ const FolderViewTaskList = ({
             )
           }
         } else {
-          return tasks.map((task, i) => {
-            const beforeIndent = task.indentation
-            const afterIndent = task.expanded
-              ? task.indentation + 1
-              : task.indentation
-            return (
-              <React.Fragment key={task.task.id}>
-                {isFocused(FOCUS.addingTaskBefore(i)) && (
-                  <FullwidthBox indentation={beforeIndent}>
-                    <Select key={`${i}-addingTaskBefore`} selected={true}>
+          return tasks
+            .map((task, i) => {
+              const beforeIndent = task.indentation
+              const afterIndent = task.expanded
+                ? task.indentation + 1
+                : task.indentation
+              const children = [] as Array<React.ReactNode>
+              if (isFocused(FOCUS.addingTaskBefore(i)))
+                children.push(
+                  <FullwidthBox
+                    key={`${i}-addingTaskBefore`}
+                    indentation={beforeIndent}
+                  >
+                    <Select selected={true}>
                       <TextInput
                         prompt='> '
                         onSubmit={(v: string) => newTaskBeforeHandler(v, i)}
@@ -196,10 +200,14 @@ const FolderViewTaskList = ({
                       />
                     </Select>
                   </FullwidthBox>
-                )}
-                {isFocused(FOCUS.addingNoteBefore(i)) && (
-                  <FullwidthBox indentation={beforeIndent}>
-                    <Select key={`${i}-addingNoteBefore`} selected={true}>
+                )
+              if (isFocused(FOCUS.addingNoteBefore(i)))
+                children.push(
+                  <FullwidthBox
+                    key={`${i}-addingNoteBefore`}
+                    indentation={beforeIndent}
+                  >
+                    <Select selected={true}>
                       <TextInput
                         prompt='[N] > '
                         onSubmit={(v: string) => newNoteBeforeHandler(v, i)}
@@ -207,10 +215,14 @@ const FolderViewTaskList = ({
                       />
                     </Select>
                   </FullwidthBox>
-                )}
-                {isFocused(FOCUS.addingFolderBefore(i)) && (
-                  <FullwidthBox indentation={beforeIndent}>
-                    <Select key={`${i}-addingFolderBefore`} selected={true}>
+                )
+              if (isFocused(FOCUS.addingFolderBefore(i)))
+                children.push(
+                  <FullwidthBox
+                    key={`${i}-addingFolderBefore`}
+                    indentation={beforeIndent}
+                  >
+                    <Select selected={true}>
                       <TextInput
                         prompt='[F] > '
                         onSubmit={(v: string) => newFolderBeforeHandler(v, i)}
@@ -218,8 +230,9 @@ const FolderViewTaskList = ({
                       />
                     </Select>
                   </FullwidthBox>
-                )}
-                {isFolder(task.task) && (
+                )
+              if (isFolder(task.task))
+                children.push(
                   <Folder
                     key={task.task.id}
                     indentation={task.indentation}
@@ -227,26 +240,32 @@ const FolderViewTaskList = ({
                     onChange={(t) => taskChangeHandler(t, i)}
                     expanded={task.expanded}
                   />
-                )}
-                {isTask(task.task) && (
+                )
+              if (isTask(task.task))
+                children.push(
                   <Task
                     key={task.task.id}
                     indentation={task.indentation}
                     task={task.task}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
-                )}
-                {isNote(task.task) && (
+                )
+              if (isNote(task.task))
+                children.push(
                   <Note
                     key={task.task.id}
                     indentation={task.indentation}
                     task={task.task}
                     onChange={(t) => taskChangeHandler(t, i)}
                   />
-                )}
-                {isFocused(FOCUS.addingTask(i)) && (
-                  <FullwidthBox indentation={afterIndent}>
-                    <Select key={`${i}-addingTask`} selected={true}>
+                )
+              if (isFocused(FOCUS.addingTask(i)))
+                children.push(
+                  <FullwidthBox
+                    key={`${i}-addingTask`}
+                    indentation={afterIndent}
+                  >
+                    <Select selected={true}>
                       <TextInput
                         prompt='> '
                         onSubmit={(v: string) => newTaskHandler(v, i)}
@@ -254,10 +273,14 @@ const FolderViewTaskList = ({
                       />
                     </Select>
                   </FullwidthBox>
-                )}
-                {isFocused(FOCUS.addingNote(i)) && (
-                  <FullwidthBox indentation={afterIndent}>
-                    <Select key={`${i}-addingNote`} selected={true}>
+                )
+              if (isFocused(FOCUS.addingNote(i)))
+                children.push(
+                  <FullwidthBox
+                    key={`${i}-addingNote`}
+                    indentation={afterIndent}
+                  >
+                    <Select selected={true}>
                       <TextInput
                         prompt='[N] > '
                         onSubmit={(v: string) => newNoteHandler(v, i)}
@@ -265,10 +288,14 @@ const FolderViewTaskList = ({
                       />
                     </Select>
                   </FullwidthBox>
-                )}
-                {isFocused(FOCUS.addingFolder(i)) && (
-                  <FullwidthBox indentation={afterIndent}>
-                    <Select key={`${i}-addingFolder`} selected={true}>
+                )
+              if (isFocused(FOCUS.addingFolder(i)))
+                children.push(
+                  <FullwidthBox
+                    key={`${i}-addingFolder`}
+                    indentation={afterIndent}
+                  >
+                    <Select selected={true}>
                       <TextInput
                         prompt='[F] > '
                         onSubmit={(v: string) => newFolderHandler(v, i)}
@@ -276,10 +303,10 @@ const FolderViewTaskList = ({
                       />
                     </Select>
                   </FullwidthBox>
-                )}
-              </React.Fragment>
-            )
-          })
+                )
+              return children
+            })
+            .flat()
         }
       })()}
     </ScrollableList>
