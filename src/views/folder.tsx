@@ -69,7 +69,7 @@ const FolderView = ({
   id: TaskId
   selected?: TaskId
 } & RouteProps) => {
-  // TODO get expanded from Route
+  // TODO save expanded state to global context
   // TODO check that entering task in expanded folder and leaving works as expected
   const [expanded, setExpanded] = React.useState([id])
   const { folder, setFolder } = useFolder(id)
@@ -83,6 +83,7 @@ const FolderView = ({
     refocus,
     setFocus,
   } = useFocus()
+
   const { back, go } = useRouter()
   const { ClipboardStatus, cut, paste } = useClipboard()
   useUndo(isFocused(FOCUS.folder(folder.id)))
@@ -109,13 +110,7 @@ const FolderView = ({
     if (
       tasks.length !== 0 &&
       !isFocused(FOCUS.selectedTask().tag) &&
-      !isFocused(FOCUS.editingTask().tag) &&
-      !isFocused(FOCUS.addingTask().tag) &&
-      !isFocused(FOCUS.addingNote().tag) &&
-      !isFocused(FOCUS.addingFolder().tag) &&
-      !isFocused(FOCUS.addingTaskBefore().tag) &&
-      !isFocused(FOCUS.addingNoteBefore().tag) &&
-      !isFocused(FOCUS.addingFolderBefore().tag)
+      isFocused(FOCUS.folder(id))
     ) {
       if (initialSelection !== undefined) {
         refocus(FOCUS.selectedTask(initialSelection))
