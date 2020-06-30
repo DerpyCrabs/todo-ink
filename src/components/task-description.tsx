@@ -1,4 +1,4 @@
-import { Box } from 'ink'
+import { Box, Text } from 'ink'
 import marked from 'marked'
 import TerminalRenderer from 'marked-terminal'
 import { dropLastWhile } from 'ramda'
@@ -48,8 +48,10 @@ export default function TaskDescription({
     <ScrollableList margin={margin} position={position}>
       {lines.map((line, i) => (
         <Box key={i} width={columns}>
-          {i === position ? '> ' : '  '}
-          {line}
+          <Text>
+            {i === position ? '> ' : '  '}
+            {line}
+          </Text>
         </Box>
       ))}
     </ScrollableList>

@@ -1,7 +1,6 @@
-import { Box, Color } from 'ink'
+import { Text, useInput } from 'ink'
 import { defaultTo } from 'ramda'
 import React from 'react'
-import useInput from '../hooks/input'
 
 interface TextInput {
   prompt?: string
@@ -23,7 +22,7 @@ export const ControlledTextInput = React.memo(
     const [cursorOffset, setCursorOffset] = React.useState(value.length)
 
     useInput((input, key) => {
-      if (key.backspace) {
+      if (key.backspace || key.delete) {
         if (cursorOffset === 0) return
         onChange(
           value.slice(0, cursorOffset - 1) +
@@ -47,25 +46,27 @@ export const ControlledTextInput = React.memo(
     })
 
     return (
-      <Box textWrap='truncate-start'>
+      <Text>
         {prompt}
+        {/* TODO don't wrap text but allow to scroll it with cursor */}
         {value === '' && placeholder ? (
-          <Color dim>{placeholder}</Color>
+          <Text dimColor>{placeholder}</Text>
         ) : (
           <>
-            {Array.from(value).map((v, i) =>
+            {Array.from(
+              cursorOffset === value.length ? [...value, '_'] : value
+            ).map((v, i) =>
               i === cursorOffset ? (
-                <Color dim key={i}>
+                <Text dimColor key={i}>
                   {v}
-                </Color>
+                </Text>
               ) : (
-                <Color key={i}>{v}</Color>
+                <Text key={i}>{v}</Text>
               )
             )}
-            {cursorOffset === value.length && <Color dim>_</Color>}
           </>
         )}
-      </Box>
+      </Text>
     )
   }
 )
@@ -111,7 +112,6 @@ export const UncontrolledTextInput = ({
               state.value.slice(state.cursor, state.value.length),
           }
       }
-      return state
     },
     {
       cursor: defaultTo('', _value).length,
@@ -124,7 +124,7 @@ export const UncontrolledTextInput = ({
       onCancel()
     } else if (key.return) {
       onSubmit(state.value)
-    } else if (key.backspace) {
+    } else if (key.backspace || key.delete) {
       dispatch({ type: 'removeCharacter' })
     } else if (key.leftArrow) {
       dispatch({ type: 'moveLeft' })
@@ -136,25 +136,29 @@ export const UncontrolledTextInput = ({
   })
 
   return (
-    <Box textWrap='truncate-start'>
+    <Text>
       {prompt}
+      {/* TODO don't wrap text but allow to scroll it with cursor */}
       {state.value === '' && placeholder ? (
-        <Color dim>{placeholder}</Color>
+        <Text dimColor>{placeholder}</Text>
       ) : (
         <>
-          {Array.from(state.value).map((v, i) =>
+          {Array.from(
+            state.cursor === state.value.length
+              ? [...state.value, '_']
+              : state.value
+          ).map((v, i) =>
             i === state.cursor ? (
-              <Color dim key={i}>
+              <Text dimColor key={i}>
                 {v}
-              </Color>
+              </Text>
             ) : (
-              <Color key={i}>{v}</Color>
+              <Text key={i}>{v}</Text>
             )
           )}
-          {state.cursor === state.value.length && <Color dim>_</Color>}
         </>
       )}
-    </Box>
+    </Text>
   )
 }
 

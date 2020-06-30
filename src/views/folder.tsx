@@ -103,7 +103,11 @@ const FolderView = ({
 
   const { back, go } = useRouter()
   const { ClipboardStatus, cut, paste } = useClipboard()
-  useUndo(isFocused(FOCUS.folder(folder.id)))
+  const resetUndo = useUndo(isFocused(FOCUS.folder(folder.id)))
+
+  React.useEffect(() => {
+    resetUndo()
+  }, [id, resetUndo])
 
   const selected = (() => {
     const last = focus[focus.length - 1]
@@ -200,7 +204,7 @@ const FolderView = ({
             }
           } else {
             if (current.expanded && ((R.view(current.parentLens, folder) as FolderType).tasks.length - 1 !== current.parentIndex)) {
-              // moving expanded folder inside of the parent
+              // swap expanded folder with next parent's task
               setFolder(R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, swap(current.parentIndex, current.parentIndex + 1), folder))
             } else {
               // moving task outside of the expanded folder before the next parent task

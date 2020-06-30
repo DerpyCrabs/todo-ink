@@ -1,4 +1,4 @@
-import { Box } from 'ink'
+import { Box, Text } from 'ink'
 import { dropLast } from 'ramda'
 import React from 'react'
 import { NoteType, useTasks } from '../hooks/tasks'
@@ -9,14 +9,21 @@ export default function NoteHeader({ note }: { note: NoteType }) {
   const { root } = useTasks()
   return (
     <Box flexDirection='column'>
-      <FullwidthBox>Note: {note.name}</FullwidthBox>
       <FullwidthBox>
-        Folder:{' /'}
-        {folderPathString(root, dropLast(2, taskPath(root, note.id)))}
+        <Text>Note: {note.name}</Text>
       </FullwidthBox>
-      <FullwidthBox>Creation date: {note.creationDate}</FullwidthBox>
-      <FullwidthBox>Modification date: {note.modificationDate}</FullwidthBox>
-      <Box> </Box>
+      <FullwidthBox>
+        <Text>
+          Folder:{' /'}
+          {folderPathString(root, dropLast(2, taskPath(root, note.id)))}
+        </Text>
+      </FullwidthBox>
+      <FullwidthBox>
+        <Text>Creation date: {note.creationDate}</Text>
+      </FullwidthBox>
+      <FullwidthBox>
+        <Text>Modification date: {note.modificationDate}</Text>
+      </FullwidthBox>
     </Box>
   )
 }

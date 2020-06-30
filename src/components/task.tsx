@@ -41,13 +41,13 @@ const Task = ({
     popFocus(FOCUS.editingTask().tag)
   }
   return (
-    <Select
-      selected={
-        isFocused(FOCUS.selectedTask(task.id)) ||
-        isFocused(FOCUS.editingTask(task.id))
-      }
-    >
-      <FullwidthBox indentation={indentation}>
+    <FullwidthBox indentation={indentation}>
+      <Select
+        selected={
+          isFocused(FOCUS.selectedTask(task.id)) ||
+          isFocused(FOCUS.editingTask(task.id))
+        }
+      >
         [{task.status ? 'X' : ' '}]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput
@@ -58,8 +58,8 @@ const Task = ({
         ) : (
           task.name
         )}
-      </FullwidthBox>
-    </Select>
+      </Select>
+    </FullwidthBox>
   )
 }
 

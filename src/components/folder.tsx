@@ -42,13 +42,13 @@ const Folder = ({
     popFocus(FOCUS.editingTask().tag)
   }
   return (
-    <Select
-      selected={
-        isFocused(FOCUS.selectedTask(task.id)) ||
-        isFocused(FOCUS.editingTask(task.id))
-      }
-    >
-      <FullwidthBox indentation={indentation}>
+    <FullwidthBox indentation={indentation}>
+      <Select
+        selected={
+          isFocused(FOCUS.selectedTask(task.id)) ||
+          isFocused(FOCUS.editingTask(task.id))
+        }
+      >
         {expanded ? '\\F/' : '[F]'}{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput
@@ -64,8 +64,8 @@ const Folder = ({
             ({completedTasksCount(task.tasks)}/{allTasksCount(task.tasks)})
           </>
         )}
-      </FullwidthBox>
-    </Select>
+      </Select>
+    </FullwidthBox>
   )
 }
 

@@ -1,5 +1,5 @@
 import { edit } from 'external-editor'
-import { Box } from 'ink'
+import { Box, Text } from 'ink'
 import React from 'react'
 import NoteHeader from '../components/note-header'
 import TaskDescription from '../components/task-description'
@@ -31,7 +31,7 @@ export default function NoteView({ id }: { id: TaskId } & RouteProps) {
       {note.description !== '' ? (
         <TaskDescription description={note.description} margin={6} />
       ) : (
-        <Box>No description. Press {`'e'`} to open description editor</Box>
+        <Text>No description. Press {`'e'`} to open description editor</Text>
       )}
     </Box>
   )

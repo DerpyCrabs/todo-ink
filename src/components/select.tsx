@@ -1,4 +1,4 @@
-import { Color } from 'ink'
+import { Text } from 'ink'
 import React from 'react'
 
 const Select = ({
@@ -9,9 +9,14 @@ const Select = ({
   selected: boolean
 }) => {
   if (selected) {
-    return <Color green>{children}</Color>
+    return (
+      <Text color='green' wrap='truncate-end'>
+        {process.env.NODE_ENV === 'test' ? '[f]' : ''}
+        {children}
+      </Text>
+    )
   } else {
-    return <>{children}</>
+    return <Text wrap='truncate-end'>{children}</Text>
   }
 }
 

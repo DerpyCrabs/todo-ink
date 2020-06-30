@@ -1,5 +1,5 @@
 import Fuse from 'fuse.js'
-import { Box, Color } from 'ink'
+import { Box, Text } from 'ink'
 import { assoc, lensPath, view } from 'ramda'
 import React from 'react'
 import FullwidthBox from '../components/fullwidth-box'
@@ -109,34 +109,34 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
       />
       <ScrollableList position={position} margin={2}>
         {searchResults.map((res, i) => (
-          <Select selected={i === position} key={i}>
-            {(() => {
-              const task = res.item
-              if (isTask(task)) {
-                return (
-                  <FullwidthBox key={task.id}>
-                    [{task.status ? 'X' : ' '}] <Task searchResult={res} />
-                  </FullwidthBox>
-                )
-              } else if (isFolder(task)) {
-                return (
-                  <FullwidthBox key={task.id}>
-                    [F] <Task searchResult={res} />
-                  </FullwidthBox>
-                )
-              } else if (isNote(task)) {
-                return (
-                  <FullwidthBox key={task.id}>
-                    [N] <Task searchResult={res} />
-                  </FullwidthBox>
-                )
-              } else {
-                return (
-                  <FullwidthBox key={i}>Unknown variant of task</FullwidthBox>
-                )
-              }
-            })()}
-          </Select>
+          <FullwidthBox key={i}>
+            <Select selected={i === position}>
+              {(() => {
+                const task = res.item
+                if (isTask(task)) {
+                  return (
+                    <Text>
+                      [{task.status ? 'X' : ' '}] <Task searchResult={res} />
+                    </Text>
+                  )
+                } else if (isFolder(task)) {
+                  return (
+                    <Text>
+                      [F] <Task searchResult={res} />
+                    </Text>
+                  )
+                } else if (isNote(task)) {
+                  return (
+                    <Text>
+                      [N] <Task searchResult={res} />
+                    </Text>
+                  )
+                } else {
+                  return <Text>Unknown variant of task</Text>
+                }
+              })()}
+            </Select>
+          </FullwidthBox>
         ))}
       </ScrollableList>
     </Box>
@@ -201,10 +201,16 @@ const FuzzyResult = ({
     return false
   }
   return (
-    <>
+    <Text>
       {Array.from(result.value).map((v: string, i: number) =>
-        isMatched(i) ? <Color blue>{v}</Color> : v
+        isMatched(i) ? (
+          <Text color='blue' key={i}>
+            {v}
+          </Text>
+        ) : (
+          v
+        )
       )}
-    </>
+    </Text>
   )
 }

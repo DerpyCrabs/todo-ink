@@ -1,5 +1,5 @@
 import { edit } from 'external-editor'
-import { Box } from 'ink'
+import { Box, Text } from 'ink'
 import React from 'react'
 import TaskDescription from '../components/task-description'
 import TaskHeader from '../components/task-header'
@@ -31,7 +31,7 @@ export default function TaskView({ id }: { id: TaskId } & RouteProps) {
       {task.description !== '' ? (
         <TaskDescription description={task.description} margin={6} />
       ) : (
-        <Box>No description. Press {`'e'`} to open description editor</Box>
+        <Text>No description. Press {`'e'`} to open description editor</Text>
       )}
     </Box>
   )

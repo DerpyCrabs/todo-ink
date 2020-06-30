@@ -1,4 +1,4 @@
-import { Box } from 'ink'
+import { Box, Text } from 'ink'
 import React from 'react'
 import { useStdoutSize } from '../utils'
 
@@ -12,7 +12,9 @@ export default function ScrollableList({
   margin: number
 }) {
   const [focus, setFocus] = React.useState(0)
-  const { rows: _rows } = useStdoutSize()
+  const { rows: _rows } =
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    process.env.NODE_ENV === 'test' ? { rows: 10 } : useStdoutSize()
   const rows = _rows - margin
   const childrenArray = React.Children.toArray(children)
   React.useEffect(() => {
@@ -46,11 +48,13 @@ export default function ScrollableList({
 
   return (
     <Box flexDirection='column' minHeight={rows}>
-      {focus > 0 ? '...' : childrenArray[0]}
+      {focus > 0 ? <Text>...</Text> : childrenArray[0]}
       {childrenArray.slice(focus + 1, focus + rows - 1)}
-      {childrenArray.length > focus + rows
-        ? '...'
-        : childrenArray[focus + rows - 1]}
+      {childrenArray.length > focus + rows ? (
+        <Text>...</Text>
+      ) : (
+        childrenArray[focus + rows - 1]
+      )}
     </Box>
   )
 }
