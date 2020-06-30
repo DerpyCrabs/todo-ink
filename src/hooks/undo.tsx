@@ -22,4 +22,7 @@ export default function useUndo(active?: boolean) {
       }
       },],
     ], defaultTo(true, active))
+
+  const resetUndo = React.useCallback(() => setPrev(null), [])
+  return resetUndo
 }

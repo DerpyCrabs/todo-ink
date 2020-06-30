@@ -1,4 +1,4 @@
-import { Box } from 'ink'
+import { Box, Text } from 'ink'
 import { dropLast } from 'ramda'
 import React from 'react'
 import { TaskType, useTasks } from '../hooks/tasks'
@@ -9,14 +9,21 @@ export default function TaskHeader({ task }: { task: TaskType }) {
   const { root } = useTasks()
   return (
     <Box flexDirection='column'>
-      <FullwidthBox>Task: {task.name}</FullwidthBox>
       <FullwidthBox>
-        Folder:{' /'}
-        {folderPathString(root, dropLast(2, taskPath(root, task.id)))}
+        <Text>Task: {task.name}</Text>
       </FullwidthBox>
-      <FullwidthBox>Creation date: {task.creationDate}</FullwidthBox>
-      <FullwidthBox>Modification date: {task.modificationDate}</FullwidthBox>
-      <Box> </Box>
+      <FullwidthBox>
+        <Text>
+          Folder:{' /'}
+          {folderPathString(root, dropLast(2, taskPath(root, task.id)))}
+        </Text>
+      </FullwidthBox>
+      <FullwidthBox>
+        <Text>Creation date: {task.creationDate}</Text>
+      </FullwidthBox>
+      <FullwidthBox>
+        <Text>Modification date: {task.modificationDate}</Text>
+      </FullwidthBox>
     </Box>
   )
 }

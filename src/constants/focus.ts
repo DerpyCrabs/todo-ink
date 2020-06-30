@@ -17,6 +17,21 @@ export default {
     fallthrough: false,
     position: position,
   }),
+  addingTaskBefore: (position?: number): AddingFocus => ({
+    tag: 'addingTaskBefore',
+    fallthrough: false,
+    position: position,
+  }),
+  addingFolderBefore: (position?: number): AddingFocus => ({
+    tag: 'addingFolderBefore',
+    fallthrough: false,
+    position: position,
+  }),
+  addingNoteBefore: (position?: number): AddingFocus => ({
+    tag: 'addingNoteBefore',
+    fallthrough: false,
+    position: position,
+  }),
   selectedTask: (id: number | null = null): FocusType => ({
     tag: 'selectedTask',
     id,

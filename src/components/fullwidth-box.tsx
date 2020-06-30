@@ -1,17 +1,22 @@
-import { Box } from 'ink'
+import { Box, Text } from 'ink'
 import React from 'react'
 import { useStdoutSize } from '../utils'
 
 export default function FullwidthBox({
   children,
+  indentation = 0,
 }: {
   children: React.ReactNode
+  indentation?: number
 }) {
   const { columns } = useStdoutSize()
 
   return (
-    <Box textWrap='truncate-end' width={columns - 1}>
-      {children}
+    <Box width={columns - indentation * 3 - 1}>
+      <Text>
+        {' '.repeat(indentation * 3)}
+        {children}
+      </Text>
     </Box>
   )
 }

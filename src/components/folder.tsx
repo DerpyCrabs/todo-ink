@@ -12,10 +12,14 @@ import TextInput from './text-input'
 
 const Folder = ({
   task,
+  indentation = 0,
   onChange = () => {},
+  expanded = false,
 }: {
   task: FolderType
+  indentation?: number
   onChange?: (t: FolderType) => void
+  expanded: boolean
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   const { go } = useRouter()
@@ -38,14 +42,14 @@ const Folder = ({
     popFocus(FOCUS.editingTask().tag)
   }
   return (
-    <Select
-      selected={
-        isFocused(FOCUS.selectedTask(task.id)) ||
-        isFocused(FOCUS.editingTask(task.id))
-      }
-    >
-      <FullwidthBox>
-        [F]{' '}
+    <FullwidthBox indentation={indentation}>
+      <Select
+        selected={
+          isFocused(FOCUS.selectedTask(task.id)) ||
+          isFocused(FOCUS.editingTask(task.id))
+        }
+      >
+        {expanded ? '\\F/' : '[F]'}{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput
             value={task.name}
@@ -60,8 +64,8 @@ const Folder = ({
             ({completedTasksCount(task.tasks)}/{allTasksCount(task.tasks)})
           </>
         )}
-      </FullwidthBox>
-    </Select>
+      </Select>
+    </FullwidthBox>
   )
 }
 

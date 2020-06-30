@@ -11,9 +11,11 @@ import TextInput from './text-input'
 
 const Note = ({
   task,
+  indentation = 0,
   onChange = () => {},
 }: {
   task: NoteType
+  indentation?: number
   onChange?: (t: NoteType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
@@ -36,13 +38,13 @@ const Note = ({
     popFocus(FOCUS.editingTask().tag)
   }
   return (
-    <Select
-      selected={
-        isFocused(FOCUS.selectedTask(task.id)) ||
-        isFocused(FOCUS.editingTask(task.id))
-      }
-    >
-      <FullwidthBox>
+    <FullwidthBox indentation={indentation}>
+      <Select
+        selected={
+          isFocused(FOCUS.selectedTask(task.id)) ||
+          isFocused(FOCUS.editingTask(task.id))
+        }
+      >
         [N]{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput
@@ -53,8 +55,8 @@ const Note = ({
         ) : (
           task.name
         )}
-      </FullwidthBox>
-    </Select>
+      </Select>
+    </FullwidthBox>
   )
 }
 

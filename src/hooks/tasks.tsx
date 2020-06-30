@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs'
-import { compose, equals, lensPath, lensProp, over, set, view } from 'ramda'
+import * as R from 'ramda'
 import type { Lens } from 'ramda'
 import React from 'react'
 import { isNote, isTask, taskPath } from '../utils'
@@ -89,6 +89,7 @@ const TasksContext = React.createContext<TasksContextType>({
       creationDate: new Date().toJSON(),
       modificationDate: new Date().toJSON(),
     },
+    expandedFolders: [] as ExpandedFoldersType,
   },
   setTasks: () => {},
 })
@@ -105,6 +106,7 @@ export const TasksProvider = React.memo(
     const [tasks, setTasks] = React.useState({
       lastId: maxId(tmpTasks),
       tasks: tmpTasks,
+      expandedFolders: [] as ExpandedFoldersType,
     })
     const setTasksHandler = React.useCallback(
       (tasksHandler: SetTasksHandler) => {
@@ -131,22 +133,23 @@ export function useTask(taskId: TaskId): TaskReturnType {
   } = React.useContext(TasksContext)
 
   const path = React.useMemo(() => taskPath(tasks, taskId), [tasks, taskId])
-  const taskLens = React.useMemo(() => lensPath(path), [path])
+  const taskLens = React.useMemo(() => R.lensPath(path), [path])
 
   const setTaskHandler = React.useCallback(
     (t: TaskType) => {
-      setTasks(({ tasks, lastId }) => {
-        if (!equals(t, view(taskLens, tasks))) {
+      setTasks(({ tasks, lastId, expandedFolders }) => {
+        if (!R.equals(t, R.view(taskLens, tasks))) {
           return {
-            tasks: set(
+            tasks: R.set(
               taskLens,
               { ...t, modificationDate: new Date().toJSON() },
               tasks
             ),
             lastId,
+            expandedFolders,
           }
         } else {
-          return { tasks, lastId }
+          return { tasks, lastId, expandedFolders }
         }
       })
     },
@@ -154,7 +157,7 @@ export function useTask(taskId: TaskId): TaskReturnType {
   )
 
   return {
-    task: view(taskLens, tasks),
+    task: R.view(taskLens, tasks),
     setTask: setTaskHandler,
   }
 }
@@ -166,22 +169,23 @@ export function useNote(taskId: TaskId): NoteReturnType {
   } = React.useContext(TasksContext)
 
   const path = React.useMemo(() => taskPath(tasks, taskId), [tasks, taskId])
-  const noteLens = React.useMemo(() => lensPath(path), [path])
+  const noteLens = React.useMemo(() => R.lensPath(path), [path])
 
   const setNoteHandler = React.useCallback(
     (n: NoteType) => {
-      setTasks(({ tasks, lastId }) => {
-        if (!equals(n, view(noteLens, tasks))) {
+      setTasks(({ tasks, lastId, expandedFolders }) => {
+        if (!R.equals(n, R.view(noteLens, tasks))) {
           return {
-            tasks: set(
+            tasks: R.set(
               noteLens,
               { ...n, modificationDate: new Date().toJSON() },
               tasks
             ),
             lastId,
+            expandedFolders,
           }
         } else {
-          return { tasks, lastId }
+          return { tasks, lastId, expandedFolders }
         }
       })
     },
@@ -189,7 +193,7 @@ export function useNote(taskId: TaskId): NoteReturnType {
   )
 
   return {
-    note: view(noteLens, tasks),
+    note: R.view(noteLens, tasks),
     setNote: setNoteHandler,
   }
 }
@@ -200,7 +204,12 @@ export function useTasks(): RootFolderReturnType {
     setTasks,
   } = React.useContext(TasksContext)
   const setRoot = React.useCallback(
-    (t: FolderType) => setTasks(({ lastId }) => ({ tasks: t, lastId })),
+    (t: FolderType) =>
+      setTasks(({ lastId, expandedFolders }) => ({
+        tasks: t,
+        lastId,
+        expandedFolders,
+      })),
     [setTasks]
   )
   return {
@@ -211,7 +220,7 @@ export function useTasks(): RootFolderReturnType {
 
 export function useFolder(folderId: TaskId): FolderReturnType {
   const {
-    tasks: { tasks, lastId },
+    tasks: { tasks, lastId, expandedFolders },
     setTasks,
   } = React.useContext(TasksContext)
 
@@ -219,11 +228,15 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     tasks,
     folderId,
   ])
-  const folderLens = React.useMemo(() => lensPath(folderPath), [folderPath])
+  const folderLens = React.useMemo(() => R.lensPath(folderPath), [folderPath])
 
   const newTask = React.useCallback(
     (name: string) => {
-      setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
+      setTasks(({ tasks, lastId, expandedFolders }) => ({
+        tasks,
+        lastId: lastId + 1,
+        expandedFolders,
+      }))
       return {
         id: lastId + 1,
         name,
@@ -238,7 +251,11 @@ export function useFolder(folderId: TaskId): FolderReturnType {
 
   const newFolder = React.useCallback(
     (name: string) => {
-      setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
+      setTasks(({ tasks, lastId, expandedFolders }) => ({
+        tasks,
+        lastId: lastId + 1,
+        expandedFolders,
+      }))
       return {
         id: lastId + 1,
         name,
@@ -252,7 +269,11 @@ export function useFolder(folderId: TaskId): FolderReturnType {
 
   const newNote = React.useCallback(
     (name: string) => {
-      setTasks(({ tasks, lastId }) => ({ tasks, lastId: lastId + 1 }))
+      setTasks(({ tasks, lastId, expandedFolders }) => ({
+        tasks,
+        lastId: lastId + 1,
+        expandedFolders,
+      }))
       return {
         id: lastId + 1,
         name,
@@ -264,19 +285,16 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     [lastId, setTasks]
   )
 
-  const setTasksHandler = React.useCallback(
-    (newTasks: Array<FolderType | TaskType | NoteType>) => {
-      setTasks(({ tasks, lastId }) => {
-        const oldTasks = view(
-          compose(folderLens, lensProp('tasks')) as Lens,
-          tasks
-        ) as Array<FolderType | TaskType | NoteType>
-        const updatedTasks = newTasks.map((task) => {
-          const oldTask = oldTasks.find((t) => t.id === task.id)
+  const setFolderHandler = React.useCallback(
+    (newFolder: FolderType) => {
+      setTasks(({ tasks, lastId, expandedFolders }) => {
+        const oldFolder = R.view(folderLens, tasks) as FolderType
+        const updatedTasks = newFolder.tasks.map((task) => {
+          const oldTask = oldFolder.tasks.find((t) => t.id === task.id)
           if (
             oldTask !== undefined &&
             (isNote(task) || isTask(task)) &&
-            !equals(oldTask, task)
+            !R.equals(oldTask, task)
           ) {
             return { ...task, modificationDate: new Date().toJSON() }
           } else {
@@ -284,31 +302,78 @@ export function useFolder(folderId: TaskId): FolderReturnType {
           }
         })
 
-        if (!equals(oldTasks, updatedTasks)) {
-          const updatedFolder = over(
-            folderLens,
-            (folder) => ({
-              ...folder,
-              modificationDate: new Date().toJSON(),
-              tasks: updatedTasks,
-            }),
-            tasks
-          )
+        const updatedFolder = R.set(
+          folderLens,
+          { ...newFolder, tasks: updatedTasks },
+          tasks
+        )
+
+        if (!R.equals(oldFolder, updatedFolder)) {
           return {
-            tasks: updatedFolder,
+            tasks: R.set(
+              R.compose(folderLens, R.lensProp('modificationDate')) as Lens,
+              new Date().toJSON(),
+              updatedFolder
+            ),
             lastId,
+            expandedFolders,
           }
         } else {
-          return { tasks, lastId }
+          return { tasks, lastId, expandedFolders }
         }
       })
     },
     [folderLens, setTasks]
   )
 
+  const setTasksHandler = React.useCallback(
+    (newTasks: Array<TaskType | NoteType | FolderType>) =>
+      setFolderHandler({ ...R.view(folderLens, tasks), tasks: newTasks }),
+    [folderLens, setFolderHandler, tasks]
+  )
+
+  const expandedMemoized = React.useMemo(() => {
+    const expandedFolder = expandedFolders.find((f) => f.id === folderId)
+    if (expandedFolder === undefined) {
+      return []
+    } else {
+      return expandedFolder.expanded
+    }
+  }, [folderId, expandedFolders])
+
+  const setExpandedHandler = React.useCallback(
+    (expanded: Array<TaskId>) =>
+      setTasks((tasks) => {
+        const expandedFolderIndex = tasks.expandedFolders.findIndex(
+          (f) => f.id === folderId
+        )
+        if (expandedFolderIndex === -1) {
+          return R.over(
+            R.lensProp('expandedFolders'),
+            R.append({ id: folderId, expanded }),
+            tasks
+          )
+        } else {
+          return R.set(
+            R.compose(
+              R.lensProp('expandedFolders'),
+              R.lensIndex(expandedFolderIndex),
+              R.lensProp('expanded')
+            ) as Lens,
+            expanded,
+            tasks
+          )
+        }
+      }),
+    [folderId, setTasks]
+  )
+
   return {
-    tasks: view(compose(folderLens, lensProp('tasks')) as Lens, tasks),
-    folder: view(folderLens, tasks),
+    tasks: R.view(R.compose(folderLens, R.lensProp('tasks')) as Lens, tasks),
+    folder: R.view(folderLens, tasks),
+    expanded: expandedMemoized,
+    setExpanded: setExpandedHandler,
+    setFolder: setFolderHandler,
     setTasks: setTasksHandler,
     newTask,
     newFolder,
@@ -325,9 +390,12 @@ export interface FolderReturnType {
   tasks: Array<FolderType | TaskType | NoteType>
   setTasks: (t: Array<FolderType | TaskType | NoteType>) => void
   folder: FolderType
+  setFolder: (f: FolderType) => void
   newTask: (name: string) => TaskType
   newFolder: (name: string) => FolderType
   newNote: (name: string) => NoteType
+  expanded: Array<TaskId>
+  setExpanded: (expanded: Array<TaskId>) => void
 }
 
 export interface TaskReturnType {
@@ -340,9 +408,12 @@ export interface NoteReturnType {
   setNote: (t: NoteType) => void
 }
 
+type ExpandedFoldersType = Array<{ id: TaskId; expanded: Array<TaskId> }>
+
 interface TasksState {
   lastId: number
   tasks: FolderType
+  expandedFolders: ExpandedFoldersType
 }
 
 type SetTasksHandler = (state: TasksState) => TasksState

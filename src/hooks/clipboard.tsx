@@ -1,4 +1,4 @@
-import { Color } from 'ink'
+import { Text } from 'ink'
 import {
   compose,
   dissocPath,
@@ -56,7 +56,7 @@ const ClipboardStatus = React.memo(
   ({ clipboard }: { clipboard: Array<FolderType | TaskType | NoteType> }) => (
     <FullwidthBox>
       {clipboard.length !== 0 && (
-        <Color>
+        <Text>
           Clipboard content:{' '}
           {isFolder(clipboard[0])
             ? `folder "${clipboard[0].name}" (${completedTasksCount(
@@ -68,7 +68,7 @@ const ClipboardStatus = React.memo(
             ? `note "${clipboard[0]?.name}"`
             : 'unknown variant of task'}{' '}
           {clipboard.length > 1 && `and ${clipboard.length - 1} more tasks`}
-        </Color>
+        </Text>
       )}
     </FullwidthBox>
   )

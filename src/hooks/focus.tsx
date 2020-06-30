@@ -43,10 +43,12 @@ export function pushFocus(focus: Array<FocusType>, tag: FocusType) {
 
 export function popFocus(
   focus: Array<FocusType>,
-  tag: FocusType['tag'] | FocusType
+  tag?: FocusType['tag'] | FocusType
 ) {
   if (focus.length === 0) {
     throw new Error('Tried to popFocus from empty focus stack')
+  } else if (tag === undefined) {
+    return dropLast(1, focus)
   } else {
     if (
       tag === undefined ||
@@ -91,7 +93,7 @@ export const useFocus = () => {
   )
 
   const popFocusHandler = React.useCallback(
-    (tag: FocusType['tag'] | FocusType) => setFocus((f) => popFocus(f, tag)),
+    (tag?: FocusType['tag'] | FocusType) => setFocus((f) => popFocus(f, tag)),
     [setFocus]
   )
 
