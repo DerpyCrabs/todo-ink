@@ -86,10 +86,7 @@ const FolderView = ({
   id: TaskId
   selected?: TaskId
 } & RouteProps) => {
-  // TODO save expanded state to global context
-  // TODO check that entering task in expanded folder and leaving works as expected
-  const [expanded, setExpanded] = React.useState([id])
-  const { folder, setFolder } = useFolder(id)
+  const { folder, setFolder, expanded, setExpanded } = useFolder(id)
   const tasks = expandTaskTree(folder.tasks, expanded, 0, [])
 
   const {
@@ -314,7 +311,7 @@ const FolderView = ({
       if (selected !== null) {
         const task = tasks[selected].task
         if (isFolder(task)) {
-          setExpanded(expanded => expanded.includes(task.id) ? expanded.filter(t => t !== task.id) : [...expanded, task.id])
+          setExpanded(expanded.includes(task.id) ? expanded.filter(t => t !== task.id) : [...expanded, task.id])
         }
       }
     },],
