@@ -231,8 +231,15 @@ const FolderView = ({
         const prev = tasks[selected - 1]
         const current = tasks[selected]
         if ((R.view(prev.parentLens, folder) as FolderType).id === (R.view(current.parentLens, folder) as FolderType).id) {
-          // swapping task with previous task in parent
-          setFolder(R.over((R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens), swap(current.parentIndex, current.parentIndex - 1), folder))
+          if (prev.expanded) {
+            // moving task into empty expanded folder above
+            setFolder(
+              R.over(R.compose(prev.lens, R.lensProp('tasks')) as R.Lens, R.append(current.task),
+                R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1), folder)))
+          } else {
+            // swapping task with previous task in parent
+            setFolder(R.over((R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens), swap(current.parentIndex, current.parentIndex - 1), folder))
+          }
         } else {
           if ((R.view(current.parentLens, folder) as FolderType).id === (R.view(prev.lens, folder) as FolderType).id) {
             // moving task out of expanded folder
