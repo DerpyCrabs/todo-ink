@@ -199,12 +199,12 @@ const FolderView = ({
                 R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1),
                   R.over(R.compose(next.lens, R.lensProp('tasks')) as R.Lens, R.prepend(current.task), folder)))
             } else {
-              // swap tasks inside of their parent
+              // swapping tasks inside of their parent
               setFolder(R.over((R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens), swap(current.parentIndex, current.parentIndex + 1), folder))
             }
           } else {
             if (current.expanded && ((R.view(current.parentLens, folder) as FolderType).tasks.length - 1 !== current.parentIndex)) {
-              // swap expanded folder with next parent's task
+              // swapping expanded folder with next parent's task
               setFolder(R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, swap(current.parentIndex, current.parentIndex + 1), folder))
             } else {
               // moving task outside of the expanded folder before the next parent task
@@ -230,13 +230,26 @@ const FolderView = ({
       }
       },],
     [hotkeys.isMoveUp, () => {
-      // TODO fix based on lens
-        // if (selected !== null && selected > 0) {
-        //   const tc = tasks.slice()
-        //   ;[tc[selected], tc[selected - 1]] = [tc[selected - 1], tc[selected]]
-        //   setTasks(tc)
-        //   refocus(FOCUS.selectedTask(tc[selected - 1].id))
-        // }
+      if (selected !== null && selected !== 0) {
+        const prev = tasks[selected - 1]
+        const current = tasks[selected]
+        if ((R.view(prev.parentLens, folder) as FolderType).id === (R.view(current.parentLens, folder) as FolderType).id) {
+          // swapping task with previous task in parent
+          setFolder(R.over((R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens), swap(current.parentIndex, current.parentIndex - 1), folder))
+        } else {
+          if ((R.view(current.parentLens, folder) as FolderType).id === (R.view(prev.lens, folder) as FolderType).id) {
+            // moving task out of expanded folder
+            setFolder(
+              R.over(R.compose(prev.parentLens, R.lensProp('tasks')) as R.Lens, R.insert(prev.parentIndex, current.task),
+                R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1), folder)))
+          } else {
+            // moving task into expanded folder
+            setFolder(
+              R.over(R.compose(current.parentLens, R.lensProp('tasks'), R.lensIndex(current.parentIndex - 1), R.lensProp('tasks')) as R.Lens, R.append(current.task),
+                R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1), folder)))
+          }
+        }
+      }
       },],
     [hotkeys.isDelete, () => {
         if (selected !== null) {
