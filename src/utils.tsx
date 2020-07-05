@@ -72,9 +72,9 @@ export const useStdoutSize = (): { rows: number; columns: number } => {
   React.useEffect(() => {
     const handler = () =>
       setSize({ columns: stdout.columns, rows: stdout.rows })
-    stdout?.on('resize', handler)
+    stdout.on('resize', handler)
     return () => {
-      stdout?.off('resize', handler)
+      stdout.off('resize', handler)
     }
   }, [stdout, stdout.columns, stdout.rows])
 

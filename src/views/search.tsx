@@ -150,8 +150,12 @@ const Task = ({
     (TaskType | FolderType | NoteType) & { path: string }
   >
 }) => {
-  const nameResult = searchResult.matches?.find((k) => k.key === 'name')
-  const pathResult = searchResult.matches?.find((k) => k.key === 'path')
+  if (searchResult.matches === undefined) {
+    return <Text>Undefined match</Text>
+  }
+
+  const nameResult = searchResult.matches.find((k) => k.key === 'name')
+  const pathResult = searchResult.matches.find((k) => k.key === 'path')
   if (isFolder(searchResult.item)) {
     return (
       <>

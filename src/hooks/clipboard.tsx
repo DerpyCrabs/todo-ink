@@ -63,9 +63,9 @@ const ClipboardStatus = React.memo(
                 clipboard[0].tasks
               )}/${allTasksCount(clipboard[0].tasks)})`
             : isTask(clipboard[0])
-            ? `task "${clipboard[0]?.name}"`
+            ? `task "${clipboard[0].name}"`
             : isNote(clipboard[0])
-            ? `note "${clipboard[0]?.name}"`
+            ? `note "${clipboard[0].name}"`
             : 'unknown variant of task'}{' '}
           {clipboard.length > 1 && `and ${clipboard.length - 1} more tasks`}
         </Text>
