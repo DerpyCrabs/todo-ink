@@ -4,6 +4,7 @@ import React from 'react'
 import NoteHeader from '../components/note-header'
 import TaskDescription from '../components/task-description'
 import { isEdit, isLeave } from '../constants/hotkeys'
+import { useErrorDialog } from '../hooks/error-dialog'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
 import type { TaskId } from '../hooks/tasks'
@@ -12,6 +13,7 @@ import { useNote } from '../hooks/tasks'
 export default function NoteView({ id }: { id: TaskId } & RouteProps) {
   const { note, setNote } = useNote(id)
   const { back } = useRouter()
+  const { showError } = useErrorDialog()
 
   // prettier-ignore
   useHotkeys([
@@ -21,7 +23,9 @@ export default function NoteView({ id }: { id: TaskId } & RouteProps) {
     [isEdit, () => {
       try {
         setNote({...note, description: edit(note.description, { postfix: '.md' })})
-      } catch (e) {/* ignore */}
+      } catch (e) {
+        showError(`Failed to open external editor: ${JSON.stringify(e)}`)
+      }
       },],
     ], true)
 
