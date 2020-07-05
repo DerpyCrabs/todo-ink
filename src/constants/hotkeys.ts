@@ -1,7 +1,5 @@
 import type { Hotkey } from '../hooks/hotkeys'
 
-export const isExit: Hotkey = (key, input) =>
-  key.ctrl && (input === 'c' || input === 'с')
 export const isNewTask: Hotkey = (key, input) => input === 't' || input === 'е'
 export const isNewFolder: Hotkey = (key, input) =>
   input === 'f' || input === 'а'
