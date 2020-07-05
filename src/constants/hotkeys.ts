@@ -28,3 +28,7 @@ export const isEdit: Hotkey = (key, input) =>
   process.env.NODE_ENV === 'test' ? false : input === 'e' || input === 'у'
 export const isUndo: Hotkey = (key, input) => input === 'u' || input === 'г'
 export const isExpand: Hotkey = (key, input) => input === 'e' || input === 'у'
+export const isErrorIgnore: Hotkey = (key, input) =>
+  input === 'i' || input === 'ш'
+export const isErrorQuit: Hotkey = (key, input) =>
+  input === 'q' || input === 'й'

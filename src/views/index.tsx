@@ -1,6 +1,7 @@
 import React from 'react'
 import FOCUS from '../constants/focus'
 import { ClipboardProvider } from '../hooks/clipboard'
+import { ErrorDialogProvider } from '../hooks/error-dialog'
 import { FocusProvider } from '../hooks/focus'
 import { Router } from '../hooks/router'
 import { useTasks } from '../hooks/tasks'
@@ -15,12 +16,14 @@ const Index = () => {
   return (
     <FocusProvider initialFocus={[FOCUS.folder(root.id)]}>
       <ClipboardProvider>
-        <Router>
-          <FolderView path='/folder/:id/:selected' />
-          <SearchView path='/search/:id' />
-          <TaskView path='/task/:id' />
-          <NoteView path='/note/:id' />
-        </Router>
+        <ErrorDialogProvider>
+          <Router>
+            <FolderView path='/folder/:id/:selected' />
+            <SearchView path='/search/:id' />
+            <TaskView path='/task/:id' />
+            <NoteView path='/note/:id' />
+          </Router>
+        </ErrorDialogProvider>
       </ClipboardProvider>
     </FocusProvider>
   )
