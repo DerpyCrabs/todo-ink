@@ -14,13 +14,11 @@ import {
 } from '../constants/hotkeys'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
-import { NoteType, TaskId, useTasks } from '../hooks/tasks'
-import type { FolderType, TaskType } from '../hooks/tasks'
+import { TaskId, useTasks } from '../hooks/tasks'
+import type { AnyTask, FolderType } from '../hooks/tasks'
 import { folderPathString, isFolder, isNote, isTask, taskPath } from '../utils'
 
-function flattenFolder(
-  task: FolderType | TaskType | NoteType
-): Array<(TaskType | FolderType | NoteType) & { path: string }> {
+function flattenFolder(task: AnyTask): Array<AnyTask & { path: string }> {
   if (isTask(task) || isNote(task)) {
     return [assoc('path', '', task)]
   }
@@ -146,9 +144,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
 const Task = ({
   searchResult,
 }: {
-  searchResult: Fuse.FuseResult<
-    (TaskType | FolderType | NoteType) & { path: string }
-  >
+  searchResult: Fuse.FuseResult<AnyTask & { path: string }>
 }) => {
   if (searchResult.matches === undefined) {
     return <Text>Undefined match</Text>

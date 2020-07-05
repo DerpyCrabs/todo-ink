@@ -7,8 +7,7 @@ import {
   refocus as refocusPure,
   useFocus,
 } from '../hooks/focus'
-import { NoteType, TaskId, useFolder } from '../hooks/tasks'
-import type { FolderType, TaskType } from '../hooks/tasks'
+import { AnyTask, TaskId, useFolder } from '../hooks/tasks'
 import { isFolder, isNote, isTask } from '../utils'
 import { TaskTreeItem } from '../views/folder'
 import Folder from './folder'
@@ -32,14 +31,13 @@ const FolderViewTaskList = ({
 
   const { isFocused, popFocus, focus, setFocus } = useFocus()
 
-  const taskChangeHandler = (
-    task: TaskType | FolderType | NoteType,
-    i: number
-  ) => setFolder(set(tasks[i].lens, task, folder))
+  const taskChangeHandler = (task: AnyTask, i: number) =>
+    setFolder(set(tasks[i].lens, task, folder))
 
-  const newTaskHandlerFactory = (
-    newTaskFn: (name: string) => TaskType | FolderType | NoteType
-  ) => (v: string, i: number) => {
+  const newTaskHandlerFactory = (newTaskFn: (name: string) => AnyTask) => (
+    v: string,
+    i: number
+  ) => {
     let taskId: TaskId | null = null
     if (v.trim()) {
       const task = newTaskFn(v)
@@ -76,7 +74,7 @@ const FolderViewTaskList = ({
     })
   }
   const newTaskBeforeHandlerFactory = (
-    newTaskFn: (name: string) => TaskType | FolderType | NoteType
+    newTaskFn: (name: string) => AnyTask
   ) => (v: string, i: number) => {
     let taskId: TaskId | null = null
     if (v.trim()) {

@@ -5,9 +5,7 @@ import React from 'react'
 import { isNote, isTask, taskPath } from '../utils'
 
 function readTasks(path: string) {
-  const addDates = (
-    task: FolderType | TaskType | NoteType
-  ): FolderType | TaskType | NoteType => {
+  const addDates = (task: AnyTask): AnyTask => {
     if (isTask(task) || isNote(task)) {
       if (
         task.creationDate === undefined ||
@@ -47,7 +45,7 @@ function readTasks(path: string) {
         name: 'root',
         creationDate: new Date().toJSON(),
         modificationDate: new Date().toJSON(),
-        tasks: tasks.map((t: NoteType | FolderType | TaskType) => addDates(t)),
+        tasks: tasks.map((t: AnyTask) => addDates(t)),
       }
     } else {
       return addDates(tasks) as FolderType
@@ -67,15 +65,13 @@ function writeTasks(path: string, tasks: FolderType) {
   writeFileSync(path, JSON.stringify(tasks))
 }
 
-function maxId(tasks: FolderType | TaskType | NoteType): TaskId {
+function maxId(tasks: AnyTask): TaskId {
   if (isTask(tasks) || isNote(tasks)) {
     return tasks.id
   }
   return Math.max(
     tasks.id,
-    ...(tasks.tasks as Array<
-      FolderType | TaskType | NoteType
-    >).map((t: FolderType | TaskType | NoteType) => maxId(t))
+    ...(tasks.tasks as Array<AnyTask>).map((t: AnyTask) => maxId(t))
   )
 }
 
@@ -327,7 +323,7 @@ export function useFolder(folderId: TaskId): FolderReturnType {
   )
 
   const setTasksHandler = React.useCallback(
-    (newTasks: Array<TaskType | NoteType | FolderType>) =>
+    (newTasks: Array<AnyTask>) =>
       setFolderHandler({ ...R.view(folderLens, tasks), tasks: newTasks }),
     [folderLens, setFolderHandler, tasks]
   )
@@ -387,8 +383,8 @@ export interface RootFolderReturnType {
 }
 
 export interface FolderReturnType {
-  tasks: Array<FolderType | TaskType | NoteType>
-  setTasks: (t: Array<FolderType | TaskType | NoteType>) => void
+  tasks: Array<AnyTask>
+  setTasks: (t: Array<AnyTask>) => void
   folder: FolderType
   setFolder: (f: FolderType) => void
   newTask: (name: string) => TaskType
@@ -428,7 +424,7 @@ export type TaskId = number
 export interface FolderType {
   id: TaskId
   name: string
-  tasks: Array<FolderType | TaskType | NoteType>
+  tasks: Array<AnyTask>
   creationDate: string
   modificationDate: string
 }
@@ -449,3 +445,5 @@ export interface NoteType {
   creationDate: string
   modificationDate: string
 }
+
+export type AnyTask = FolderType | TaskType | NoteType

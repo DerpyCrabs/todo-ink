@@ -1,19 +1,17 @@
 import { useStdout } from 'ink'
 import { Path, lensPath, scan, splitEvery, view } from 'ramda'
 import React from 'react'
-import { FolderType, NoteType, TaskId, TaskType } from './hooks/tasks'
+import { AnyTask, FolderType, NoteType, TaskId, TaskType } from './hooks/tasks'
 
-export const isTask = (t: FolderType | TaskType | NoteType): t is TaskType => {
+export const isTask = (t: AnyTask): t is TaskType => {
   return 'status' in t
 }
 
-export const isFolder = (
-  t: FolderType | TaskType | NoteType
-): t is FolderType => {
+export const isFolder = (t: AnyTask): t is FolderType => {
   return 'tasks' in t
 }
 
-export const isNote = (t: FolderType | TaskType | NoteType): t is NoteType => {
+export const isNote = (t: AnyTask): t is NoteType => {
   return !(isTask(t) || isFolder(t))
 }
 
@@ -32,13 +30,8 @@ export const folderPathString = (
   return folderNames.join('/')
 }
 
-export const taskPath = (
-  tasks: FolderType | TaskType | NoteType,
-  taskId: TaskId
-): Path => {
-  const taskPathImpl = (
-    tasks: FolderType | TaskType | NoteType
-  ): Path | null => {
+export const taskPath = (tasks: AnyTask, taskId: TaskId): Path => {
+  const taskPathImpl = (tasks: AnyTask): Path | null => {
     if (tasks.id === taskId) {
       return []
     } else if (isFolder(tasks)) {
@@ -81,17 +74,13 @@ export const useStdoutSize = (): { rows: number; columns: number } => {
   return size
 }
 
-export function allTasksCount(
-  tasks: Array<FolderType | TaskType | NoteType>
-): number {
+export function allTasksCount(tasks: Array<AnyTask>): number {
   return tasks.filter(
     (t) => isTask(t) || (isFolder(t) && allTasksCount(t.tasks) !== 0)
   ).length
 }
 
-export function completedTasksCount(
-  tasks: Array<FolderType | TaskType | NoteType>
-): number {
+export function completedTasksCount(tasks: Array<AnyTask>): number {
   let count = 0
   for (const task of tasks) {
     if (isTask(task)) {

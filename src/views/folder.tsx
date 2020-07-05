@@ -13,19 +13,13 @@ import {
 } from '../hooks/focus'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
-import {
-  FolderType,
-  NoteType,
-  TaskId,
-  TaskType,
-  useFolder,
-} from '../hooks/tasks'
+import { AnyTask, FolderType, TaskId, useFolder } from '../hooks/tasks'
 import useUndo from '../hooks/undo'
 import { isFolder, taskPath } from '../utils'
 
 export interface TaskTreeItem {
   indentation: number
-  task: FolderType | NoteType | TaskType
+  task: AnyTask
   lens: R.Lens
   parentLens: R.Lens
   parentIndex: number
@@ -33,7 +27,7 @@ export interface TaskTreeItem {
 }
 
 const expandTaskTree = (
-  tasks: Array<FolderType | NoteType | TaskType>,
+  tasks: Array<AnyTask>,
   expanded: Array<TaskId>,
   indentation: number,
   parentPath: Array<number | string>
@@ -207,7 +201,7 @@ const FolderView = ({
               // moving task outside of the expanded folder before the next parent task
               const parentOfParentPath = R.dropLast(4, taskPath(folder, current.task.id))
               const parentId = (R.view(current.parentLens, folder) as FolderType).id
-              const parentTasks = R.view(R.compose(R.lensPath(parentOfParentPath), R.lensProp('tasks')) as R.Lens, folder) as Array<TaskType | NoteType | FolderType>
+              const parentTasks = R.view(R.compose(R.lensPath(parentOfParentPath), R.lensProp('tasks')) as R.Lens, folder) as Array<AnyTask>
               const parentIndex = parentTasks.findIndex(t => t.id === parentId)
               // current task is an expanded folder at the end of parent's tasks
               if (parentId === id) return

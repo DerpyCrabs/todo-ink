@@ -23,14 +23,11 @@ import {
   taskPath,
 } from '../utils'
 import { useFocus } from './focus'
-import { NoteType, TaskId, useTasks } from './tasks'
-import type { FolderType, TaskType } from './tasks'
+import { AnyTask, TaskId, useTasks } from './tasks'
 
 interface ClipboardContextType {
-  clipboard: Array<FolderType | TaskType | NoteType>
-  setClipboard: React.Dispatch<
-    React.SetStateAction<Array<FolderType | TaskType | NoteType>>
-  >
+  clipboard: Array<AnyTask>
+  setClipboard: React.Dispatch<React.SetStateAction<Array<AnyTask>>>
 }
 const ClipboardContext = React.createContext<ClipboardContextType>({
   clipboard: [],
@@ -40,9 +37,7 @@ const ClipboardContext = React.createContext<ClipboardContextType>({
 // eslint-disable-next-line react/display-name
 export const ClipboardProvider = React.memo(
   ({ children }: { children: React.ReactNode }) => {
-    const [clipboard, setClipboard] = React.useState<
-      Array<FolderType | TaskType | NoteType>
-    >([])
+    const [clipboard, setClipboard] = React.useState<Array<AnyTask>>([])
     return (
       <ClipboardContext.Provider value={{ clipboard, setClipboard }}>
         {children}
@@ -53,7 +48,7 @@ export const ClipboardProvider = React.memo(
 
 // eslint-disable-next-line react/display-name
 const ClipboardStatus = React.memo(
-  ({ clipboard }: { clipboard: Array<FolderType | TaskType | NoteType> }) => (
+  ({ clipboard }: { clipboard: Array<AnyTask> }) => (
     <FullwidthBox>
       {clipboard.length !== 0 && (
         <Text>
@@ -82,11 +77,9 @@ export const useClipboard = () => {
   const cut = React.useCallback(
     (id: TaskId) =>
       setClipboard(
-        (
-          clipboard: Array<FolderType | TaskType | NoteType>
-        ): Array<FolderType | TaskType | NoteType> => {
+        (clipboard: Array<AnyTask>): Array<AnyTask> => {
           const taskP = taskPath(root, id)
-          const task = view(lensPath(taskP), root) as TaskType
+          const task = view(lensPath(taskP), root) as AnyTask
           setRoot(dissocPath(taskP, root))
           return prepend(task, clipboard)
         }
