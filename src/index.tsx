@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events'
 import { render } from 'ink'
 import React from 'react'
 import { TasksProvider } from './hooks/tasks'
@@ -16,11 +17,11 @@ if (!process.argv.some((v) => v === '--no-fullscreen')) {
 Error.stackTraceLimit = 1000
 // Don't show warning on many event listeners because of useStdoutSize hook on every task
 // 500 should be enough for any terminal
-require('events').EventEmitter.defaultMaxListeners = 500
+EventEmitter.defaultMaxListeners = 500
 
 render(
   <TasksProvider path={process.env.TASKS || 'tasks.json'}>
     <Index />
   </TasksProvider>,
-  { experimental: true, exitOnCtrlC: false }
+  { experimental: true, exitOnCtrlC: true }
 )
