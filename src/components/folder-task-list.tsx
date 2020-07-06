@@ -1,4 +1,4 @@
-import { Lens, compose, insert, lensProp, over, set } from 'ramda'
+import { insert, lensPath, lensProp, over, set } from 'ramda'
 import React from 'react'
 import FOCUS from '../constants/focus'
 import type { AddingFocus } from '../constants/focus'
@@ -32,7 +32,7 @@ const FolderViewTaskList = ({
   const { isFocused, popFocus, focus, setFocus } = useFocus()
 
   const taskChangeHandler = (task: AnyTask, i: number) =>
-    setFolder(set(tasks[i].lens, task, folder))
+    setFolder(set(lensPath(tasks[i].path), task, folder))
 
   const newTaskHandlerFactory = (newTaskFn: (name: string) => AnyTask) => (
     v: string,
@@ -44,16 +44,12 @@ const FolderViewTaskList = ({
       if (tasks.length !== 0) {
         if (isFolder(tasks[i].task) && tasks[i].expanded) {
           setFolder(
-            over(
-              compose(tasks[i].lens, lensProp('tasks')) as Lens,
-              insert(0, task),
-              folder
-            )
+            over(lensPath([...tasks[i].path, 'tasks']), insert(0, task), folder)
           )
         } else {
           setFolder(
             over(
-              compose(tasks[i].parentLens, lensProp('tasks')) as Lens,
+              lensPath([...tasks[i].parentPath, 'tasks']),
               insert(tasks[i].parentIndex + 1, task),
               folder
             )
@@ -82,7 +78,7 @@ const FolderViewTaskList = ({
       if (tasks.length !== 0) {
         setFolder(
           over(
-            compose(tasks[i].parentLens, lensProp('tasks')) as Lens,
+            lensPath([...tasks[i].parentPath, 'tasks']),
             insert(tasks[i].parentIndex, task),
             folder
           )

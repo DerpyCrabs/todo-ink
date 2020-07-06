@@ -15,6 +15,7 @@
   "dependencies": {
     "external-editor": "^3.1.0",
     "fuse.js": "^6.4.0",
+    "immer": "^7.0.5",
     "ink": "https://github.com/vadimdemedes/ink",
     "ink-testing-library": "^2.0.0",
     "marked": "^1.1.0",

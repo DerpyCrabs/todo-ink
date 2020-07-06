@@ -1,3 +1,4 @@
+import produce from 'immer'
 import { Box } from 'ink'
 import * as R from 'ramda'
 import React from 'react'
@@ -16,62 +17,6 @@ import { RouteProps, useRouter } from '../hooks/router'
 import { AnyTask, FolderType, TaskId, useFolder } from '../hooks/tasks'
 import useUndo from '../hooks/undo'
 import { isFolder, taskPath } from '../utils'
-
-export interface TaskTreeItem {
-  indentation: number
-  task: AnyTask
-  lens: R.Lens
-  parentLens: R.Lens
-  parentIndex: number
-  expanded: boolean
-}
-
-const expandTaskTree = (
-  tasks: Array<AnyTask>,
-  expanded: Array<TaskId>,
-  indentation: number,
-  parentPath: Array<number | string>
-): Array<TaskTreeItem> => {
-  return tasks
-    .map((t, i) => {
-      const newPath = [...parentPath, 'tasks', i]
-      const currentItem = {
-        indentation,
-        task: t,
-        lens: R.lensPath(newPath),
-        parentLens: R.lensPath(parentPath),
-        parentIndex: i,
-        expanded: expanded.includes(t.id),
-      }
-
-      if (isFolder(t) && expanded.includes(t.id)) {
-        return [
-          currentItem,
-          ...expandTaskTree(t.tasks, expanded, indentation + 1, newPath),
-        ]
-      } else {
-        return [currentItem]
-      }
-    })
-    .flat()
-}
-
-export const swap = R.curry((index1, index2, list) => {
-  if (
-    index1 < 0 ||
-    index2 < 0 ||
-    index1 > list.length - 1 ||
-    index2 > list.length - 1
-  ) {
-    return list
-  }
-  const value1 = list[index1]
-  const value2 = list[index2]
-  return R.pipe(
-    R.set(R.lensIndex(index1), value2),
-    R.set(R.lensIndex(index2), value1)
-  )(list)
-})
 
 const FolderView = ({
   id,
@@ -163,9 +108,9 @@ const FolderView = ({
     [hotkeys.isPaste, () => {
         if (selected !== null) {
           if (tasks[selected].expanded) {
-            paste((R.view(tasks[selected].lens, folder) as FolderType).id, 0)
+            paste((R.view(R.lensPath(tasks[selected].path), folder) as FolderType).id, 0)
           } else {
-            paste((R.view(tasks[selected].parentLens, folder) as FolderType).id, tasks[selected].parentIndex + 1)
+            paste((R.view(R.lensPath(tasks[selected].parentPath), folder) as FolderType).id, tasks[selected].parentIndex + 1)
           }
         } else {
           paste(folder.id, 0)
@@ -173,7 +118,7 @@ const FolderView = ({
       },],
     [hotkeys.isPasteBefore, () => {
         if (selected !== null) {
-          paste((R.view(tasks[selected].parentLens, folder) as FolderType).id, tasks[selected].parentIndex)
+          paste((R.view(R.lensPath(tasks[selected].parentPath), folder) as FolderType).id, tasks[selected].parentIndex)
         } else {
           paste(folder.id, 0)
         }
@@ -183,40 +128,36 @@ const FolderView = ({
         const current = tasks[selected]
         if (selected < tasks.length - 1) {
           const next = tasks[selected + 1]
-          if ((R.view(next.parentLens, folder) as FolderType).id === (R.view(current.parentLens, folder) as FolderType).id) {
+          if ((R.view(R.lensPath(next.parentPath), folder) as FolderType).id === (R.view(R.lensPath(current.parentPath), folder) as FolderType).id) {
             if (next.expanded) {
               // moving task into the expanded folder
-              setFolder(
-                R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1),
-                  R.over(R.compose(next.lens, R.lensProp('tasks')) as R.Lens, R.prepend(current.task), folder)))
+              setFolder(moveTask(folder, [...current.parentPath, 'tasks', current.parentIndex], [...next.path, 'tasks', 0]))
             } else {
               // swapping tasks inside of their parent
-              setFolder(R.over((R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens), swap(current.parentIndex, current.parentIndex + 1), folder))
+              setFolder(swapTasks(folder, [...current.parentPath, 'tasks'], current.parentIndex, current.parentIndex + 1))
             }
           } else {
-            if (current.expanded && ((R.view(current.parentLens, folder) as FolderType).tasks.length - 1 !== current.parentIndex)) {
+            if (current.expanded && ((R.view(R.lensPath(current.parentPath), folder) as FolderType).tasks.length - 1 !== current.parentIndex)) {
               // swapping expanded folder with next parent's task
-              setFolder(R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, swap(current.parentIndex, current.parentIndex + 1), folder))
+              setFolder(swapTasks(folder, [...current.parentPath, 'tasks'], current.parentIndex, current.parentIndex + 1))
             } else {
               // moving task outside of the expanded folder before the next parent task
               const parentOfParentPath = R.dropLast(4, taskPath(folder, current.task.id))
-              const parentId = (R.view(current.parentLens, folder) as FolderType).id
-              const parentTasks = R.view(R.compose(R.lensPath(parentOfParentPath), R.lensProp('tasks')) as R.Lens, folder) as Array<AnyTask>
+              const parentId = (R.view(R.lensPath(current.parentPath), folder) as FolderType).id
+              const parentTasks = R.view(R.lensPath([...parentOfParentPath, 'tasks']), folder) as Array<AnyTask>
               const parentIndex = parentTasks.findIndex(t => t.id === parentId)
               // current task is an expanded folder at the end of parent's tasks
               if (parentId === id) return
               if (parentIndex === -1) throw new Error(`Can't find parent of task ${current.task.id}`)
-              setFolder(
-                R.over(R.compose(R.lensPath(parentOfParentPath), R.lensProp('tasks')) as R.Lens, R.insert(parentIndex + 1, current.task),
-                  R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1), folder)))
+
+              setFolder(moveTask(folder, [...current.parentPath, 'tasks', current.parentIndex], [...parentOfParentPath, 'tasks', parentIndex + 1]))
             }
           }
-        } else if ((R.view(current.parentLens, folder) as FolderType).id !== id) {
+        } else if ((R.view(R.lensPath(current.parentPath), folder) as FolderType).id !== id) {
           // moving task outside of the expanded folder to the parent of parent folder
           const parentOfParentPath = R.dropLast(4, taskPath(folder, current.task.id))
-          setFolder(
-            R.over(R.compose(R.lensPath(parentOfParentPath), R.lensProp('tasks')) as R.Lens, R.append(current.task),
-              R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1), folder)))
+          const parentIndex = (R.view(R.lensPath([...parentOfParentPath, 'tasks']), folder) as FolderType['tasks']).length
+          setFolder(moveTask(folder, [...current.parentPath, 'tasks', current.parentIndex], [...parentOfParentPath, 'tasks', parentIndex]))
         }
       }
       },],
@@ -224,34 +165,30 @@ const FolderView = ({
       if (selected !== null && selected !== 0) {
         const prev = tasks[selected - 1]
         const current = tasks[selected]
-        if ((R.view(prev.parentLens, folder) as FolderType).id === (R.view(current.parentLens, folder) as FolderType).id) {
+        if ((R.view(R.lensPath(prev.parentPath), folder) as FolderType).id === (R.view(R.lensPath(current.parentPath), folder) as FolderType).id) {
           if (prev.expanded) {
             // moving task into empty expanded folder above
-            setFolder(
-              R.over(R.compose(prev.lens, R.lensProp('tasks')) as R.Lens, R.append(current.task),
-                R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1), folder)))
+            setFolder(moveTask(folder, [...current.parentPath, 'tasks', current.parentIndex], [...prev.path, 'tasks', 0]))
           } else {
             // swapping task with previous task in parent
-            setFolder(R.over((R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens), swap(current.parentIndex, current.parentIndex - 1), folder))
+            setFolder(swapTasks(folder, [...current.parentPath, 'tasks'], current.parentIndex, current.parentIndex - 1))
           }
         } else {
-          if ((R.view(current.parentLens, folder) as FolderType).id === (R.view(prev.lens, folder) as FolderType).id) {
+          if ((R.view(R.lensPath(current.parentPath), folder) as FolderType).id === (R.view(R.lensPath(prev.path), folder) as FolderType).id) {
             // moving task out of expanded folder
-            setFolder(
-              R.over(R.compose(prev.parentLens, R.lensProp('tasks')) as R.Lens, R.insert(prev.parentIndex, current.task),
-                R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1), folder)))
+            setFolder(moveTask(folder, [...current.parentPath, 'tasks', current.parentIndex], [...prev.parentPath, 'tasks', prev.parentIndex]))
           } else {
             // moving task into expanded folder
-            setFolder(
-              R.over(R.compose(current.parentLens, R.lensProp('tasks'), R.lensIndex(current.parentIndex - 1), R.lensProp('tasks')) as R.Lens, R.append(current.task),
-                R.over(R.compose(current.parentLens, R.lensProp('tasks')) as R.Lens, R.remove(current.parentIndex, 1), folder)))
+            const prevFolderTasksPath = [...current.parentPath, 'tasks', current.parentIndex - 1, 'tasks']
+            const folderIndex = (R.view(R.lensPath(prevFolderTasksPath), folder) as FolderType['tasks']).length
+            setFolder(moveTask(folder, [...current.parentPath, 'tasks', current.parentIndex], [...prevFolderTasksPath, folderIndex]))
           }
         }
       }
       },],
     [hotkeys.isDelete, () => {
         if (selected !== null) {
-          setFolder(R.over(R.compose(tasks[selected].parentLens, R.lensProp('tasks')) as R.Lens, R.remove(tasks[selected].parentIndex, 1), folder))
+          setFolder(R.over(R.lensPath([...tasks[selected].parentPath, 'tasks']), R.remove(tasks[selected].parentIndex, 1), folder))
           setFocus((focus) => {
             const newFocus = popFocusPure(focus, FOCUS.selectedTask().tag)
             if (tasks.length !== 1) {
@@ -331,3 +268,95 @@ const FolderView = ({
 }
 
 export default FolderView
+
+export interface TaskTreeItem {
+  indentation: number
+  task: AnyTask
+  path: Array<string | number>
+  parentPath: Array<string | number>
+  parentIndex: number
+  expanded: boolean
+}
+
+const expandTaskTree = (
+  tasks: Array<AnyTask>,
+  expanded: Array<TaskId>,
+  indentation: number,
+  parentPath: Array<number | string>
+): Array<TaskTreeItem> => {
+  return tasks
+    .map((t, i) => {
+      const newPath = [...parentPath, 'tasks', i]
+      const currentItem = {
+        indentation,
+        task: t,
+        path: newPath,
+        parentPath,
+        parentIndex: i,
+        expanded: expanded.includes(t.id),
+      }
+
+      if (isFolder(t) && expanded.includes(t.id)) {
+        return [
+          currentItem,
+          ...expandTaskTree(t.tasks, expanded, indentation + 1, newPath),
+        ]
+      } else {
+        return [currentItem]
+      }
+    })
+    .flat()
+}
+
+const swapTasks = (
+  folder: FolderType,
+  path: Array<string | number>,
+  i: number,
+  j: number
+) => {
+  return produce(folder, (draftFolder) => {
+    let pointer = draftFolder as AnyTask | FolderType['tasks']
+    // get to the list of tasks
+    const restPath = path.slice().reverse()
+    while (restPath.length !== 0) {
+      // @ts-ignore
+      pointer = pointer[restPath.pop()]
+    }
+    // swap tasks
+    // @ts-ignore
+    ;[pointer[i], pointer[j]] = [pointer[j], pointer[i]]
+  })
+}
+
+const moveTask = (
+  folder: FolderType,
+  prevPath: Array<string | number>,
+  newPath: Array<string | number>
+) => {
+  return produce(folder, (draftFolder) => {
+    // get to the list of tasks out of where task is moved out
+    let prevPointer = draftFolder as AnyTask | FolderType['tasks']
+    const restPrevPath = prevPath.slice().reverse()
+    while (restPrevPath.length !== 1) {
+      // @ts-ignore
+      prevPointer = prevPointer[restPrevPath.pop()]
+    }
+
+    // get to the list of tasks where task is moving in
+    let newPointer = draftFolder as AnyTask | FolderType['tasks']
+    const restNewPath = newPath.slice().reverse()
+    while (restNewPath.length !== 1) {
+      // @ts-ignore
+      newPointer = newPointer[restNewPath.pop()]
+    }
+
+    const prevList = prevPointer as FolderType['tasks']
+    const newList = newPointer as FolderType['tasks']
+    const prevIndex = restPrevPath[0] as number
+    const newIndex = restNewPath[0] as number
+    // insert task at position of new path
+    newList.splice(newIndex, 0, prevList[prevIndex])
+    // remove task from old position
+    prevList.splice(prevIndex, 1)
+  })
+}
