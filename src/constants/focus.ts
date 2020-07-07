@@ -53,6 +53,12 @@ export default {
     selected,
     omitted: ['selected'],
   }),
+  deleted: (id: null | number = null): FocusType => ({
+    tag: 'deleted',
+    id,
+    fallthrough: false,
+    route: true,
+  }),
   task: (id: null | number = null): FocusType => ({
     tag: 'task',
     id,

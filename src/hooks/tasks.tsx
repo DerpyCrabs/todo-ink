@@ -36,6 +36,22 @@ function readTasks(path: string) {
     }
   }
 
+  const addDeleted = (task: AnyTask): AnyTask => {
+    if (isTask(task) || isNote(task)) {
+      return task
+    } else {
+      if (task.deleted === undefined) {
+        return {
+          ...task,
+          deleted: [],
+          tasks: task.tasks.map((t) => addDeleted(t)),
+        }
+      } else {
+        return { ...task, tasks: task.tasks.map((t) => addDeleted(t)) }
+      }
+    }
+  }
+
   if (existsSync(path)) {
     const content = readFileSync(path)
     const tasks = JSON.parse(content.toString())
@@ -45,10 +61,11 @@ function readTasks(path: string) {
         name: 'root',
         creationDate: new Date().toJSON(),
         modificationDate: new Date().toJSON(),
-        tasks: tasks.map((t: AnyTask) => addDates(t)),
+        deleted: [],
+        tasks: tasks.map((t: AnyTask) => addDeleted(addDates(t))),
       }
     } else {
-      return addDates(tasks) as FolderType
+      return addDeleted(addDates(tasks)) as FolderType
     }
   } else {
     return {
@@ -57,6 +74,7 @@ function readTasks(path: string) {
       creationDate: new Date().toJSON(),
       modificationDate: new Date().toJSON(),
       tasks: [],
+      deleted: [],
     }
   }
 }
@@ -71,7 +89,10 @@ function maxId(tasks: AnyTask): TaskId {
   }
   return Math.max(
     tasks.id,
-    ...(tasks.tasks as Array<AnyTask>).map((t: AnyTask) => maxId(t))
+    ...(tasks.tasks as Array<AnyTask>).map((t: AnyTask) => maxId(t)),
+    ...(tasks.deleted as Array<{ task: AnyTask; deleted: string }>).map((t) =>
+      maxId(t.task)
+    )
   )
 }
 
@@ -84,6 +105,7 @@ const TasksContext = React.createContext<TasksContextType>({
       tasks: [],
       creationDate: new Date().toJSON(),
       modificationDate: new Date().toJSON(),
+      deleted: [],
     },
     expandedFolders: [] as ExpandedFoldersType,
   },
@@ -258,6 +280,7 @@ export function useFolder(folderId: TaskId): FolderReturnType {
         tasks: [],
         creationDate: new Date().toJSON(),
         modificationDate: new Date().toJSON(),
+        deleted: [],
       }
     },
     [lastId, setTasks]
@@ -337,6 +360,29 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     }
   }, [folderId, expandedFolders])
 
+  const restoreHandler = React.useCallback(
+    (id: TaskId) => {
+      setTasks((tasks) => {
+        const folder = R.view(folderLens, tasks.tasks) as FolderType
+        const deletedId = folder.deleted.findIndex((t) => t.task.id === id)
+        if (deletedId === -1) return tasks
+
+        const task = folder.deleted[deletedId].task
+        const newTasks = R.over(
+          R.compose(folderLens, R.lensProp('tasks')) as R.Lens,
+          R.append(task),
+          R.over(
+            R.compose(folderLens, R.lensProp('deleted')) as R.Lens,
+            R.remove(deletedId, 1),
+            tasks.tasks
+          )
+        )
+        return { ...tasks, tasks: newTasks }
+      })
+    },
+    [folderLens, setTasks]
+  )
+
   const setExpandedHandler = React.useCallback(
     (expanded: Array<TaskId>) =>
       setTasks((tasks) => {
@@ -374,6 +420,11 @@ export function useFolder(folderId: TaskId): FolderReturnType {
     newTask,
     newFolder,
     newNote,
+    deleted: R.view(
+      R.compose(folderLens, R.lensProp('deleted')) as Lens,
+      tasks
+    ),
+    restore: restoreHandler,
   }
 }
 
@@ -392,6 +443,8 @@ export interface FolderReturnType {
   newNote: (name: string) => NoteType
   expanded: Array<TaskId>
   setExpanded: (expanded: Array<TaskId>) => void
+  deleted: Array<{ task: AnyTask; deleted: string }>
+  restore: (id: TaskId) => void
 }
 
 export interface TaskReturnType {
@@ -425,6 +478,7 @@ export interface FolderType {
   id: TaskId
   name: string
   tasks: Array<AnyTask>
+  deleted: Array<{ task: AnyTask; deleted: string }>
   creationDate: string
   modificationDate: string
 }

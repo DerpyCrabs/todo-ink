@@ -83,6 +83,9 @@ const FolderView = ({
     [hotkeys.isSearch, () => {
       go(`/search/${folder.id}`)
     }],
+    [hotkeys.isDeleted, () => {
+      go(`/deleted/${folder.id}`)
+    }],
     [hotkeys.isSelectNext, () => {
         if (selected !== null && selected !== tasks.length - 1) {
           refocus(FOCUS.selectedTask(tasks[selected + 1].task.id))
@@ -146,8 +149,10 @@ const FolderView = ({
               const parentId = (R.view(R.lensPath(current.parentPath), folder) as FolderType).id
               const parentTasks = R.view(R.lensPath([...parentOfParentPath, 'tasks']), folder) as Array<AnyTask>
               const parentIndex = parentTasks.findIndex(t => t.id === parentId)
-              // current task is an expanded folder at the end of parent's tasks
-              if (parentId === id) return
+              if (parentId === id) {
+                // current task is an expanded folder at the end of parent's tasks
+                return
+              }
               if (parentIndex === -1) throw new Error(`Can't find parent of task ${current.task.id}`)
 
               setFolder(moveTask(folder, [...current.parentPath, 'tasks', current.parentIndex], [...parentOfParentPath, 'tasks', parentIndex + 1]))
@@ -188,7 +193,12 @@ const FolderView = ({
       },],
     [hotkeys.isDelete, () => {
         if (selected !== null) {
-          setFolder(R.over(R.lensPath([...tasks[selected].parentPath, 'tasks']), R.remove(tasks[selected].parentIndex, 1), folder))
+          const task = R.view(R.lensPath([...tasks[selected].parentPath, 'tasks', tasks[selected].parentIndex]), folder) as AnyTask
+          const deleted = new Date().toJSON()
+          setFolder(R.over(R.lensPath([...tasks[selected].parentPath, 'deleted']), R.prepend({task, deleted}), 
+            R.over(R.lensPath([...tasks[selected].parentPath, 'tasks']), R.remove(tasks[selected].parentIndex, 1),
+              folder)))
+
           setFocus((focus) => {
             const newFocus = popFocusPure(focus, FOCUS.selectedTask().tag)
             if (tasks.length !== 1) {

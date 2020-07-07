@@ -32,3 +32,5 @@ export const isErrorIgnore: Hotkey = (key, input) =>
   input === 'i' || input === 'ш'
 export const isErrorQuit: Hotkey = (key, input) =>
   input === 'q' || input === 'й'
+export const isDeleted: Hotkey = (key, input) => input === 'D' || input === 'В'
+export const isRestore: Hotkey = (key, input) => input === 'r' || input === 'к'

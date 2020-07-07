@@ -5,6 +5,7 @@ import { ErrorDialogProvider } from '../hooks/error-dialog'
 import { FocusProvider } from '../hooks/focus'
 import { Router } from '../hooks/router'
 import { useTasks } from '../hooks/tasks'
+import DeletedView from './deleted'
 import FolderView from './folder'
 import NoteView from './note'
 import SearchView from './search'
@@ -22,6 +23,7 @@ const Index = () => {
             <SearchView path='/search/:id' />
             <TaskView path='/task/:id' />
             <NoteView path='/note/:id' />
+            <DeletedView path='/deleted/:id' />
           </Router>
         </ErrorDialogProvider>
       </ClipboardProvider>
