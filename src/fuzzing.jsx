@@ -44,6 +44,8 @@ const fuzzy = () => {
           'm',
           's',
           'u',
+          'D',
+          'r',
           '\u001b[A', // up
           '\u001b[B', // down
           '\u001b[D', // left
@@ -60,6 +62,18 @@ const fuzzy = () => {
           'e',
           'j',
           'k',
+          '\u001b[A', // up
+          '\u001b[B', // down
+          '\r', // return
+          '\u001b', // escape
+        ]
+      : process.argv[2] === 'deleting'
+      ? [
+          't',
+          'f',
+          'd',
+          'r',
+          'D',
           '\u001b[A', // up
           '\u001b[B', // down
           '\r', // return
