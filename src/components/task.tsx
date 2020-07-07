@@ -7,6 +7,7 @@ import { useRouter } from '../hooks/router'
 import type { TaskType } from '../hooks/tasks'
 import FullwidthBox from './fullwidth-box'
 import Select from './select'
+import TaskBadge from './task-badge'
 import TextInput from './text-input'
 
 const Task = ({
@@ -48,7 +49,7 @@ const Task = ({
           isFocused(FOCUS.editingTask(task.id))
         }
       >
-        [{task.status ? 'X' : ' '}]{' '}
+        <TaskBadge task={task} />{' '}
         {isFocused(FOCUS.editingTask(task.id)) ? (
           <TextInput
             value={task.name}

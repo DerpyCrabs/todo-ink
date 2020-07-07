@@ -5,6 +5,7 @@ import React from 'react'
 import FullwidthBox from '../components/fullwidth-box'
 import ScrollableList from '../components/scrollable-list'
 import Select from '../components/select'
+import TaskBadge from '../components/task-badge'
 import { ControlledTextInput } from '../components/text-input'
 import {
   isEnter,
@@ -95,7 +96,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
         throw new Error('Trying to go to unknown variant of task')
       }
       },],
-    ], true)
+    ])
 
   return (
     <Box flexDirection='column'>
@@ -109,30 +110,9 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
         {searchResults.map((res, i) => (
           <FullwidthBox key={i}>
             <Select selected={i === position}>
-              {(() => {
-                const task = res.item
-                if (isTask(task)) {
-                  return (
-                    <Text>
-                      [{task.status ? 'X' : ' '}] <Task searchResult={res} />
-                    </Text>
-                  )
-                } else if (isFolder(task)) {
-                  return (
-                    <Text>
-                      [F] <Task searchResult={res} />
-                    </Text>
-                  )
-                } else if (isNote(task)) {
-                  return (
-                    <Text>
-                      [N] <Task searchResult={res} />
-                    </Text>
-                  )
-                } else {
-                  return <Text>Unknown variant of task</Text>
-                }
-              })()}
+              <Text>
+                <TaskBadge task={res.item} /> <Task searchResult={res} />
+              </Text>
             </Select>
           </FullwidthBox>
         ))}
