@@ -98,3 +98,14 @@ export function completedTasksCount(tasks: Array<AnyTask>): number {
   }
   return count
 }
+
+export function formatDate(date: string) {
+  const parsedDate = new Date(date)
+  const seconds = `${parsedDate.getSeconds()}`.padStart(2, '0')
+  const minutes = `${parsedDate.getMinutes()}`.padStart(2, '0')
+  const hours = `${parsedDate.getHours()}`.padStart(2, '0')
+  const days = `${parsedDate.getDate()}`.padStart(2, '0')
+  const months = `${parsedDate.getMonth() + 1}`.padStart(2, '0')
+  const years = `${parsedDate.getFullYear()}`.padStart(4, '0')
+  return `${hours}:${minutes}:${seconds} ${days}-${months}-${years}`
+}

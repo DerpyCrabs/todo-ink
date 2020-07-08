@@ -2,7 +2,7 @@ import { Box, Text } from 'ink'
 import { dropLast } from 'ramda'
 import React from 'react'
 import { TaskType, useTasks } from '../hooks/tasks'
-import { folderPathString, taskPath } from '../utils'
+import { folderPathString, formatDate, taskPath } from '../utils'
 import FullwidthBox from './fullwidth-box'
 
 export default function TaskHeader({ task }: { task: TaskType }) {
@@ -19,10 +19,10 @@ export default function TaskHeader({ task }: { task: TaskType }) {
         </Text>
       </FullwidthBox>
       <FullwidthBox>
-        <Text>Creation date: {task.creationDate}</Text>
+        <Text>Creation date: {formatDate(task.creationDate)}</Text>
       </FullwidthBox>
       <FullwidthBox>
-        <Text>Modification date: {task.modificationDate}</Text>
+        <Text>Modification date: {formatDate(task.modificationDate)}</Text>
       </FullwidthBox>
     </Box>
   )

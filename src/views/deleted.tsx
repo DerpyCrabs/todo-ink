@@ -8,6 +8,7 @@ import * as hotkeys from '../constants/hotkeys'
 import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
 import { TaskId, useFolder } from '../hooks/tasks'
+import { formatDate } from '../utils'
 
 export default function Deleted({ id }: { id: TaskId } & RouteProps) {
   const { folder, deleted, restore } = useFolder(id)
@@ -55,13 +56,13 @@ export default function Deleted({ id }: { id: TaskId } & RouteProps) {
             <FullwidthBox>
               <Select key={task.id} selected={true}>
                 <TaskBadge task={task} />
-                <Text> {`${task.name} - ${deleted}`}</Text>
+                <Text> {`${task.name} (deleted ${formatDate(deleted)})`}</Text>
               </Select>
             </FullwidthBox>
           ) : (
             <FullwidthBox>
               <TaskBadge task={task} />
-              <Text> {`${task.name} - ${deleted}`}</Text>
+              <Text> {`${task.name} (deleted ${formatDate(deleted)})`}</Text>
             </FullwidthBox>
           )
         )}

@@ -2,7 +2,7 @@ import { Box, Text } from 'ink'
 import { dropLast } from 'ramda'
 import React from 'react'
 import { NoteType, useTasks } from '../hooks/tasks'
-import { folderPathString, taskPath } from '../utils'
+import { folderPathString, formatDate, taskPath } from '../utils'
 import FullwidthBox from './fullwidth-box'
 
 export default function NoteHeader({ note }: { note: NoteType }) {
@@ -19,10 +19,10 @@ export default function NoteHeader({ note }: { note: NoteType }) {
         </Text>
       </FullwidthBox>
       <FullwidthBox>
-        <Text>Creation date: {note.creationDate}</Text>
+        <Text>Creation date: {formatDate(note.creationDate)}</Text>
       </FullwidthBox>
       <FullwidthBox>
-        <Text>Modification date: {note.modificationDate}</Text>
+        <Text>Modification date: {formatDate(note.modificationDate)}</Text>
       </FullwidthBox>
     </Box>
   )
