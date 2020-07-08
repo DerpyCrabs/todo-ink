@@ -17,10 +17,10 @@ import useHotkeys from '../hooks/hotkeys'
 import { RouteProps, useRouter } from '../hooks/router'
 import { TaskId, useTasks } from '../hooks/tasks'
 import type { AnyTask, FolderType } from '../hooks/tasks'
-import { folderPathString, isFolder, isNote, isTask, taskPath } from '../utils'
+import { folderPathString, isFolder, taskPath } from '../utils'
 
 function flattenFolder(task: AnyTask): Array<AnyTask & { path: string }> {
-  if (isTask(task) || isNote(task)) {
+  if (!isFolder(task)) {
     return [assoc('path', '', task)]
   }
   return [
@@ -85,7 +85,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
       if (position === null || searchResults.length === 0) return
       
       const task = searchResults[position].item
-      if (isTask(task) || isNote(task)) {
+      if (!isFolder(task)) {
         const path = taskPath(folder, task.id)
         
         const folderId = (view(lensPath(path.slice(0, -2)), folder) as FolderType).id

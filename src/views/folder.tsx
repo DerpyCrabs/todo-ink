@@ -266,6 +266,9 @@ const FolderView = ({
     [hotkeys.isLeave, () => {
       back()
       },],
+    [hotkeys.isFolderInfo, () => {
+      go(`/task/${folder.id}`)
+      },],
     ], isFocused(FOCUS.folder(folder.id)))
 
   return (

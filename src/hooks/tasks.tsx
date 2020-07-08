@@ -2,11 +2,11 @@ import { existsSync, readFileSync, writeFileSync } from 'fs'
 import * as R from 'ramda'
 import type { Lens } from 'ramda'
 import React from 'react'
-import { isNote, isTask, taskPath } from '../utils'
+import { isFolder, taskPath } from '../utils'
 
 function readTasks(path: string) {
   const addDates = (task: AnyTask): AnyTask => {
-    if (isTask(task) || isNote(task)) {
+    if (!isFolder(task)) {
       if (
         task.creationDate === undefined ||
         task.modificationDate === undefined
@@ -37,7 +37,7 @@ function readTasks(path: string) {
   }
 
   const addDeleted = (task: AnyTask): AnyTask => {
-    if (isTask(task) || isNote(task)) {
+    if (!isFolder(task)) {
       return task
     } else {
       if (task.deleted === undefined) {
@@ -52,6 +52,22 @@ function readTasks(path: string) {
     }
   }
 
+  const addDescription = (task: AnyTask): AnyTask => {
+    if (!isFolder(task)) {
+      return task
+    } else {
+      if (task.description === undefined) {
+        return {
+          ...task,
+          description: '',
+          tasks: task.tasks.map((t) => addDescription(t)),
+        }
+      } else {
+        return { ...task, tasks: task.tasks.map((t) => addDescription(t)) }
+      }
+    }
+  }
+
   if (existsSync(path)) {
     const content = readFileSync(path)
     const tasks = JSON.parse(content.toString())
@@ -61,11 +77,14 @@ function readTasks(path: string) {
         name: 'root',
         creationDate: new Date().toJSON(),
         modificationDate: new Date().toJSON(),
+        description: '',
         deleted: [],
-        tasks: tasks.map((t: AnyTask) => addDeleted(addDates(t))),
+        tasks: tasks.map((t: AnyTask) =>
+          addDescription(addDeleted(addDates(t)))
+        ),
       }
     } else {
-      return addDeleted(addDates(tasks)) as FolderType
+      return addDescription(addDeleted(addDates(tasks))) as FolderType
     }
   } else {
     return {
@@ -73,6 +92,7 @@ function readTasks(path: string) {
       name: 'root',
       creationDate: new Date().toJSON(),
       modificationDate: new Date().toJSON(),
+      description: '',
       tasks: [],
       deleted: [],
     }
@@ -84,7 +104,7 @@ function writeTasks(path: string, tasks: FolderType) {
 }
 
 function maxId(tasks: AnyTask): TaskId {
-  if (isTask(tasks) || isNote(tasks)) {
+  if (!isFolder(tasks)) {
     return tasks.id
   }
   return Math.max(
@@ -101,8 +121,9 @@ const TasksContext = React.createContext<TasksContextType>({
     lastId: 0,
     tasks: {
       id: 0,
-      name: 'root',
+      name: '/',
       tasks: [],
+      description: '',
       creationDate: new Date().toJSON(),
       modificationDate: new Date().toJSON(),
       deleted: [],
@@ -154,7 +175,7 @@ export function useTask(taskId: TaskId): TaskReturnType {
   const taskLens = React.useMemo(() => R.lensPath(path), [path])
 
   const setTaskHandler = React.useCallback(
-    (t: TaskType | NoteType) => {
+    (t: AnyTask) => {
       setTasks(({ tasks, lastId, expandedFolders }) => {
         if (!R.equals(t, R.view(taskLens, tasks))) {
           return {
@@ -242,6 +263,7 @@ export function useFolder(folderId: TaskId): FolderReturnType {
         id: lastId + 1,
         name,
         tasks: [],
+        description: '',
         creationDate: new Date().toJSON(),
         modificationDate: new Date().toJSON(),
         deleted: [],
@@ -276,7 +298,7 @@ export function useFolder(folderId: TaskId): FolderReturnType {
           const oldTask = oldFolder.tasks.find((t) => t.id === task.id)
           if (
             oldTask !== undefined &&
-            (isNote(task) || isTask(task)) &&
+            !isFolder(task) &&
             !R.equals(oldTask, task)
           ) {
             return { ...task, modificationDate: new Date().toJSON() }
@@ -412,8 +434,8 @@ export interface FolderReturnType {
 }
 
 export interface TaskReturnType {
-  task: TaskType | NoteType
-  setTask: (t: TaskType | NoteType) => void
+  task: AnyTask
+  setTask: (t: AnyTask) => void
 }
 
 type ExpandedFoldersType = Array<{ id: TaskId; expanded: Array<TaskId> }>
@@ -436,6 +458,7 @@ export type TaskId = number
 export interface FolderType {
   id: TaskId
   name: string
+  description: string
   tasks: Array<AnyTask>
   deleted: Array<{ task: AnyTask; deleted: string }>
   creationDate: string

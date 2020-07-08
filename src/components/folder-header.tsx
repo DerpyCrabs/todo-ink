@@ -7,7 +7,6 @@ import {
   allTasksCount,
   completedTasksCount,
   folderPathString,
-  formatDate,
   taskPath,
 } from '../utils'
 import FullwidthBox from './fullwidth-box'
@@ -27,9 +26,7 @@ export default function FolderHeader({ folderId }: { folderId: TaskId }) {
           <>
             ({completedTasksCount(folder.tasks)}/{allTasksCount(folder.tasks)})
           </>
-        )}{' '}
-        (modified {formatDate(folder.modificationDate)}) (created{' '}
-        {formatDate(folder.creationDate)})
+        )}
       </Text>
     </FullwidthBox>
   )
