@@ -65,12 +65,6 @@ export default {
     fallthrough: false,
     route: true,
   }),
-  note: (id: null | number = null): FocusType => ({
-    tag: 'note',
-    id,
-    fallthrough: false,
-    route: true,
-  }),
   search: (id: null | number = null): FocusType => ({
     tag: 'search',
     id,

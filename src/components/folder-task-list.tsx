@@ -12,7 +12,6 @@ import { isFolder, isNote, isTask } from '../utils'
 import { TaskTreeItem } from '../views/folder'
 import Folder from './folder'
 import FullwidthBox from './fullwidth-box'
-import Note from './note'
 import ScrollableList from './scrollable-list'
 import Select from './select'
 import Task from './task'
@@ -235,18 +234,9 @@ const FolderViewTaskList = ({
                     expanded={task.expanded}
                   />
                 )
-              if (isTask(task.task))
+              if (isTask(task.task) || isNote(task.task))
                 children.push(
                   <Task
-                    key={task.task.id}
-                    indentation={task.indentation}
-                    task={task.task}
-                    onChange={(t) => taskChangeHandler(t, i)}
-                  />
-                )
-              if (isNote(task.task))
-                children.push(
-                  <Note
                     key={task.task.id}
                     indentation={task.indentation}
                     task={task.task}

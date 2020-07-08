@@ -32,11 +32,13 @@ export default function TaskView({ id }: { id: TaskId } & RouteProps) {
   return (
     <Box flexDirection='column'>
       <TaskHeader task={task} />
-      {task.description !== '' ? (
-        <TaskDescription description={task.description} margin={6} />
-      ) : (
-        <Text>No description. Press {`'e'`} to open description editor</Text>
-      )}
+      <Box marginTop={1}>
+        {task.description !== '' ? (
+          <TaskDescription description={task.description} margin={6} />
+        ) : (
+          <Text>No description. Press {`'e'`} to open description editor</Text>
+        )}
+      </Box>
     </Box>
   )
 }

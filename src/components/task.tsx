@@ -2,9 +2,10 @@ import React from 'react'
 import FOCUS from '../constants/focus'
 import { isChange, isEnter, isMark } from '../constants/hotkeys'
 import { useFocus } from '../hooks/focus'
-import useHotkeys from '../hooks/hotkeys'
+import useHotkeys, { Hotkey } from '../hooks/hotkeys'
 import { useRouter } from '../hooks/router'
-import type { TaskType } from '../hooks/tasks'
+import type { NoteType, TaskType } from '../hooks/tasks'
+import { isTask } from '../utils'
 import FullwidthBox from './fullwidth-box'
 import Select from './select'
 import TaskBadge from './task-badge'
@@ -15,9 +16,9 @@ const Task = ({
   indentation = 0,
   onChange = () => {},
 }: {
-  task: TaskType
+  task: TaskType | NoteType
   indentation?: number
-  onChange?: (t: TaskType) => void
+  onChange?: (t: TaskType | NoteType) => void
 }) => {
   const { pushFocus, popFocus, isFocused } = useFocus()
   const { go } = useRouter()
@@ -26,12 +27,13 @@ const Task = ({
     [isChange, () => {
         pushFocus(FOCUS.editingTask(task.id))
       },],
-    [isMark, () => {
-        onChange({ ...task, status: !task.status })
-      },],
     [isEnter, () => {
         go(`/task/${task.id}`)
       },],
+    ...(isTask(task) ?
+    [[isMark, () => {
+        onChange({ ...task, status: !task.status })
+      }] as [Hotkey, () => void]] : [])
     ], isFocused(FOCUS.selectedTask(task.id)))
 
   const handleNameChange = (newName: string) => {

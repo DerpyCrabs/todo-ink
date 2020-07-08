@@ -111,7 +111,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
           <FullwidthBox key={i}>
             <Select selected={i === position}>
               <Text>
-                <TaskBadge task={res.item} /> <Task searchResult={res} />
+                <TaskBadge task={res.item} /> <TaskName searchResult={res} />
               </Text>
             </Select>
           </FullwidthBox>
@@ -121,7 +121,7 @@ export default function SearchView({ id }: { id: TaskId } & RouteProps) {
   )
 }
 
-const Task = ({
+const TaskName = ({
   searchResult,
 }: {
   searchResult: Fuse.FuseResult<AnyTask & { path: string }>

@@ -1,16 +1,19 @@
 import { Box, Text } from 'ink'
 import { dropLast } from 'ramda'
 import React from 'react'
-import { TaskType, useTasks } from '../hooks/tasks'
-import { folderPathString, formatDate, taskPath } from '../utils'
+import { NoteType, TaskType, useTasks } from '../hooks/tasks'
+import { folderPathString, formatDate, isTask, taskPath } from '../utils'
 import FullwidthBox from './fullwidth-box'
 
-export default function TaskHeader({ task }: { task: TaskType }) {
+export default function TaskHeader({ task }: { task: TaskType | NoteType }) {
   const { root } = useTasks()
   return (
     <Box flexDirection='column'>
       <FullwidthBox>
-        <Text>Task: {task.name}</Text>
+        <Text>
+          {'    '}
+          {isTask(task) ? 'Task' : 'Note'}: {task.name}
+        </Text>
       </FullwidthBox>
       <FullwidthBox>
         <Text>
